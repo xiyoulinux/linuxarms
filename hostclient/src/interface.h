@@ -3,3 +3,5 @@
  */
 
 GtkWidget* create_window_main (void);
+GtkWidget* create_popup_menu_process (void);
+GtkWidget* create_popup_menu_fview (void);

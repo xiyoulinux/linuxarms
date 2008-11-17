@@ -1,3 +1,8 @@
+/*
+ * linuxarms/armserver/src/arm.h
+ * Niu Tao:niutao0602@gmail.com 
+ */
+
 #ifndef _EPC_ARM_H
 #define _EPC_ARM_H
 /*

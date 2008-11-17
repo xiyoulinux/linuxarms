@@ -4,9 +4,7 @@
 #include "linuxarms.h"
 
 #define WFNAME_LEN 30
-/* ctrl action */
-typedef enum _Ctrl{NONE, RSYSINFO, RPOCESS}proc_ctrl;
-/* continue read information? */
+
 typedef enum _State{STOP,CONTINUE}proc_state;
 /*
  * proc_struct  when you want to read some arm system information or read arm
