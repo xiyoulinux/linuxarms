@@ -1,5 +1,5 @@
 #include "error.h"
-
+#include "statusbar.h"
 void print_error(int error, const char *text)
 {
 	switch (error) {
@@ -15,6 +15,8 @@ void print_error(int error, const char *text)
 		break;
 	case ENULL:
 		break;
+	case WARNING:
+		statusbar_set_text(text);
 	default:
 	break;
 	}

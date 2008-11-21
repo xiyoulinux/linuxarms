@@ -5,29 +5,36 @@
  * when host send a message to arm system.
  */
 #define ACTION_NUM 8
-typedef enum _Action {
+typedef enum _Mthread {
         LOGIN,LOGOUT, /* user longin or logout */
-        RESTART,SUTHDOWN, /* restart or shutdown arm system */
+        RESTART,SHUTDOWN, /* restart or shutdown arm system */
         CSTHREAD, /* control show arm system information/process thread */
         CFTHREAD, /* control view arm system file thread */
         CCTHREAD,  /* control control arm system thread */
         NONE /* default action, do nothing */
-}maction;
+}protocol_mthread;
 
-/* ctrl action */
-#define PROC_CTRL_NUM 3
-typedef enum _Ctrl {
+typedef enum _Sthread {
 	NONE,
 	RSYSINFO,
-	RPOCESS,
-}proc_ctrl;
+	SPROCESS,
+	KILL,
+	SMAX,
+}protocol_sthread;
+
+typedef enum _Ftrans {
+	UP,
+	DOWN,
+}protocol_ftrans;
 
 /* return state of execute */
 #define EXEC_STATE_NUM 3
-typedef enum _Exec_state {
+typedef enum _Return {
 	SUCCESS,
 	NOUSER,
 	HASUSER,
 	NOCOMPETENCE,
-}exec_state;
+	TRANSERR,
+	TRANSSUCCESS,
+}protocol_return;
 #endif

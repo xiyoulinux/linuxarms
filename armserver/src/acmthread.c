@@ -58,7 +58,7 @@ boolean amthread_thread(void *p)
 
 int amthread_init(struct amthread_struct *amthread,
 		     struct user_struct *user,
-		     struct armip_struct *scoket,
+		     struct anet_struct *scoket,
 		     struct proc_struct *proc,
 		     struct fview_struct *fview)
 {
@@ -147,7 +147,7 @@ out:
  * 		it will be set NONE.
  * @return:	TRUE if success, FALSE if fail.
  */
-boolean set_act(struct amthread_struct *amthread, maction act)
+boolean set_act(struct amthread_struct *amthread, protocol_mthread act)
 {
 	if (!amthread)
 		return FALSE;
@@ -159,7 +159,7 @@ boolean set_act(struct amthread_struct *amthread, maction act)
 }
 
 boolean set_scoket(struct amthread_struct *amthread,
-			struct armip_struct *scoket)
+			struct anet_struct *scoket)
 {
 	if (!amthread || !scoket)
 		return FALSE;

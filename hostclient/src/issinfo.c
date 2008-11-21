@@ -1,0 +1,167 @@
+ #ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+
+#include <gdk/gdkkeysyms.h>
+#include <gtk/gtk.h>
+
+#include "sprocess.h"
+
+#define GLADE_HOOKUP_OBJECT(component,widget,name) \
+  g_object_set_data_full (G_OBJECT (component), name, \
+    gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)
+
+#define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
+  g_object_set_data (G_OBJECT (component), name, widget)
+GtkWidget *create_page_ssinfo()
+{
+	GtkWidget *image_sinfo;
+  GtkWidget *vbox_sinfo;
+  GtkWidget *label_hostname;
+  GtkWidget *hseparator_one;
+  GtkWidget *label_release;
+  GtkWidget *label_kernel;
+  GtkWidget *label_memory;
+  GtkWidget *hseparator_two;
+  GtkWidget *label_net;
+  GtkWidget *hbox_net;
+  GtkWidget *label_netrecv;
+  GtkWidget *label_netsend;
+  GtkWidget *hseparator_three;
+  GtkWidget *label_cpuinfo;
+  GtkWidget *label_cpuused;
+  GtkWidget *label_cpuload;
+  GtkWidget *hseparator_four;
+  GtkWidget *label_disk;
+  GtkWidget *label_ssinfo;
+  image_sinfo = create_pixmap (window_main, "linuxarms.png");
+  gtk_widget_show (image_sinfo);
+  gtk_box_pack_start (GTK_BOX (hbox_notebook), image_sinfo, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (image_sinfo, 247, 230);
+
+  vbox_sinfo = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox_sinfo);
+  gtk_box_pack_start (GTK_BOX (hbox_notebook), vbox_sinfo, TRUE, TRUE, 0);
+
+  label_hostname = gtk_label_new (_("<b>\344\270\273\346\234\272\345\220\215\357\274\232</b>"));
+  gtk_widget_show (label_hostname);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), label_hostname, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (label_hostname, -1, 25);
+  gtk_label_set_use_markup (GTK_LABEL (label_hostname), TRUE);
+  gtk_misc_set_alignment (GTK_MISC (label_hostname), 0, 0.5);
+
+  hseparator_one = gtk_hseparator_new ();
+  gtk_widget_show (hseparator_one);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), hseparator_one, FALSE, TRUE, 0);
+
+  label_release = gtk_label_new (_("<b>    \345\217\221\350\241\214\347\211\210\346\234\254  </b>"));
+  gtk_widget_show (label_release);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), label_release, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (label_release, -1, 25);
+  gtk_label_set_use_markup (GTK_LABEL (label_release), TRUE);
+  gtk_misc_set_alignment (GTK_MISC (label_release), 0, 0.5);
+
+  label_kernel = gtk_label_new (_("<b>    \345\206\205\346\240\270\347\211\210\346\234\254 </b>"));
+  gtk_widget_show (label_kernel);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), label_kernel, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (label_kernel, -1, 25);
+  gtk_label_set_use_markup (GTK_LABEL (label_kernel), TRUE);
+  gtk_misc_set_alignment (GTK_MISC (label_kernel), 0, 0.5);
+
+  label_memory = gtk_label_new (_(" \345\206\205\345\255\230\357\274\232\346\200\273\351\207\217(M) | \344\275\277\347\224\250(M)"));
+  gtk_widget_show (label_memory);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), label_memory, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (label_memory, -1, 25);
+  gtk_misc_set_alignment (GTK_MISC (label_memory), 0, 0.5);
+
+  hseparator_two = gtk_hseparator_new ();
+  gtk_widget_show (hseparator_two);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), hseparator_two, FALSE, TRUE, 0);
+
+  label_net = gtk_label_new (_("<b>\347\275\221\347\273\234\344\275\277\347\224\250</b>"));
+  gtk_widget_show (label_net);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), label_net, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (label_net, -1, 25);
+  gtk_label_set_use_markup (GTK_LABEL (label_net), TRUE);
+  gtk_misc_set_alignment (GTK_MISC (label_net), 0, 0.5);
+
+  hbox_net = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox_net);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), hbox_net, FALSE, TRUE, 0);
+
+  label_netrecv = gtk_label_new (_("\346\216\245\346\224\266: kb"));
+  gtk_widget_show (label_netrecv);
+  gtk_box_pack_start (GTK_BOX (hbox_net), label_netrecv, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (label_netrecv, 164, -1);
+  gtk_misc_set_alignment (GTK_MISC (label_netrecv), 0.15, 0.5);
+
+  label_netsend = gtk_label_new (_("\345\217\221\351\200\201: kb"));
+  gtk_widget_show (label_netsend);
+  gtk_box_pack_start (GTK_BOX (hbox_net), label_netsend, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (label_netsend, 163, 25);
+  gtk_misc_set_alignment (GTK_MISC (label_netsend), 0, 0.5);
+
+  hseparator_three = gtk_hseparator_new ();
+  gtk_widget_show (hseparator_three);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), hseparator_three, FALSE, TRUE, 0);
+
+  label_cpuinfo = gtk_label_new (_("<b>CPU\345\236\213\345\217\267 </b>"));
+  gtk_widget_show (label_cpuinfo);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), label_cpuinfo, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (label_cpuinfo, -1, 25);
+  gtk_label_set_use_markup (GTK_LABEL (label_cpuinfo), TRUE);
+  gtk_misc_set_alignment (GTK_MISC (label_cpuinfo), 0, 0.5);
+
+  label_cpuused = gtk_label_new (_("\344\275\277\347\224\250\347\216\207\357\274\232"));
+  gtk_widget_show (label_cpuused);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), label_cpuused, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (label_cpuused, -1, 25);
+  gtk_misc_set_alignment (GTK_MISC (label_cpuused), 0.03, 0.5);
+
+  label_cpuload = gtk_label_new (_("CPU\350\264\237\350\275\275\357\274\232"));
+  gtk_widget_show (label_cpuload);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), label_cpuload, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (label_cpuload, -1, 25);
+  gtk_misc_set_alignment (GTK_MISC (label_cpuload), 0.03, 0.5);
+
+  hseparator_four = gtk_hseparator_new ();
+  gtk_widget_show (hseparator_four);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), hseparator_four, FALSE, TRUE, 0);
+
+  label_disk = gtk_label_new (_("\347\241\254\347\233\230\357\274\232\346\200\273\345\256\271\351\207\217(M) | \344\275\277\347\224\250(M)"));
+  gtk_widget_show (label_disk);
+  gtk_box_pack_start (GTK_BOX (vbox_sinfo), label_disk, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (label_disk, -1, 25);
+  gtk_misc_set_alignment (GTK_MISC (label_disk), 0, 0.5);
+
+  label_ssinfo = gtk_label_new (_("\347\263\273\347\273\237\344\277\241\346\201\257"));
+  gtk_widget_show (label_ssinfo);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (notebook_main), gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook_main), 0), label_ssinfo);
+  GTK_WIDGET_SET_FLAGS (label_ssinfo, GTK_CAN_FOCUS);
+  
+  GLADE_HOOKUP_OBJECT (window_main, image_sinfo, "image_sinfo");
+  GLADE_HOOKUP_OBJECT (window_main, vbox_sinfo, "vbox_sinfo");
+  GLADE_HOOKUP_OBJECT (window_main, label_hostname, "label_hostname");
+  GLADE_HOOKUP_OBJECT (window_main, hseparator_one, "hseparator_one");
+  GLADE_HOOKUP_OBJECT (window_main, label_release, "label_release");
+  GLADE_HOOKUP_OBJECT (window_main, label_kernel, "label_kernel");
+  GLADE_HOOKUP_OBJECT (window_main, label_memory, "label_memory");
+  GLADE_HOOKUP_OBJECT (window_main, hseparator_two, "hseparator_two");
+  GLADE_HOOKUP_OBJECT (window_main, label_net, "label_net");
+  GLADE_HOOKUP_OBJECT (window_main, hbox_net, "hbox_net");
+  GLADE_HOOKUP_OBJECT (window_main, label_netrecv, "label_netrecv");
+  GLADE_HOOKUP_OBJECT (window_main, label_netsend, "label_netsend");
+  GLADE_HOOKUP_OBJECT (window_main, hseparator_three, "hseparator_three");
+  GLADE_HOOKUP_OBJECT (window_main, label_cpuinfo, "label_cpuinfo");
+  GLADE_HOOKUP_OBJECT (window_main, label_cpuused, "label_cpuused");
+  GLADE_HOOKUP_OBJECT (window_main, label_cpuload, "label_cpuload");
+  GLADE_HOOKUP_OBJECT (window_main, hseparator_four, "hseparator_four");
+  GLADE_HOOKUP_OBJECT (window_main, label_disk, "label_disk");
+  GLADE_HOOKUP_OBJECT (window_main, label_ssinfo, "label_ssinfo");
+}

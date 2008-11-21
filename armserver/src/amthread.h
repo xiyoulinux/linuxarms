@@ -16,8 +16,8 @@
  */
 struct mtrans_struct {
         struct user_struct user;
-        maction act;
-        exec_state state;
+        protocol_mthread act;
+        protocol_return state;
 };
 
 /*
@@ -43,7 +43,8 @@ struct amthread_struct {
 	void (*up_lock)(struct amthread_struct *amthread);
 	boolean (*set_user)(struct amthread_struct *amthread,
 	   			      struct user_struct *user);
-	boolean (*set_act)(struct amthread_struct *amthread, maction act);
+	boolean (*set_act)(struct amthread_struct *amthread,
+			   struct protocol_mthread act);
 	boolean (*set_socket)(struct amthread_struct *amthread,
 			  struct armip_struct *socket);
 	boolean (*set_trans)(struct amthread_struct *amthread,
@@ -65,7 +66,7 @@ void down_lock(struct amthread_struct *amthread);
 void up_lock(struct amthread_struct *amthread);
 boolean set_user(struct amthread_struct *amthread,
 			struct user_struct *user);
-boolean set_act(struct amthread_struct *amthread, maction act);
+boolean set_act(struct amthread_struct *amthread, protocol_mthread);
 boolean set_socket(struct amthread_struct *amthread,
 		      struct armip_struct *socket);
 boolean set_trans(struct amthread_struct *amthread,

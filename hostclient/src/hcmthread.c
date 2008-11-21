@@ -58,15 +58,15 @@ int hmthread_init(struct hmthread_struct *hmthread,
 {
 	int ret = 0;
 	if (!hmthread || !mwidget) {
-		ret = -ENOINIT;
+		ret = ENOINIT;
 		goto out;
 	}
 	if (!user) {
-		ret = -ENOUSER;
+		ret = ENOUSER;
 		goto out;
 	}
 	if (!ip) {
-		ret = -ENOSOCKET;
+		ret = ENOSOCKET;
 		goto out;
 	}
 
@@ -171,7 +171,7 @@ boolean judge_competence(struct hmthread_struct *hmthread)
 {
 	if (!hmthread || !hmthread->user)
 		return FALSE;
-	if ( strcmp(hmthread->user->name, "root") == 0)
+	if (hmthread->user->competence)
 		return TRUE;
 	return FALSE;
 }

@@ -5,7 +5,10 @@
 
 #define WFNAME_LEN 30
 
-typedef enum _State{STOP,CONTINUE}proc_state;
+typedef enum _State {
+	STOP,
+	CONTINUE,
+}proc_state;
 /*
  * proc_struct  when you want to read some arm system information or read arm
  * 		process information, you should use this structure.
