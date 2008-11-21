@@ -24,8 +24,8 @@ struct mwidget {
  */
 struct mtrans_struct {
         struct user_struct user;
-        maction act;
-        exec_state state;
+        protocol_mthread act;
+        protocol_return state;
 };
 
 struct user_struct;
@@ -49,7 +49,7 @@ struct hmthread_struct {
 	void (*up_lock)(struct hmthread_struct *hmthread);
 	boolean (*set_user)(struct hmthread_struct *hmthread,
 			    struct user_struct *user);
-	boolean (*set_act)(struct hmthread_struct *hmthread, maction act);
+	boolean (*set_act)(struct hmthread_struct *hmthread, protocol_mthread act);
 	boolean (*set_socket)(struct hmthread_struct *hmthread,
 			  struct hnet_struct *socket);
 	boolean (*set_trans)(struct hmthread_struct *hmthread,
@@ -70,7 +70,7 @@ void down_lock(struct hmthread_struct *hmthread);
 void up_lock(struct hmthread_struct *hmthread);
 boolean set_user(struct hmthread_struct *hmthread,
 			struct user_struct *user);
-boolean set_act(struct hmthread_struct *hmthread, maction act);
+boolean set_act(struct hmthread_struct *hmthread, protocol_mthread act);
 boolean set_socket(struct hmthread_struct *hmthread,
 		      struct hnet_struct *socket);
 boolean set_trans(struct hmthread_struct *hmthread,

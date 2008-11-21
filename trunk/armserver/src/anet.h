@@ -9,7 +9,7 @@
  * @port: armserver的端口
  * @tcp: 指向网络连接的文件指针(socket)
  */
-struct hnet_struct {
+struct anet_struct {
 //	struct sockaddr_in client;
 	char ip[15];
 	int port;
