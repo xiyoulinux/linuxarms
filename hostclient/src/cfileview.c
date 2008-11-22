@@ -1,3 +1,7 @@
+#include "fileview.h"
+#include "hfthread.h"
+
+
 void
 cb_clist_fview_click_column            (GtkCList        *clist,
                                         gint             column,
@@ -13,5 +17,6 @@ cb_clist_fview_button_press_event      (GtkWidget       *widget,
                                         gpointer         user_data)
 {
 
+hfthread->send(hfthread);
   return FALSE;
 }
