@@ -22,10 +22,11 @@ typedef enum _Sthread {
 	SMAX,
 }protocol_sthread;
 
-typedef enum _Ftrans {
+typedef enum _Fthread {
 	UP,
 	DOWN,
-}protocol_ftrans;
+	VIEW,
+}protocol_fthread;
 
 /* return state of execute */
 #define EXEC_STATE_NUM 3

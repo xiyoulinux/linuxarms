@@ -18,7 +18,7 @@ boolean hmthread_thread(void *p)
 	struct mtrans_struct trans_data;
 
 	while (TRUE) {
-		recv(hmthread->socket->tcp_fd, &hmthread->trans,
+		recv(hmthread->socket->tcp, &hmthread->trans,
 				sizeof(struct mtrans_struct),0);
 		switch (hmthread->trans->state) {
 		case SUCCESS: /* execute success */
