@@ -1,21 +1,22 @@
 #ifndef _LINUXARMS_H
 #define _LINUXARMS_H
 
-#include <string.h>
+//#define _HOST_CLIENT_
+
+#ifdef _HOST_CLIENT_
+#include <gtk/gtk.h>
+typedef gboolean boolean;
+#else
 /* typedef a boolean type */
-typedef enum _boolean{FALSE,TRUE}boolean;
-
-enum error {
-	ESUCESS,
-	ENOUSER,
-	ENOINIT,
-	ENOSOCKET,
-	ENULL,
-};
-struct armip_struct {
-	char ip[15];
-	int port;
-	int tcp_fd;
-};
-
+typedef enum _boolean {
+	FALSE = 0,
+	TRUE
+} boolean;
+#endif
+/*
+typedef enum _trans_state {
+	STOP,
+	CONTINUE,
+}trans_state;
+*/
 #endif

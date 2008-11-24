@@ -52,7 +52,10 @@ gboolean afthread_thread(void *p)
 		case DOWN:
 			break;
 		case VIEW:
-
+			break;
+		case RENAME:
+			break;
+		case DELETE:
 			break;
 		default:
 			break;
