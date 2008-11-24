@@ -1,6 +1,6 @@
 #ifndef _HNET_H
 #define _HNET_H
-
+#include "linuxarms.h"
 /*
  * 用于建立网络连接
  * @ip:	armserver的ip地址

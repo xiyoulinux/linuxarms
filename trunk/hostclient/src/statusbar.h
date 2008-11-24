@@ -13,7 +13,7 @@
  * @time:	显示的时间长短(CLOCK_TIMEOUT / 1000 * SHOW_TIMEOUT)
  */
 struct statusbar_struct {
-	Gtkwidget *statusbar;
+	GtkWidget *statusbar;
 	char *text;
 	int cid;
 	int mid;
@@ -21,12 +21,11 @@ struct statusbar_struct {
 	int clock_id;
 	int time;
 
-	boolean (*set_text)(struct statusbar_struct *status, const char *text);
+	boolean (*set_text)(struct statusbar_struct *status, char *text);
 };
-extern struct statusbar_struct status;
-boolean statusbar_set_text(char *text);
+boolean statusbar_set_text(const char *text);
 
-static inline boolean set_text(struct statusbar_struct *status, const char *text)
+static inline boolean set_text(struct statusbar_struct *status, char *text)
 {
 	if (!text)
 		return FALSE;

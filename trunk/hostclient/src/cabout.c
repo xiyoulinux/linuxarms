@@ -3,19 +3,19 @@
 #include<unistd.h>
 #include "support.h"
 
-void on_window_destroy(GtkObject *object, gpointer user_data)
+void cb_window_destroy(GtkObject *object, gpointer user_data)
 {
 	gtk_widget_destroy(GTK_WIDGET(object));
 }
 
-void on_button_close_clicked(GtkButton *button, gpointer user_data)
+void cb_button_close_clicked(GtkButton *button, gpointer user_data)
 {
 	GtkWidget *window = (GtkWidget *)user_data;
 	gtk_widget_destroy(GTK_WIDGET(window));
 }
 
 
-void on_button_link_clicked(GtkButton *button, gpointer user_data)
+void cb_button_link_clicked(GtkButton *button, gpointer user_data)
 {
 	gchar tmp[80];
 	g_snprintf(tmp, 80, "firefox http://xiyoulinux.cn & >/dev/null");
@@ -23,7 +23,7 @@ void on_button_link_clicked(GtkButton *button, gpointer user_data)
 }
 
 
-void on_button_credits_clicked(GtkButton *button, gpointer user_data)
+void cb_button_credits_clicked(GtkButton *button, gpointer user_data)
 {
 	GtkWidget *window;
 	window = (GtkWidget *)create_window_credits();
@@ -35,11 +35,12 @@ gboolean gtk_textview_set_text(GtkWidget *textview, const gchar *text)
 {
 	GtkTextBuffer *buffer;
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));	
-	gtk_text_buffer_insert_at_cursor(GTK_TEXT_BUFFER(buffer), text, strlen(text));   
+	gtk_text_buffer_insert_at_cursor(GTK_TEXT_BUFFER(buffer), 
+					 text, strlen(text));   
 }
 
 
-void on_button_licence_clicked(GtkButton *button, gpointer user_data)
+void cb_button_licence_clicked(GtkButton *button, gpointer user_data)
 {
 	GtkWidget *textview;
 	GtkTextBuffer *buffer;
@@ -51,7 +52,7 @@ void on_button_licence_clicked(GtkButton *button, gpointer user_data)
 	p = find_pixmap_file("licence");
 	if (p == NULL) {
 		gtk_text_buffer_insert_at_cursor(GTK_TEXT_BUFFER(buffer), 
-						"没有许可文件", strlen("没有许可文件"));
+					"没有许可文件", strlen("没有许可文件"));
 	} else {
 		if ((fp_help  =  fopen(p, "r")) == NULL) {
 			perror("fopen");

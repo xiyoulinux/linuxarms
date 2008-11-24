@@ -1,13 +1,13 @@
 #ifdef HAVE_CONFIG_H
-#	include <config.h>
+#include <config.h>
 #endif
 
 #include <gtk/gtk.h>
 
-#include "interface.h"
+#include "login.h"
 #include "support.h"
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	GtkWidget *window_main;
 
@@ -23,8 +23,8 @@ int main (int argc, char *argv[])
 	add_pixmap_directory(PACKAGE_DATA_DIR "/" PACKAGE "/pixmaps");
 	add_pixmap_directory("./pixmaps");
 	add_pixmap_directory("../pixmaps");
-	//window_main = create_window_main();
-	window_main = create_window_login ();
+	window_main = create_window_main();
+	//window_main = create_window_login();
 	gtk_widget_show(window_main);
 
 	gtk_main();

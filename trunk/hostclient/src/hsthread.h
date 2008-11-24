@@ -54,7 +54,7 @@ struct hsthread_struct {
 };
 
 boolean hsthread_init(struct hsthread_struct *hsthread,
-				   struct hssinfo_struct *ssinfo.
+				   struct hssinfo_struct *ssinfo,
 				   struct hsprocess_struct *hsprocess,
 				   struct hsthread_trans *trans,
 				   struct hnet_struct *socket,

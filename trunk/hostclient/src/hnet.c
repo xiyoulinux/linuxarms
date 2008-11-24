@@ -1,15 +1,23 @@
-#include<netinet/in.h>
-#include<sys/socket.h>
-#include<sys/wait.h>
-#include<sys/stat.h>
-#include<fcntl.h>
-#include<sys/ioctl.h>
-#include<unistd.h>
-#include<net/if.h>
-#include<arpa/inet.h>
-#include<netdb.h>
+/*
+ * linuxarms/hostclient/src/hnet.c
+ * 建立网络客户端
+ * Niu Tao<niutao0602@gmail.com>
+ */
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <net/if.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <string.h>
+#include <gtk/gtk.h>
+
 #include "hnet.h"
-#include "linuxarms.h"
+//#include "linuxarms.h"
 #include "error.h"
 #include "debug.h"
 /*
@@ -46,7 +54,7 @@ boolean create_tcp_client(struct hnet_struct *hnet)
 	bzero(&(serv_addr.sin_zero), 8);
 	sin_size = sizeof(struct sockaddr);
 
-	if (connect(hnet->tcp, (struct sockadd *)&serv_addr, sin_size) == -1) {
+	if (connect(hnet->tcp, (struct sockaddr *)&serv_addr, sin_size) == -1) {
 		close(hnet->tcp);
 		print_error(ESYSERR, "connect");
 		return FALSE;
@@ -57,8 +65,11 @@ boolean create_tcp_client(struct hnet_struct *hnet)
 }
 boolean close_tcp_client(struct hnet_struct *hnet)
 {
-	if (!hnet)
+	if (!hnet) {
+		debug_where();
+		print_error(ESYSERR, "无效的数据");
 		return FALSE;
+	}
 	close(hnet->tcp);
 	return TRUE;
 }

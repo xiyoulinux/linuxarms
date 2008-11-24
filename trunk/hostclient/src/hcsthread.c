@@ -4,18 +4,14 @@
  */
 #include "hsthread.h"
 #include "hnet.h"
-struct hsthread_struct {
-	struct hssinfo_struct *ssinfo;
-	struct hsprocess_struct *sprocess;
-	struct hsthread_trans trans;
-	struct hnet_struct socket;
-	boolean lock;
-	struct hsthread_timer timer;
+#include "ssinfo.h"
+#include "sprocess.h"
+#include "error.h"
 /*
  * 初始化hsthread_struct结构
  */
 boolean hsthread_init(struct hsthread_struct *hsthread,
-				   struct hssinfo_struct *ssinfo.
+				   struct hssinfo_struct *ssinfo,
 				   struct hsprocess_struct *hsprocess,
 				   struct hsthread_trans *trans,
 				   struct hnet_struct *socket,
@@ -56,17 +52,17 @@ gboolean hsthread_timer(gpointer data)
 	struct hsthread_struct *hsthread =
 		(struct hsthread_struct *)data;
 	if (!hsthread) {
-		print_error(WARNING,"启动定时器失败，无法更新时间");
+		print_error(EWARNING,"启动定时器失败，无法更新时间");
 		return FALSE;
 	}
-	switch (hsthread->trans->ctrl) {
+	switch (hsthread->trans.ctrl) {
 		case SYSINFO:
 			break;
 		case SPROCESS:
 			break;
 		case KILL:
 			break;
-		case default:
+		default:
 			break;
 	}
 	return TRUE;
@@ -75,12 +71,12 @@ gboolean hsthread_timer(gpointer data)
 boolean hsthread_send(struct hsthread_struct *hsthread)
 {
 	if (!hsthread) {
-		print_error(WARNING,"不能发送数据");
+		print_error(EWARNING,"不能发送数据");
 		return FALSE;
 	}
-	if (send(hsthread->socket->tcp, &hsthread->trans, 
+	if (send(hsthread->socket.tcp, &hsthread->trans, 
 		 sizeof(struct hsthread_trans),0) == -1) {
-		print_error(WARNING,"发送数据失败");
+		print_error(EWARNING,"发送数据失败");
 		return FALSE;
 	}
 	return TRUE;

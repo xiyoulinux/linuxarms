@@ -22,7 +22,7 @@ boolean statusbar_init(GtkWidget *statusbar)
 gboolean statusbar_clock(gpointer data)
 {
 	if (status.time == SHOW_TIMEOUT) {
-		gtk_statusbar_remove(GTK_STATUSBARBAR(status.statusbar),
+		gtk_statusbar_remove(GTK_STATUSBAR(status.statusbar),
 				status.cid, status.mid);
 		status.clock = FALSE;
 		return FALSE;
@@ -32,7 +32,7 @@ gboolean statusbar_clock(gpointer data)
 		gtk_statusbar_push(GTK_STATUSBAR(status.statusbar),
 				status.cid,status.text);
 	else
-		gtk_statusbar_remove(GTK_STATUSBARBAR(status.statusbar),
+		gtk_statusbar_remove(GTK_STATUSBAR(status.statusbar),
 				status.cid, status.mid);
 	return TRUE;
 }
