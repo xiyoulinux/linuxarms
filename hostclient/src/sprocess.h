@@ -3,7 +3,17 @@
 #include <gtk/gtk.h>
 #include "protocol.h"
 #include "linuxarms.h"
+
+#define PROCESS_COLUMNS 5
 #define PROCESS_INFO_LEN 256
+enum {
+	COL_PIXBUF = 0,
+	COL_NAME,
+	COL_ID,
+	COL_STATUS,
+	COL_CPU,
+	COL_MEM
+};
 /*
  * hsprocess_struct 接收armserver发送过来的进程信息
  * @num:   要接收的进程信息的总数
@@ -12,7 +22,7 @@
  */
 struct hsprocess_trans {
 	int num;
-	trans_state state;
+	protocol_sthread state;
 	char info[PROCESS_INFO_LEN];
 };
 /*
@@ -40,18 +50,14 @@ struct hsprocess_struct {
 
 	boolean (*recv)(struct hsprocess_struct *hsprocess);
 };
+GtkListStore *create_page_sprocess(GtkWidget *notebook_main);
+void cb_process_selection_changed(GtkWidget *widget, gpointer user_data); 
 
-void
-cb_clist_process_click_column          (GtkCList        *clist,
-                                        gint             column,
-                                        gpointer         user_data);
+gboolean cb_process_button_press(GtkWidget *widget,
+	                 GdkEventButton *event, gpointer user_data);
 
-gboolean
-cb_clist_process_button_press_event    (GtkWidget       *widget,
-                                        GdkEventButton  *event,
-                                        gpointer         user_data);
 
-void
-cb_popup_process_kill_activate         (GtkMenuItem     *menuitem,
-                                        gpointer         user_data);
+
+void cb_popup_process_kill_activate(GtkMenuItem*menuitem,
+                                        gpointer user_data);
 #endif

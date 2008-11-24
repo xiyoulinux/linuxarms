@@ -1,22 +1,13 @@
 #include "fileview.h"
 #include "hfthread.h"
 
-
-void
-cb_clist_fview_click_column            (GtkCList        *clist,
-                                        gint             column,
-                                        gpointer         user_data)
+void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data)
 {
-
 }
 
-
-gboolean
-cb_clist_fview_button_press_event      (GtkWidget       *widget,
-                                        GdkEventButton  *event,
-                                        gpointer         user_data)
+gboolean cb_fview_button_press(GtkWidget *widget,
+	                 GdkEventButton *event, gpointer user_data)
 {
-
-hfthread->send(hfthread);
-  return FALSE;
-}
+	
+}	                 
+	                 

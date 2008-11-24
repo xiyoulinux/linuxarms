@@ -1,14 +1,18 @@
+/*
+ * linuxarms/hostclient/
+ */
 #include "hfthread.h"
 #include "hnet.h"
 #include "fileview.h"
 #include "filetrans.h"
+#include "error.h"
 
 /*
  * 初始化文件浏览和文件传输控制主数据结构
  */
 boolean hfthread_init(struct hfthread_struct *hfthread,
                       struct hfview_struct *hfview,
-                      struct hftrans_struct *hftrans,
+                      struct htthread_struct *hftrans,
                       struct hfthread_trans *trans,
                       struct hnet_struct *socket)
 {
@@ -26,7 +30,7 @@ boolean hfthread_init(struct hfthread_struct *hfthread,
 boolean hfthread_send(struct hfthread_struct *hfthread)
 {
         if (!hfthread)
-                send(hfthread->socket->tcp, &hfthread->trans,
+                send(hfthread->socket.tcp, &hfthread->trans,
                      sizeof(struct hfthread_trans), 0); 
         return TRUE;
 }
@@ -38,13 +42,13 @@ gboolean hfthread_thread(void *p)
 {
 	struct hfthread_struct *hfthread =
 	(struct hfthread_struct *)p;
-	if (!create_tcp_client(hfthread->socket)) {
+	if (!create_tcp_client(&hfthread->socket)) {
 		print_error(ESYSERR,"建立文件浏览和文件传输网络连接错误");
 		return FALSE;
 	}
 
 	while (TRUE) {
-		recv(hfthread->socket->tcp, &hfthread->trans,
+		recv(hfthread->socket.tcp, &hfthread->trans,
 		     sizeof(struct hfthread_trans), 0);
 		switch (hfthread->trans.trans) {
 		case UP:

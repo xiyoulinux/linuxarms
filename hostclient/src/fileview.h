@@ -3,6 +3,14 @@
 
 #include "linuxarms.h"
 #include <gtk/gtk.h>
+#define FILE_INFO_COLUMNS 4
+enum {
+	COL_FPIXBUF,
+	COL_FNAME,
+	COL_FSIZE,
+	COL_FTYPE,
+	COL_FMTIME
+};
 
 struct hfview_trans {
 	char *path;
@@ -11,25 +19,11 @@ struct hfview_trans {
 struct hfview_struct {
 	char path;
 };
+GtkListStore *create_page_fview(GtkWidget *notebook_main);
+void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data);
 
-void cb_clist_fview_click_column(GtkCList *clist, 
-				 gint column, gpointer user_data);
+gboolean cb_fview_button_press(GtkWidget *widget,
+	                 GdkEventButton *event, gpointer user_data);
 
-gboolean cb_clist_fview_button_press_event(GtkWidget *widget,
-			GdkEventButton  *event,gpointeruser_data);
-void
-cb_fview_upload_activate               (GtkMenuItem     *menuitem,
-                                        gpointer         user_data);
 
-void
-cb_fview_downolad_activate             (GtkMenuItem     *menuitem,
-                                        gpointer         user_data);
-
-void
-cb_fview_rename_activate               (GtkMenuItem     *menuitem,
-                                        gpointer         user_data);
-
-void
-cb_fview_delete_activate               (GtkMenuItem     *menuitem,
-                                        gpointer         user_data);
 #endif

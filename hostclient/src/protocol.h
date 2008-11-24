@@ -1,41 +1,48 @@
 #ifndef _PROTOCOL_H
 #define _PROTOCOL_H
 /*
- * main thread action.it means what will arm system do
- * when host send a message to arm system.
+ * 主线程交互协议
  */
-#define ACTION_NUM 8
 typedef enum _Mthread {
-        LOGIN,LOGOUT, /* user longin or logout */
-        RESTART,SHUTDOWN, /* restart or shutdown arm system */
-        CSTHREAD, /* control show arm system information/process thread */
-        CFTHREAD, /* control view arm system file thread */
-        CCTHREAD,  /* control control arm system thread */
-        NONE /* default action, do nothing */
+        LOGIN,    /* 用户登录 */
+	LOGOUT,   /* 用户注销 */
+        RESTART,  /* 重启arm系统 */
+	SHUTDOWN, /* 关闭arm系统 */
+        CSTHREAD, /* 控制系统信息显示和实时监视线程 */
+        CFTHREAD, /* 控制文件浏览线程 */
+        CCTHREAD, /* 控制实时控制线程 */
+        MMAX      /* 无效命令 */
 }protocol_mthread;
-
+/*
+ * 系统信息显示和实时监视线程交互协议
+ */
 typedef enum _Sthread {
-	NONE,
-	RSYSINFO,
-	SPROCESS,
-	KILL,
-	SMAX,
+	SYSINFO, /* 系统信息显示 */
+	SPROCESS, /* 实时监视(进程信息显示) */
+	KILL,     /* 杀死进程 */
+	SMAX,     /* 无效命令 */
 }protocol_sthread;
-
+/*
+ * 文件浏览和文件传输交互协议
+ */
 typedef enum _Fthread {
-	UP,
-	DOWN,
-	VIEW,
+	UP,     /* 上传文件 */
+	DOWN,   /* 下载文件 */
+	VIEW,   /* 文件浏览 */
+	RENAME, /* 重命名文件 */
+	DELETE, /* 删除文件 */
+	FMAX    /* 无效命令 */
 }protocol_fthread;
-
-/* return state of execute */
-#define EXEC_STATE_NUM 3
+/*
+ * hostclient和armserver交互过程中请求的执行返回值
+ */
 typedef enum _Return {
-	SUCCESS,
-	NOUSER,
-	HASUSER,
-	NOCOMPETENCE,
-	TRANSERR,
-	TRANSSUCCESS,
+	SUCCESS,     /* 执行成功 */
+	NOUSER,      /* 没有用户信息 */
+	HASUSER,     /* 已经有用户登录 */
+	NOCOMPETENCE,/* 没有权限执行 */
+	TRANSERR,    /* 文件传输错误 */
+	TRANSSUCCESS,/* 文件传输成功 */
+	RMAX         /* 无效返回值 */
 }protocol_return;
 #endif

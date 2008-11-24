@@ -9,18 +9,19 @@
 #include "protocol.h"
 #include "statusbar.h"
 #include "error.h"
+#include <gtk/gtk.h>
 /*
  * hmthread_thread  main thread
  */
 boolean hmthread_thread(void *p)
 {
 	struct hmthread_struct *hmthread = (struct hmthread_struct *)p;
-	struct mtrans_struct trans_data;
+	struct hmthread_mtrans trans_data;
 
 	while (TRUE) {
 		recv(hmthread->socket->tcp, &hmthread->trans,
-				sizeof(struct mtrans_struct),0);
-		switch (hmthread->trans->state) {
+				sizeof(struct hmthread_mtrans),0);
+		switch (hmthread->trans.state) {
 		case SUCCESS: /* execute success */
 
 			break;
@@ -48,33 +49,33 @@ boolean hmthread_thread(void *p)
  * @hmthread:	the structure which will be initialized.
  * @user:	the user who use hostclient
  * @scoket:		tcp socket structure
- * @mwidget:	GtkWidget structure
+ * @widget:	GtkWidget structure
  */
 
 int hmthread_init(struct hmthread_struct *hmthread,
 		     struct user_struct *user,
-		     struct hnet_struct *scoket,
-		     struct mwidget *mwidget)
+		     struct hnet_struct *socket,
+		     struct hmthread_widget *widget)
 {
 	int ret = 0;
-	if (!hmthread || !mwidget) {
+	if (!hmthread || !widget) {
 		ret = ENOINIT;
 		goto out;
 	}
 	if (!user) {
-		ret = ENOUSER;
+		ret = ENOINIT;
 		goto out;
 	}
-	if (!ip) {
+	if (!socket) {
 		ret = ENOSOCKET;
 		goto out;
 	}
 
 	hmthread->user = user;
-	hmthread->scoket = scoket;
-	hmthread->widget = mwidget;
+	hmthread->socket = socket;
+	hmthread->widget = *widget;
 	hmthread->trans.user = *user;
-	hmthread->trans.act = NONE;
+	hmthread->trans.act = MMAX;
 	hmthread->down_lock = down_lock;
 	hmthread->up_lock = up_lock;
 	hmthread->set_user = set_user;
@@ -85,7 +86,7 @@ int hmthread_init(struct hmthread_struct *hmthread,
 	hmthread->print_info = statusbar_set_text;
 	hmthread->print_error = print_error;
 
-	hmthread->down_lock();
+	hmthread->down_lock(hmthread);
 out:
 	return ret;
 }
@@ -114,14 +115,10 @@ void up_lock(struct hmthread_struct *hmthread)
 boolean set_user(struct hmthread_struct *hmthread,
 		struct user_struct *user)
 {
-	if (!hmthread)
-		goto out;
-	if (!user)
-		goto out;
+	if (!hmthread || !user)
+		return FALSE;
 	hmthread->user = user;
 	return TRUE;
-out:
-	return FALSE;
 }
 
 /*
@@ -131,29 +128,29 @@ out:
  * 		it will be set NONE.
  * @return:	TRUE if success, FALSE if fail.
  */
-boolean set_act(struct hmthread_struct *hmthread, maction act)
+boolean set_act(struct hmthread_struct *hmthread, protocol_mthread act)
 {
 	if (!hmthread)
 		return FALSE;
-	if (act < 0 || act > ACTION_NUM - 1)
-		hmthread->trans.act = NONE;
+	if (act < 0 || act > MMAX - 1)
+		hmthread->trans.act = MMAX;
 	else
 		hmthread->trans.act = act;
 	return TRUE;
 }
 
-boolean set_scoket(struct hmthread_struct *hmthread,
-			struct hnet_struct *scoket)
+boolean set_socket(struct hmthread_struct *hmthread,
+			struct hnet_struct *socket)
 {
-	if (!hmthread || !scoket)
+	if (!hmthread || !socket)
 		return FALSE;
-	hmthread->scoket = scoket;
+	hmthread->socket = socket;
 	return TRUE;
 }
 
 
 boolean set_trans(struct hmthread_struct *hmthread,
-			    struct mtrans_struct *mtrans)
+			    struct hmthread_mtrans *mtrans)
 {
 	if (!hmthread || !mtrans)
 		return FALSE;
