@@ -12,6 +12,8 @@ enum _Timeout {
 };
 /*
  * hsthread_timer 定时器
+ * @time:  定时时间
+ * @timer: 指向定时器
  */
 struct hsthread_timer {
 	int time;

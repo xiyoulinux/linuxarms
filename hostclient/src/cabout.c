@@ -1,6 +1,7 @@
 #include <gtk/gtk.h>
-#include<string.h>
-#include<unistd.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdio.h>
 #include "support.h"
 
 void cb_window_destroy(GtkObject *object, gpointer user_data)
@@ -49,7 +50,7 @@ void cb_button_licence_clicked(GtkButton *button, gpointer user_data)
 	FILE *fp_help;
 	textview = (GtkWidget *)create_window_licence();
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));	
-	p = find_pixmap_file("licence");
+	p = find_pixmap_file((const gchar *)"licence");
 	if (p == NULL) {
 		gtk_text_buffer_insert_at_cursor(GTK_TEXT_BUFFER(buffer), 
 					"没有许可文件", strlen("没有许可文件"));

@@ -56,7 +56,7 @@ struct hmthread_struct {
 			     struct hmthread_mtrans *trans);
 	boolean (*send)(struct hmthread_struct *hmthread);
 	boolean (*judge_competence)(struct hmthread_struct *hmthread);
-	boolean (*print_info)(const char *text);
+	boolean (*print_info)(char *text);
 	void (*print_error)(int error,const char *text);
 
 };

@@ -23,7 +23,7 @@ struct statusbar_struct {
 
 	boolean (*set_text)(struct statusbar_struct *status, char *text);
 };
-boolean statusbar_set_text(const char *text);
+boolean statusbar_set_text(char *text);
 
 static inline boolean set_text(struct statusbar_struct *status, char *text)
 {

@@ -28,12 +28,12 @@ struct hsprocess_trans {
 /*
  * sprocess_widget 与实时监视(进程信息显示)相关的界面的控
  *                 件指针集合
- * @clist_process: 显示控件
+ * @treeview: 显示控件
  * @menu_kill:     主菜单杀死进程控件
  * @popup_kill:    右键菜单杀死进程控件
  */
 struct sprocess_widget {
-	GtkWidget *clist_process;
+	GtkListStore *treeview;
 	GtkWidget *menu_kill;
 	GtkWidget *popup_kill;
 };
@@ -42,11 +42,13 @@ struct sprocess_widget {
  * @trans:  要从armserver接收的数据
  * @clock:  进程信息更新频率(3秒/5秒)
  * @widget: 实时监视相关界面
+ * @kill:   要杀死的进程号
  */
 struct hsprocess_struct {
 	struct hsprocess_trans trans;
-	int clock;
 	struct sprocess_widget widget;
+	int clock;
+	int kill;
 
 	boolean (*recv)(struct hsprocess_struct *hsprocess);
 };

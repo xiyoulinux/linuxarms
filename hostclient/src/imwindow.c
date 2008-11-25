@@ -83,5 +83,5 @@ GtkWidget *create_window_main()
 	gtk_widget_grab_focus(notebook_main);
 	gtk_window_add_accel_group(GTK_WINDOW(window_main), accel_group); 
 
-	return window_main;
+	return (GtkWidget *)window_main;
 }
