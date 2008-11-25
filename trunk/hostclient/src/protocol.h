@@ -17,9 +17,11 @@ typedef enum _Mthread {
  * 系统信息显示和实时监视线程交互协议
  */
 typedef enum _Sthread {
-	SYSINFO, /* 系统信息显示 */
+	SYSINFO,  /* 系统信息显示 */
 	SPROCESS, /* 实时监视(进程信息显示) */
 	KILL,     /* 杀死进程 */
+	KILLSUC,  /* 杀死进程成功 */
+	KILLERR,  /* 杀死进程失败*/
 	SMAX,     /* 无效命令 */
 }protocol_sthread;
 /*

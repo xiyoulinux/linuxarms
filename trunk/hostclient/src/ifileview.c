@@ -36,6 +36,7 @@ GtkListStore  *create_page_fview(GtkWidget *notebook_main)
 	GtkWidget *hbox_fpath;
 	GtkWidget *label_fpath;
 	GtkWidget *entry_fpath;
+	GtkWidget *fixed6;
 	GtkWidget *scrolledwindow_fview;
 	GtkWidget *treeview_fview;
 	GtkWidget *label_fview;
@@ -69,6 +70,11 @@ GtkListStore  *create_page_fview(GtkWidget *notebook_main)
 	gtk_box_pack_start(GTK_BOX(hbox_fpath), entry_fpath, TRUE, TRUE, 0);
 	gtk_entry_set_max_length(GTK_ENTRY(entry_fpath), 256);
 	gtk_entry_set_invisible_char(GTK_ENTRY(entry_fpath), 9679);
+	
+	fixed6 = gtk_fixed_new ();
+	gtk_widget_show (fixed6);
+	gtk_box_pack_start (GTK_BOX (hbox_fpath), fixed6, FALSE, FALSE, 0);
+	gtk_widget_set_size_request (fixed6, 21, -1);
 
 	scrolledwindow_fview = gtk_scrolled_window_new(NULL, NULL);
 	gtk_widget_show(scrolledwindow_fview);

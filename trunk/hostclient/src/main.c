@@ -6,6 +6,7 @@
 
 #include "login.h"
 #include "support.h"
+#include "mwindow.h"
 
 int main(int argc, char *argv[])
 {

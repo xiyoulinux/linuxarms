@@ -37,7 +37,7 @@ gboolean statusbar_clock(gpointer data)
 	return TRUE;
 }
 
-boolean statusbar_set_text(const char *text)
+boolean statusbar_set_text(char *text)
 {
 	if (status.clock) {
 		status.clock = FALSE;

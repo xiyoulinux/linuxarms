@@ -31,6 +31,8 @@ GtkWidget *create_ctrl_page(GtkWidget *vbox_main,
 	GtkWidget *scrolledwindow_frame;
 	GtkWidget *textview_ctrl;
 	GtkWidget *entry_input;
+	GtkWidget *hbox_input;
+	GtkWidget *fixed6;
 	GtkWidget *label_frame;
 
 	frame_main = gtk_frame_new(NULL);
@@ -60,13 +62,22 @@ GtkWidget *create_ctrl_page(GtkWidget *vbox_main,
 	GTK_WIDGET_UNSET_FLAGS(textview_ctrl, GTK_CAN_FOCUS);
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(textview_ctrl), FALSE);
 
+	hbox_input = gtk_hbox_new (FALSE, 0);
+	gtk_widget_show (hbox_input);
+	gtk_box_pack_start (GTK_BOX (vbox_frame), hbox_input, TRUE, TRUE, 0);
+  
 	entry_input = gtk_entry_new();
 	gtk_widget_show(entry_input);
-	gtk_box_pack_start(GTK_BOX(vbox_frame), entry_input, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox_input), entry_input, TRUE, TRUE, 0);
 	gtk_tooltips_set_tip(tooltips, entry_input, 
 			_("\350\276\223\345\205\245\345\221\275\344\273\244"), NULL);
 	gtk_entry_set_max_length(GTK_ENTRY(entry_input), 256);
 	gtk_entry_set_invisible_char(GTK_ENTRY(entry_input), 9679);
+	
+	fixed6 = gtk_fixed_new ();
+	gtk_widget_show (fixed6);
+	gtk_box_pack_start (GTK_BOX (hbox_input), fixed6, FALSE, FALSE, 0);
+	gtk_widget_set_size_request (fixed6, 21, -1);
 
 	label_frame = gtk_label_new(_("<b>\345\256\236\346\227\266\346\216\247\345\210\266</b>"));
 	gtk_widget_show(label_frame);
