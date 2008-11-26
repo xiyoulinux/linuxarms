@@ -2,6 +2,7 @@
 #define _PROC_H
 
 #include "linuxarms.h"
+#include "asthread.h"
 
 #define WFNAME_LEN 30
 
@@ -15,11 +16,11 @@ typedef enum _State {
  * @state:	when we are reading some information from proc system, but some
  * 		one say there is needless to read continue,we can set this filed
  * 		to STOP to stop read.
- * @ctrl:
+ * @ctrl:  读取控制字段，控制proc模块读取(系统信息/进程信息)
  */ 
 struct proc_struct {
 	proc_state state;
-	proc_ctrl ctrl;
+	protocol_sthread ctrl;
 	char wfname[WFNAME_LEN];
 
 	boolean (*set_state)(struct proc_struct *proc, proc_state state);
