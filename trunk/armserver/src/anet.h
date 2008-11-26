@@ -18,5 +18,7 @@ struct anet_struct {
 
 boolean anet_init(struct anet_struct *anet, char *ip, int port);
 boolean create_tcp_server(struct anet_struct *anet);
+boolean anet_send(int tcp, void *data);
+boolean anet_recv(int tcp, void *data);
 boolean close_tcp_server(struct anet_struct *anet);
 #endif

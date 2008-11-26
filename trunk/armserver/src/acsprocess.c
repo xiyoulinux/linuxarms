@@ -7,31 +7,48 @@
 #include "asthread.h"
 #include "proc.h"
 /*
+ * 进程信息显示主调模块
+ */
+boolean do_show_process(struct asthread_struct *asthread)
+{
+	/*
+	 * 调用其他模块完成读取进程信息，发送进程信息，
+	 * 接收反馈信息等。
+	 */
+}
+
+boolean process_init(struct asprocess_struct *asprocess)
+{
+	if (!asprocess)
+		return FALSE;
+	asprocess->send = process_send_info;
+	asprocess->recv = process_recv_info;
+	return FALSE;
+}
+/*
  * 发送进程信息函数
  * @asthread:  
- * @process:
  */
-boolean send_process_info(struct asthread_struct *asthread, 
-			  struct asprocess_struct *process)
+boolean process_send_info(struct asprocess_struct *asprocess)
 {
-	/* 循环接收进程信息 */
-	/* 每接收一条信息，就调用显示进程信息函数将信息
-	 * 显示在图形界面上 
-	 */
-	/* 判断时候接收完毕，如果完毕，则退出循环 */
 }
-boolean read_process_info(struct proc_struct *proc)
+
+/*
+ * 接收hostclient的反馈信息（是否成功接收完毕）
+ */
+boolean process_recv_info(struct asprocess_struct *asprocess)
+{
+}
+/*
+ * 从proc文件系统中读取进程信息
+ */
+boolean process_read_info(struct asprocess_struct *asprocess)
 {
 
 }
 /*
  * 杀死进程处理函数
  */
-boolean kill_process(struct asthread_struct *asthread,
-		     struct asprocess_struct *process)
+boolean kill_process(struct asprocess_struct *asprocess)
 {
-	/* 如果返回值为KILLSUC(asthread->trans.ctrl = KILLSUC),
-	 * 则表示成功杀死进程，则更新本地进程信息显示界面。
-	 * 否则提示用户杀死进程失败
-	 */
 }

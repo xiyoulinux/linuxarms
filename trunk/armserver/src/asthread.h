@@ -26,7 +26,7 @@ struct proc_struct;
  * @trans:     线程中传输的数据
  * @socket:    数据传输数据结构
  * @lock:      互斥访问锁
- * @proc:      读取proc文件系统相关函数
+ * @proc:      读取proc文件系统相关数据结构
  */
 struct sthread_struct {
 	struct assinfo_struct *assinfo;

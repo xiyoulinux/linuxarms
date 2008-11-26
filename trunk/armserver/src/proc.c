@@ -10,7 +10,7 @@ boolean read_proc(struct proc_struct *proc)
 		read_sysinfo(proc);
 		break;
 	case RPROCESS:
-		read_process(proc);
+		do_show_process(proc);
 		break;
 	
 	case NONE:

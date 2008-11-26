@@ -78,3 +78,21 @@ boolean close_tcp_server(struct anet_struct *anet)
 	close(anet->tcp);
 	return TRUE;
 }
+
+boolean anet_send(int tcp, void *data)
+{
+	if (tcp < 0 || !data)
+		return FALSE;
+	if (send(tcp, data, strlen(data), 0) == -1)
+		return FALSE;
+	return TRUE;
+}
+
+boolean anet_recv(int tcp, void *data)
+{
+	if (tcp < 0 || !data)
+		return FALSE;
+	if (recv(tcp, data, strlen(data), 0) == -1)
+		return FALSE;
+	return TRUE;
+}
