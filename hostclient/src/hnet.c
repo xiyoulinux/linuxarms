@@ -73,3 +73,20 @@ boolean close_tcp_client(struct hnet_struct *hnet)
 	close(hnet->tcp);
 	return TRUE;
 }
+boolean hnet_send(int tcp, void *data)
+{
+	if (tcp < 0 || !data)
+		return FALSE;
+	if (send(tcp, data, strlen(data), 0) == -1)
+		return FALSE;
+	return TRUE;
+}
+
+boolean hnet_recv(int tcp, void *data)
+{
+	if (tcp < 0 || !data)
+		return FALSE;
+	if (recv(tcp, data, strlen(data), 0) == -1)
+		return FALSE;
+	return TRUE;
+}

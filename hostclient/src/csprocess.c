@@ -33,14 +33,20 @@ void cb_popup_process_kill_activate(GtkMenuItem *menuitem,gpointer user_data)
  * @hsthread:  
  * @process:
  */
-boolean recv_process_info(struct hsthread_struct *hsthread, 
+boolean process_recv_info(struct hsthread_struct *hsthread, 
 			  struct hsprocess_struct *process)
 {
 	/* 循环接收进程信息 */
 	/* 每接收一条信息，就调用显示进程信息函数将信息
-	 * 显示在图形界面上 
+	 * 显示在图形界面上 ,发送反馈信息
 	 */
 	/* 判断时候接收完毕，如果完毕，则退出循环 */
+}
+/*
+ * 发送反馈信息
+ */
+boolean process_send_info(struct hsprocess_struct *process)
+{
 }
 /*
  * 显示进程信息函数
@@ -48,7 +54,7 @@ boolean recv_process_info(struct hsthread_struct *hsthread,
  * 的数据，然后显示在图形界面上
  * @process:  包含一条进程信息的数据结构
  */
-boolean show_process_info(struct hsprocess_struct *process)
+boolean process_show_info(struct hsprocess_struct *process)
 {
 	/* 分割接收到的信息 */
 	/* 将处理好的可显示的信息显示在图形界面上 */

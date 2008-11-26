@@ -22,6 +22,9 @@ typedef enum _Sthread {
 	KILL,     /* 杀死进程 */
 	KILLSUC,  /* 杀死进程成功 */
 	KILLERR,  /* 杀死进程失败*/
+	SENDALL,  /* 发送完毕 */
+	RECVALL,  /* 接收完毕 */
+	RECVSUC,  /* 成功接收 */
 	SMAX,     /* 无效命令 */
 }protocol_sthread;
 /*

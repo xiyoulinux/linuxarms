@@ -4,8 +4,6 @@
 #include "linuxarms.h"
 #include "asthread.h"
 
-#define WFNAME_LEN 30
-
 typedef enum _State {
 	STOP,
 	CONTINUE,
@@ -21,20 +19,17 @@ typedef enum _State {
 struct proc_struct {
 	proc_state state;
 	protocol_sthread ctrl;
-	char wfname[WFNAME_LEN];
 
 	boolean (*set_state)(struct proc_struct *proc, proc_state state);
 	boolean (*set_ctrl)(struct proc_struct *proc, proc_ctrl ctrl);
-	boolean (*set_wfname)(struct proc_struct *proc, char *name);
 };
 
 
-boolean read_proc(struct proc_struct *proc);
+boolean read_proc(struct asthread_struct *asthread);
 
 static boolean init_proc(struct proc_struct *proc, 
-			 proc_state state, proc_ctrl ctrl, char *name)
+			 proc_state state, protocol_sthread ctrl)
 {
-	int len;
 	if (!proc)
 		goto out;
 	if (state != STOP || state != CONTINUE) {
@@ -42,24 +37,14 @@ static boolean init_proc(struct proc_struct *proc,
 		goto out;
 	} else
 		proc->state = state;
-	if (ctrl != RSYSINFO || ctrl != RPROCESS) {
-		proc->ctrl = NONE;
+	if (ctrl < 0 || ctrl >SMAX) {
+		proc->ctrl = SMAX;
 		goto out;
 	} else
 		proc->ctrl = ctrl;
-	if (!name) {
-		strcpy(proc->name, proc->ctrl == RSYSINFO ? 
-				   "sysinfo" : "processinfo");
-	} else {
-		len = strlen(name);
-		if (len >= WFNAME_LEN)
-			goto out;
-		strncpy(proc->name, name, len);
-	}
 
 	proc->set_state = proc_set_state;
 	proc->set_ctrl = proc_set_ctrl;
-	proc->set_wfname = proc_set_wfname;
 
 	return TRUE;
 	
