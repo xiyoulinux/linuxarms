@@ -22,7 +22,7 @@ struct hsthread_timer {
 /*
  * hsthread_trans 系统信息显示和实时监视(进程信息显示)线程
  * 		  传送的数据
- * @ctrl:  控制(见protocol_hsthread)
+ * @ctrl:  控制(见protocol_sthread)
  * @kill:  要杀死的进程的进程号(当ctrl = KILL时，该域才有效)
  */
 struct hsthread_trans {
