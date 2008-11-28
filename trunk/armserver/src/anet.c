@@ -79,20 +79,33 @@ boolean close_tcp_server(struct anet_struct *anet)
 	return TRUE;
 }
 
-boolean anet_send(int tcp, void *data)
+boolean anet_send(int tcp, void *data, unsigned int len)
 {
-	if (tcp < 0 || !data)
+	if (tcp < 0 || !data) {
+		print_error(EWARNIN, "发送失败，没有建立TCP连接或者"
+				"发送数据为空");
 		return FALSE;
+	}
+	if (len) {
+		print_error(EWARNING,"要发送的数据长度为0");
+		return FALSE;
+	}
 	if (send(tcp, data, strlen(data), 0) == -1)
 		return FALSE;
 	return TRUE;
 }
 
-boolean anet_recv(int tcp, void *data)
+boolean anet_recv(int tcp, void *data,unsigned int len)
 {
-	if (tcp < 0 || !data)
+	if (tcp < 0 || !data) {
+		print_error(EWARNIN, "接收失败，没有建立TCP连接");
 		return FALSE;
-	if (recv(tcp, data, strlen(data), 0) == -1)
+	}
+	if (len) {
+		print_error(EWARNING,"要接收的数据长度为0");
+		return FALSE;
+	}
+	if (recv(tcp, data, len, 0) == -1)
 		return FALSE;
 	return TRUE;
 }

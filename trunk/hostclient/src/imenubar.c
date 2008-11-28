@@ -146,7 +146,7 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_widget_show(image313);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(quit), image313);
 	 /* 创建进程子菜单 */
-	menubar_process = gtk_menu_item_new_with_mnemonic(_("\346\226\207\344\273\266(_F)"));
+	menubar_process = gtk_menu_item_new_with_mnemonic(_("进程(_P)"));
 	gtk_widget_show(menubar_process);
 	gtk_container_add(GTK_CONTAINER(menubar), menubar_process);
 	menubar_process_menu = gtk_menu_new();

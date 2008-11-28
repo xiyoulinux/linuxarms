@@ -1,4 +1,4 @@
-src/Myshell:
+armserver:
 	@echo start compiling armserver...
 	(cd ./src;make)
 	(cd ./src;mv armserver ../)
