@@ -54,7 +54,7 @@ GtkWidget* create_window_about(void)
 	gtk_window_set_position(GTK_WINDOW(window_about), GTK_WIN_POS_CENTER);
 	gtk_window_set_modal(GTK_WINDOW(window_about), TRUE);
 	gtk_window_set_resizable(GTK_WINDOW(window_about), FALSE);
-	window_about_icon_pixbuf = create_pixbuf("ico-window.png");
+	window_about_icon_pixbuf = create_pixbuf(ABOUT_ICO);
 	if(window_about_icon_pixbuf){
 		gtk_window_set_icon(GTK_WINDOW(window_about),
 				window_about_icon_pixbuf);
@@ -162,6 +162,9 @@ GtkWidget* create_window_about(void)
 	g_signal_connect((gpointer)button_credits, "clicked",
 			 G_CALLBACK(cb_button_credits_clicked),
 			 NULL);
+	g_signal_connect((gpointer)button_licence, "clicked",
+			 G_CALLBACK(cb_button_licence_clicked),
+			 NULL);			 
 	g_signal_connect((gpointer)button_close, "clicked",
 			 G_CALLBACK(cb_button_close_clicked),
 			 NULL);
@@ -221,7 +224,10 @@ create_window_credits(void)
 	gtk_window_set_title(GTK_WINDOW(window_credits),
 			_("\350\207\264\350\260\242"));
 	gtk_window_set_resizable(GTK_WINDOW(window_credits), FALSE);
+	gtk_window_set_modal (GTK_WINDOW (window_credits), TRUE); 
 	gtk_window_set_icon_name(GTK_WINDOW(window_credits), "gtk-about");
+	gtk_window_set_type_hint (GTK_WINDOW (window_credits), 
+						GDK_WINDOW_TYPE_HINT_DIALOG);
 
 	vbox5 = gtk_vbox_new(FALSE, 0);
 	gtk_widget_show(vbox5);
