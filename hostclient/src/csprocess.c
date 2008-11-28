@@ -24,7 +24,6 @@ gboolean cb_process_button_press(GtkWidget *widget,
 		gtk_menu_popup (GTK_MENU(popup_menu),
 				NULL, NULL, NULL, NULL,
 				event->button, event->time);
-		 printf("sfsdfsd");
 	}
 	debug_where();
 	debug_print("");

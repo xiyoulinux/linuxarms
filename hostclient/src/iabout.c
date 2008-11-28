@@ -117,11 +117,11 @@ GtkWidget* create_window_about(void)
 	gtk_box_pack_start(GTK_BOX(hbox18), image12, FALSE, FALSE, 0);
 	gtk_misc_set_padding(GTK_MISC(image12), 4, 0);
 
-	label_credits = gtk_label_new_with_mnemonic(_("\350\207\264\350\260\242(_R)"));
+	label_credits = gtk_label_new_with_mnemonic(_("\350\207\264\350\260\242"));
 	gtk_widget_show(label_credits);
 	gtk_box_pack_start(GTK_BOX(hbox18), label_credits, FALSE, FALSE, 0);
 
-	button_licence = gtk_button_new_with_mnemonic(_("\350\256\270\345\217\257(_L)"));
+	button_licence = gtk_button_new_with_mnemonic(_("\350\256\270\345\217\257"));
 	gtk_widget_show(button_licence);
 	gtk_box_pack_start(GTK_BOX(hbox15), button_licence, TRUE, TRUE, 0);
 	gtk_widget_set_size_request(button_licence, 69, -1);
@@ -149,7 +149,7 @@ GtkWidget* create_window_about(void)
 	gtk_box_pack_start(GTK_BOX(hbox20), image14, FALSE, FALSE, 0);
 	gtk_misc_set_padding(GTK_MISC(image14), 4, 0);
 
-	label8 = gtk_label_new_with_mnemonic(_("\345\205\263\351\227\255(_C)"));
+	label8 = gtk_label_new_with_mnemonic(_("\345\205\263\351\227\255"));
 	gtk_widget_show(label8);
 	gtk_box_pack_start(GTK_BOX(hbox20), label8, FALSE, FALSE, 0);
 
@@ -167,7 +167,7 @@ GtkWidget* create_window_about(void)
 			 NULL);			 
 	g_signal_connect((gpointer)button_close, "clicked",
 			 G_CALLBACK(cb_button_close_clicked),
-			 NULL);
+			 (gpointer)window_about);
 
 	/* Store pointers to all widgets, for use by lookup_widget(). */
 	GLADE_HOOKUP_OBJECT_NO_REF(window_about, window_about, "window_about");
@@ -338,7 +338,7 @@ create_window_credits(void)
 			 NULL);
 	g_signal_connect((gpointer)button_thank_close, "clicked",
 			 G_CALLBACK(cb_button_close_clicked),
-			 NULL);
+			 (gpointer)window_credits);
 
 	/* Store pointers to all widgets, for use by lookup_widget(). */
 	GLADE_HOOKUP_OBJECT_NO_REF(window_credits, window_credits, "window_credits");
