@@ -5,12 +5,16 @@
  */
 typedef enum _Mthread {
         LOGIN,    /* 用户登录 */
-	LOGOUT,   /* 用户注销 */
+	NOUSER,      /* 没有用户信息 */
+	HASUSER,     /* 已经有用户登录 */
         RESTART,  /* 重启arm系统 */
+	NOCOMPETENCE,/* 没有权限执行 */
+	LOGOUT,   /* 用户注销 */
 	SHUTDOWN, /* 关闭arm系统 */
         CSTHREAD, /* 控制系统信息显示和实时监视线程 */
         CFTHREAD, /* 控制文件浏览线程 */
         CCTHREAD, /* 控制实时控制线程 */
+	MSUCCESS, /* 执行成功 */
         MMAX      /* 无效命令 */
 }protocol_mthread;
 /*
@@ -54,16 +58,5 @@ typedef enum _Cthread {
 	CSENDALL, /* 发送完毕 */
 	CRECVALL /*  接收完毕 */
 }protocol_cthread;
-/*
- * hostclient和armserver交互过程中请求的执行返回值
- */
-typedef enum _Return {
-	SUCCESS,     /* 执行成功 */
-	NOUSER,      /* 没有用户信息 */
-	HASUSER,     /* 已经有用户登录 */
-	NOCOMPETENCE,/* 没有权限执行 */
-	TRANSERR,    /* 文件传输错误 */
-	TRANSSUCCESS,/* 文件传输成功 */
-	RMAX         /* 无效返回值 */
-}protocol_return;
+
 #endif

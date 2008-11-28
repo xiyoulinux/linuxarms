@@ -21,7 +21,7 @@ boolean hmthread_thread(void *p)
 		recv(hmthread->socket->tcp, &hmthread->trans,
 				sizeof(struct hmthread_trans),0);
 		switch (hmthread->trans.protocol) {
-		case SUCCESS: /* execute success */
+		case MSUCCESS: /* execute success */
 
 			break;
 		case NOUSER: /* no the user in arm system */
