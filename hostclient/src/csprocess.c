@@ -6,6 +6,7 @@
 #include "linuxarms.h"
 #include "sprocess.h"
 #include "hsthread.h"
+#include "debug.h"
 /*
  * 选择的进程变化的时候，调用该回调函数
  */
@@ -18,7 +19,15 @@ void cb_process_selection_changed(GtkWidget *widget, gpointer user_data)
 gboolean cb_process_button_press(GtkWidget *widget,
 	                 GdkEventButton *event, gpointer user_data)
 {
-	
+	if (event->button == BUTTON_RIGHT) {
+		GtkWidget *popup_menu = create_popup_menu_process();
+		gtk_menu_popup (GTK_MENU(popup_menu),
+				NULL, NULL, NULL, NULL,
+				event->button, event->time);
+		 printf("sfsdfsd");
+	}
+	debug_where();
+	debug_print("");
 }
 /*
  * 用户在treeview)process控件上按下鼠标右键弹出的右键菜单中

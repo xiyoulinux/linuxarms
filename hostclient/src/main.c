@@ -21,11 +21,11 @@ int main(int argc, char *argv[])
 	gtk_set_locale();
 	gtk_init(&argc, &argv);
 
-	add_pixmap_directory(PACKAGE_DATA_DIR "/" PACKAGE "/pixmaps");
+	//add_pixmap_directory(PACKAGE_DATA_DIR "/" PACKAGE "/pixmaps");
 	add_pixmap_directory("./pixmaps");
 	add_pixmap_directory("../pixmaps");
-	window_main = create_window_main();
-	//window_main = create_window_login();
+	//window_main = create_window_main();
+	window_main = create_window_login();
 	gtk_widget_show(window_main);
 
 	gtk_main();
