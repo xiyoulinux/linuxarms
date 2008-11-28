@@ -4,31 +4,32 @@
  */
 #include "asthread.h"
 #include "anet.h"
+#include "error.h"
+#include "debug.h"
 /*
  * 初始化asthread_struct结构
  */
 boolean asthread_init(struct asthread_struct *asthread,
-				   struct hssinfo_struct *ssinfo.
-				   struct hsprocess_struct *hsprocess,
-				   struct asthread_trans *trans,
-				   struct anet_struct *socket,
-				   struct asthread_timer *timer)
+		      struct assinfo_struct *assinfo,
+		      struct asprocess_struct *asprocess,
+		      struct asthread_trans *trans,
+		      struct anet_struct *socket)
 {
 }
 /*
  * 线程主执行体
  */
-gboolean asthread_thread(void *p)
+boolean asthread_thread(void *p)
 {
 	struct asthread_struct *asthread =
 		(struct asthread_struct *)p;
 	anet_init(&asthread->socket,"192.168.200.79",34);
-	if (!create_tcp_client(&asthread->socket)) {
+	if (!create_tcp_server(&asthread->socket)) {
 		print_error(ESYSERR,"create tcp error");
 		return FALSE;
 	}
 	while (TRUE) {
-		recv(asthread->socket.tcp,&asthread->trans,sizeof(struct asthread_trans),0);
+		anet_recv(asthread->socket.tcp,&asthread->trans,sizeof(struct asthread_trans));
 		switch (asthread->trans.ctrl) {
 		case SYSINFO:
 			/*显示系统信息*/
@@ -44,36 +45,16 @@ gboolean asthread_thread(void *p)
 	}
 }
 
-gboolean asthread_timer(gpointer data)
-{
-	struct asthread_struct *asthread =
-		(struct asthread_struct *)data;
-	if (!asthread) {
-		print_error(WARNING,"启动定时器失败，无法更新时间");
-		return FALSE;
-	}
-	switch (asthread->trans->ctrl) {
-		case SYSINFO:
-			break;
-		case SPROCESS:
-			break;
-		case KILL:
-			break;
-		case default:
-			break;
-	}
-	return TRUE;
-}
 
 boolean asthread_send(struct asthread_struct *asthread)
 {
 	if (!asthread) {
-		print_error(WARNING,"不能发送数据");
+		print_error(EWARNING,"不能发送数据");
 		return FALSE;
 	}
-	if (send(asthread->socket->tcp, &asthread->trans, 
-		 sizeof(struct asthread_trans),0) == -1) {
-		print_error(WARNING,"发送数据失败");
+	if (!anet_send(asthread->socket.tcp, &asthread->trans, 
+		 sizeof(struct asthread_trans)) ) {
+		print_error(EWARNING,"发送数据失败");
 		return FALSE;
 	}
 	return TRUE;

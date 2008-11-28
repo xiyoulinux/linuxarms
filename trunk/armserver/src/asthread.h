@@ -1,7 +1,10 @@
-#ifndef _HSTHREAD_H
-#define _HSTHREAD_H
+#ifndef _ASTHREAD_H
+#define _ASTHREAD_H
 #include "protocol.h"
-#include "hnet.h"
+#include "anet.h"
+#include "proc.h"
+#include "assinfo.h"
+#include "asprocess.h"
 
 /*
  * asthread_trans 系统信息显示和实时监视(进程信息显示)线程
@@ -13,10 +16,6 @@ struct asthread_trans {
 	protocol_sthread ctrl;
 	int kill;
 };
-
-struct assinfo_struct;
-struct asprocess_struct;
-struct anet_struct;
 struct proc_struct;
 /*
  * asthread_struct  系统信息显示和实时监视(进程信息显示)线程
@@ -28,7 +27,7 @@ struct proc_struct;
  * @lock:      互斥访问锁
  * @proc:      读取proc文件系统相关数据结构
  */
-struct sthread_struct {
+struct asthread_struct {
 	struct assinfo_struct *assinfo;
 	struct asprocess_struct *asprocess;
 	struct asthread_trans trans;
@@ -41,9 +40,9 @@ struct sthread_struct {
 };
 
 boolean asthread_init(struct asthread_struct *asthread,
-				   struct assinfo_struct *assinfo.
-				   struct asprocess_struct *asprocess,
-				   struct asthread_trans *trans,
-				   struct anet_struct *socket);
+		      struct assinfo_struct *assinfo,
+		      struct asprocess_struct *asprocess,
+		      struct asthread_trans *trans,
+		      struct anet_struct *socket);
 
 #endif

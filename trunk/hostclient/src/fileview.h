@@ -2,6 +2,8 @@
 #define _FILEVIEW_H
 
 #include "linuxarms.h"
+#include "protocol.h"
+#include "hnet.h"
 #include <gtk/gtk.h>
 #define FILE_INFO_COLUMNS 4
 #define FILE_NAME_LEN 256
@@ -62,7 +64,7 @@ struct hfview_struct {
 	struct hfview_recv frecv;
 	struct hfview_send fsend;
 	struct hnet_struct *socket;
-	hfview_widget widget;
+	struct hfview_widget widget;
 
 	boolean (*recv)(struct hfview_struct *hfview);
 	boolean (*send)(struct hfview_struct *hfview);
@@ -72,7 +74,7 @@ static inline boolean hfview_recv(struct hfview_struct *hfview)
 {
 	if (!hfview)
 		return FALSE;
-	return hnet_recv(hfview->socket.tcp,
+	return hnet_recv(hfview->socket->tcp,
 			 (void *)&hfview->frecv,
 			 sizeof(struct hfview_recv));
 }
@@ -80,7 +82,7 @@ static inline boolean hfview_send(struct hfview_struct *hfview)
 {
 	if (!hfview)
 		return FALSE;
-	return hnet_send(hfview->socket.tcp,
+	return hnet_send(hfview->socket->tcp,
 			 (void *)&hfview->fsend,
 			 sizeof(struct hfview_send));
 }

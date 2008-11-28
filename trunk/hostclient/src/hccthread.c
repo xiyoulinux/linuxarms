@@ -1,13 +1,14 @@
 #include "hcthread.h"
 #include "linuxarms.h"
+#include "hfthread.h"
 /*
  * 初始化实时控制主数据结构
  *
  */
-boolean hcthread_init(struct hfthread_struct *hcthread,
+boolean hcthread_init(struct hcthread_struct *hcthread,
 		struct hcthread_widget *widget, 
-		struct hfthread_trans *trans,
-		struct hnet_struct *socket)
+		struct hnet_struct *socket,
+		struct hcthread_trans *trans)
 {
 }
 /*

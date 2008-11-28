@@ -42,7 +42,7 @@ struct hcthread_struct {
 };
 boolean hcthread_send(struct hcthread_struct *hcthread);
 boolean hcthread_recv(struct hcthread_struct *hcthread);
-boolean (*showinfo)(struct hcthread_struct *hcthread);
+boolean showinfo(struct hcthread_struct *hcthread);
 boolean hcthread_init(struct hcthread_struct *hcthread,
 		      struct hcthread_widget *widget,
 		      struct hnet_struct *socket,

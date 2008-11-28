@@ -1,13 +1,15 @@
 #include "acthread.h"
 #include "linuxarms.h"
+#include "anet.h"
 /*
  * 初始化实时控制主数据结构
  *
  */
 boolean acthread_init(struct acthread_struct *acthread,
 		struct acthread_trans *trans,
-		struct hnet_struct *socket)
+		struct anet_struct *socket)
 {
+	return TRUE;
 }
 /*
  * 发送一个请求到hostclient上
@@ -26,7 +28,7 @@ boolean acthread_recv(struct acthread_struct *acthread)
  * armserver端实时控制处理命令
  * @p:  struct hcthread_struct
  */
-acthread_handle(struct acthread_struct *acthread)
+boolean acthread_handle(struct acthread_struct *acthread)
 {
 }
 boolean acthread_thread(void *p)

@@ -1,5 +1,5 @@
-#include "fileview.h"
-#include "hfthread.h"
+#include "afview.h"
+#include "afthread.h"
 #include "linuxarms.h"
 #include "debug.h"
 /*
@@ -21,7 +21,7 @@ boolean afview_init(struct afview_struct *afview,
  */
 boolean afview_recv_info(struct afview_struct *afview)
 {
-	return anet_recv(afview->socket.tcp, 
+	return anet_recv(afview->socket->tcp, 
 			afview->frecv, sizeof(struct afview_recv));
 }
 

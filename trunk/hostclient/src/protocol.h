@@ -25,7 +25,7 @@ typedef enum _Sthread {
 	SSENDALL, /* 发送完毕 */
 	SRECVALL, /* 接收完毕 */
 	SRECVSUC, /* 成功接收 */
-	SRECVERR，/* 接收错误 */ 
+	SRECVERR,/* 接收错误 */ 
 	SMAX,     /* 无效命令 */
 }protocol_sthread;
 /*

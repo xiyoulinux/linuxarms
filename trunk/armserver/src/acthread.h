@@ -6,7 +6,7 @@
 #define _ACTHREAD_H
 #include "linuxarms.h"
 #include "protocol.h"
-#include "hnet.h"
+#include "anet.h"
 
 #define TRAS_SIZE 512
 /*  
@@ -24,7 +24,7 @@ struct acthread_trans {
  *@trans:    传输数据
   */
 struct acthread_struct {
-	struct hnet_struct socket;
+	struct anet_struct socket;
 	struct acthread_trans trans;
 
 	boolean (*send)(struct acthread_struct *acthread);
@@ -35,7 +35,7 @@ boolean acthread_send(struct acthread_struct *acthread);
 boolean acthread_recv(struct acthread_struct *acthread);
 boolean acthread_handle(struct acthread_struct *acthread);
 boolean acthread_init(struct acthread_struct *acthread,
-		      struct anet_struct *socket,
-		      struct acthread_trans *trans);
+		      struct acthread_trans *trans,
+		      struct anet_struct *socket);
 boolean acthread_thread(void *p);
 #endif
