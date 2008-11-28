@@ -1,5 +1,6 @@
 #ifndef _FILETRANS_H
 #define _FILETRANS_H
+#include <gtk/gtk.h>
 GtkWidget* create_popup_menu_fview(void);
 
 void

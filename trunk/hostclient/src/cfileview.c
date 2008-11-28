@@ -4,6 +4,8 @@
 #include <gtk/gtk.h>
 #include "debug.h"
 #include "error.h"
+#include "filetrans.h"
+#include "sprocess.h"
 /*
  * 初始化hfview_struct结构
  */
@@ -69,7 +71,13 @@ void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data)
 gboolean cb_fview_button_press(GtkWidget *widget,
 	                 GdkEventButton *event, gpointer user_data)
 {
-	
+        if (event->button == BUTTON_RIGHT) {
+		GtkWidget *popup_menu = create_popup_menu_fview();
+		gtk_menu_popup (GTK_MENU(popup_menu),
+                                NULL, NULL, NULL, NULL,
+                                event->button, event->time);
+	}
+
 }	                 
 
 

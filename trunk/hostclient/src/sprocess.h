@@ -14,6 +14,12 @@ enum {
 	COL_CPU,
 	COL_MEM
 };
+
+enum {
+	BUTTON_LEFT = 0x1,
+	BUTTON_MID =0x2,
+	BUTTON_RIGHT =0x3
+};
 /*
  * hsprocess_struct 接收armserver发送过来的进程信息
  * @num:   要接收的进程信息的总数

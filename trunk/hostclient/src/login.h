@@ -9,6 +9,7 @@
 #include "linuxarms.h"
 #include "error.h"
 #include "debug.h"
+#include <gtk/gtk.h>
 #define USER_NAME_LEN 20
 #define PASSWD_LEN 20
 /*
@@ -43,7 +44,7 @@ boolean print_info(char *text);
  * 
  * 
  */
-struct config_struct {
+struct user_config_struct {
 	
 	boolean (*is_config_exist)(void);
 	boolean (*is_path_exist)(const char *pathname);

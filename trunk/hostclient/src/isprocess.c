@@ -141,7 +141,7 @@ GtkListStore  *create_page_sprocess(GtkWidget *notebook_main)
 	return list_store;
 }
 
-GtkWidget* create_popup_menu_process(void)
+GtkWidget *create_popup_menu_process(void)
 {
 	GtkWidget *popup_menu_process;
 	GtkWidget *spopup_eparator;
@@ -153,7 +153,7 @@ GtkWidget* create_popup_menu_process(void)
 
 
 	popup_menu_process = gtk_menu_new();
-
+	gtk_widget_show(popup_menu_process);
 	spopup_eparator = gtk_separator_menu_item_new();
 	gtk_widget_show(spopup_eparator);
 	gtk_container_add(GTK_CONTAINER(popup_menu_process), spopup_eparator);
