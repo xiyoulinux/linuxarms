@@ -22,22 +22,36 @@ typedef enum _Sthread {
 	KILL,     /* 杀死进程 */
 	KILLSUC,  /* 杀死进程成功 */
 	KILLERR,  /* 杀死进程失败*/
-	SENDALL,  /* 发送完毕 */
-	RECVALL,  /* 接收完毕 */
-	RECVSUC,  /* 成功接收 */
+	SSENDALL, /* 发送完毕 */
+	SRECVALL, /* 接收完毕 */
+	SRECVSUC, /* 成功接收 */
+	SRECVERR, /* 接收错误 */ 
 	SMAX,     /* 无效命令 */
 }protocol_sthread;
 /*
  * 文件浏览和文件传输交互协议
  */
 typedef enum _Fthread {
-	UP,     /* 上传文件 */
-	DOWN,   /* 下载文件 */
-	VIEW,   /* 文件浏览 */
-	RENAME, /* 重命名文件 */
-	DELETE, /* 删除文件 */
-	FMAX    /* 无效命令 */
+	FUP,     /* 上传文件 */
+	FDOWN,   /* 下载文件 */
+	FVIEW,   /* 文件浏览 */
+	FRENAME, /* 重命名文件 */
+	FDELETE, /* 删除文件 */
+	FVIEWSUC,/* 成功接收信息 */
+	FVIEWERR,/* 接收信息失败 */
+	FRECVALL,/* 接收完毕 */
+	FSENDALL,/* 发送完毕 */
+	FMAX     /* 无效命令 */
 }protocol_fthread;
+/*
+ * 实时控制交互协议
+ */
+typedef enum _Cthread {
+	CSEND, /* 发送数据 */
+	CRECV, /* 接收数据 */
+	CSENDALL, /* 发送完毕 */
+	CRECVALL /*  接收完毕 */
+}protocol_cthread;
 /*
  * hostclient和armserver交互过程中请求的执行返回值
  */
