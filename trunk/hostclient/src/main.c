@@ -24,8 +24,10 @@ int main(int argc, char *argv[])
 	//add_pixmap_directory(PACKAGE_DATA_DIR "/" PACKAGE "/pixmaps");
 	add_pixmap_directory("./pixmaps");
 	add_pixmap_directory("../pixmaps");
-	//window_main = create_window_main();
-	window_main = create_window_login();
+	add_pixmap_directory("./doc");
+	add_pixmap_directory("../doc");
+	window_main = create_window_main();
+	//window_main = create_window_login();
 	gtk_widget_show(window_main);
 
 	gtk_main();

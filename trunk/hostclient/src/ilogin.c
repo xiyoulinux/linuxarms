@@ -1,5 +1,5 @@
 #ifdef HAVE_CONFIG_H
-#	include <config.h>
+#include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -20,8 +20,7 @@
 
 #define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name)\
 	g_object_set_data(G_OBJECT(component), name, widget)
-GtkWidget*
-create_window_login(void)
+GtkWidget* create_window_login(void)
 {
 	GtkWidget *window_login;
 	GtkWidget *vbox_login;
