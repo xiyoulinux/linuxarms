@@ -1,9 +1,11 @@
 #ifdef HAVE_CONFIG_H
-# include <config.h>
+#include <config.h>
 #endif
 
 #include <gtk/gtk.h>
 #include "debug.h"
+#include "about.h"
+#include "help.h"
 void cb_login_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
 	debug_where();
@@ -100,6 +102,9 @@ void cb_fview_downolad_activate(GtkMenuItem *menuitem, gpointer user_data)
 
 void cb_help_topic_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
+	GtkWidget *window;
+	window=(GtkWidget *)create_window_help();
+	gtk_widget_show(window);
 	debug_where();
 	debug_print("");
 
@@ -108,6 +113,9 @@ void cb_help_topic_activate(GtkMenuItem *menuitem, gpointer user_data)
 
 void cb_help_about_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
+	GtkWidget *window;
+	window=(GtkWidget *)create_window_about();
+	gtk_widget_show(window);
 	debug_where();
 	debug_print("");
 
