@@ -76,7 +76,7 @@ boolean close_tcp_client(struct hnet_struct *hnet)
 boolean hnet_send(int tcp, void *data, unsigned int len)
 {
 	if (tcp < 0 || !data) {
-		print_error(EWARNIN, "发送失败，没有建立TCP连接或者"
+		print_error(EWARNING, "发送失败，没有建立TCP连接或者"
 				"发送数据为空");
 		return FALSE;
 	}
@@ -92,7 +92,7 @@ boolean hnet_send(int tcp, void *data, unsigned int len)
 boolean hnet_recv(int tcp, void *data,unsigned int len)
 {
 	if (tcp < 0 || !data) {
-		print_error(EWARNIN, "接收失败，没有建立TCP连接");
+		print_error(EWARNING, "接收失败，没有建立TCP连接");
 		return FALSE;
 	}
 	if (!len) {

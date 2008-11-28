@@ -19,13 +19,13 @@ struct hmthread_widget {
 	GtkWidget *shutdown;
 };
 /*
- * hmthread_mtrans  the packet which send or receive
+ * hmthread_trans  the packet which send or receive
  * @user:	user information
- * @ctrl:        the action arm system will execute
+ * @protocol:        the action arm system will execute
  */
-struct hmthread_mtrans {
+struct hmthread_trans {
         struct user_struct user;
-        protocol_mthread ctrl;
+        protocol_mthread protocol;
 };
 
 /*
@@ -33,25 +33,20 @@ struct hmthread_mtrans {
  * @lock:	is there a data sending or receiving?
  * @user:	the user who use hostclient
  * @trans:	the packet which send or receive
- * @socket:		TCP socket
+ * @socket:	TCP socket
  * @widget:	GtkWidget
  */ 
 struct hmthread_struct {
 	boolean lock;
 	struct user_struct *user;
 	struct hnet_struct *socket;
-	struct hmthread_mtrans trans;
+	struct hmthread_trans trans;
 	struct hmthread_widget widget;
 
 	void (*down_lock)(struct hmthread_struct *hmthread);
 	void (*up_lock)(struct hmthread_struct *hmthread);
-	boolean (*set_user)(struct hmthread_struct *hmthread,
-			    struct user_struct *user);
-	boolean (*set_protocol)(struct hmthread_struct *hmthread, protocol_mthread protocol);
-	boolean (*set_socket)(struct hmthread_struct *hmthread,
-			  struct hnet_struct *socket);
-	boolean (*set_trans)(struct hmthread_struct *hmthread,
-			     struct hmthread_mtrans *trans);
+	boolean (*set_protocol)(struct hmthread_struct *hmthread, 
+				protocol_mthread protocol);
 	boolean (*send)(struct hmthread_struct *hmthread);
 	boolean (*judge_competence)(struct hmthread_struct *hmthread);
 
@@ -62,15 +57,12 @@ int hmthread_init(struct hmthread_struct *hmthread,
                  struct hnet_struct *socket,
                  struct hmthread_widget *widget);
 
-void down_lock(struct hmthread_struct *hmthread);
-void up_lock(struct hmthread_struct *hmthread);
-boolean set_user(struct hmthread_struct *hmthread,
-			struct user_struct *user);
-boolean set_act(struct hmthread_struct *hmthread, protocol_mthread ctrl);
-boolean set_socket(struct hmthread_struct *hmthread,
-		      struct hnet_struct *socket);
-boolean set_trans(struct hmthread_struct *hmthread,
-			    struct hmthread_mtrans *trans);
+void hmthread_down_lock(struct hmthread_struct *hmthread);
+void hmthread_up_lock(struct hmthread_struct *hmthread);
+boolean hmthread_set_protocol(struct hmthread_struct *hmthread, 
+		     protocol_mthread protocol);
+boolean hmthread_set_socket(struct hmthread_struct *hmthread,
+		   struct hnet_struct *socket);
 boolean hmthread_send(struct hmthread_struct *hmthread);
-boolean judge_competence(struct hmthread_struct *hmthread);
+boolean hmthread_judge_competence(struct hmthread_struct *hmthread);
 #endif

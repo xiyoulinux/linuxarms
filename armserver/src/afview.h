@@ -2,6 +2,7 @@
 #define _FILEVIEW_H
 
 #include "linuxarms.h"
+#include <time.h>
 #define FILE_NAME_LEN 256
 /*
  * afview_send   文件浏览功能中接收的文件信息
@@ -38,7 +39,7 @@ struct afview_struct {
 	char *path;
 	struct afview_send fsend;
 	struct afview_recv frecv;
-	struct hnet_struct *socket;
+	struct anet_struct *socket;
 
 	boolean (*recv)(struct afview_struct *afview);
 	boolean (*send)(struct afview_struct *afview);
@@ -48,7 +49,7 @@ static inline boolean afview_send(struct afview_struct *afview)
 {
 	if (!afview)
 		return FALSE;
-	return hnet_send(afview->socket.tcp,
+	return anet_send(afview->socket->tcp,
 			 (void *)&afview->fsend,
 			 sizeof(struct afview_send));
 }
@@ -56,7 +57,7 @@ static inline boolean afview_recv(struct afview_struct *afview)
 {
 	if (!afview)
 		return FALSE;
-	return hnet_recv(afview->socket.tcp,
+	return anet_recv(afview->socket->tcp,
 			 (void *)&afview->frecv,
 			 sizeof(struct afview_recv));
 }

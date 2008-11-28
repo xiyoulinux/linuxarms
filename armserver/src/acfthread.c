@@ -1,14 +1,16 @@
 #include "afthread.h"
 #include "anet.h"
-#include "fileview.h"
-#include "filetrans.h"
+#include "afview.h"
+#include "atthread.h"
+#include "debug.h"
+#include "error.h"
 
 /*
  * 初始化文件浏览和文件传输控制主数据结构
  */
 boolean afthread_init(struct afthread_struct *afthread,
                       struct afview_struct *afview,
-                      struct aftrans_struct *aftrans,
+                      struct atthread_struct *aftrans,
                       struct afthread_trans *trans,
                       struct anet_struct *socket)
 {
@@ -26,36 +28,36 @@ boolean afthread_init(struct afthread_struct *afthread,
 boolean afthread_send(struct afthread_struct *afthread)
 {
         if (!afthread)
-                send(afthread->socket->tcp, &afthread->trans,
-                     sizeof(struct afthread_trans), 0); 
+                anet_send(afthread->socket.tcp, &afthread->trans,
+                     sizeof(struct afthread_trans)); 
         return TRUE;
 }
 /*
  * 文件浏览和文件传输主线程执行体
  * @p:  struct afthread_struct
  */
-gboolean afthread_thread(void *p)
+boolean afthread_thread(void *p)
 {
 	struct afthread_struct *afthread =
 	(struct afthread_struct *)p;
-	if (!create_tcp_client(afthread->socket)) {
+	if (!create_tcp_client(&afthread->socket)) {
 		print_error(ESYSERR,"建立文件浏览和文件传输网络连接错误");
 		return FALSE;
 	}
 
 	while (TRUE) {
-		recv(afthread->socket->tcp, &afthread->trans,
-		     sizeof(struct afthread_trans), 0);
-		switch (afthread->trans.trans) {
-		case UP:
+		anet_recv(afthread->socket.tcp, &afthread->trans,
+		     sizeof(struct afthread_trans));
+		switch (afthread->trans.protocol) {
+		case FUP:
 			break;
-		case DOWN:
+		case FDOWN:
 			break;
-		case VIEW:
+		case FVIEW:
 			break;
-		case RENAME:
+		case FRENAME:
 			break;
-		case DELETE:
+		case FDELETE:
 			break;
 		default:
 			break;

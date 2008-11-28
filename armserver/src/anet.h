@@ -1,6 +1,5 @@
 #ifndef _HNET_H
 #define _HNET_H
-#include "socket.h"
 #include "linuxarms.h"
 /*
  * 用于建立网络连接
@@ -10,7 +9,6 @@
  * @tcp: 指向网络连接的文件指针(socket)
  */
 struct anet_struct {
-//	struct sockaddr_in client;
 	char ip[15];
 	int port;
 	int tcp;

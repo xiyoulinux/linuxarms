@@ -32,7 +32,7 @@ void cb_popup_process_kill_activate(GtkMenuItem *menuitem,gpointer user_data)
 /*
  * 主调其他模块完成实时监视显示功能
  */
-booolean do_show_process(struct hsprocess_struct *process)
+boolean do_show_process(struct hsprocess_struct *process)
 {
 }
 

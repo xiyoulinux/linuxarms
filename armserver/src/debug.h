@@ -10,7 +10,7 @@
  * function and do not want output debug information any all, you
  * can udefine _DEBUG_.
  */ 
-#define _DEBUG_
+#define __DEBUG__
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -18,7 +18,7 @@
 static inline void debug_print(const char *format, ...) 
 			__attribute__ ((format(printf, 1, 2)));
 
-#ifdef _DEBUG_
+#ifdef __DEBUG__
 
 #define debug_where() \
 	printf("\n###DEBUG###[file name]###[line]###[function name]\n");\

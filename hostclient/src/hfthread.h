@@ -5,6 +5,7 @@
 #include "hnet.h"
 
 #define PATH_LEN 512
+#define FNAME_LEN 256
 /*
  * hfthread_trans 文件浏览和文件传输中传送的数据
  * @trans:   控制协议
@@ -13,6 +14,7 @@
 struct hfthread_trans {
 	protocol_fthread trans;
 	char path[PATH_LEN];
+	char rename[2][FNAME_LEN];
 };
 
 struct htthread_struct;

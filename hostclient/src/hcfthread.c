@@ -51,11 +51,11 @@ gboolean hfthread_thread(void *p)
 		recv(hfthread->socket.tcp, &hfthread->trans,
 		     sizeof(struct hfthread_trans), 0);
 		switch (hfthread->trans.trans) {
-		case UP:
+		case FUP:
 			break;
-		case DOWN:
+		case FDOWN:
 			break;
-		case VIEW:
+		case FVIEW:
 
 			break;
 		default:

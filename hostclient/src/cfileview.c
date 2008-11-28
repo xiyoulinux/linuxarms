@@ -2,6 +2,8 @@
 #include "hfthread.h"
 #include "linuxarms.h"
 #include <gtk/gtk.h>
+#include "debug.h"
+#include "error.h"
 /*
  * 初始化hfview_struct结构
  */
@@ -22,8 +24,8 @@ boolean hfview_init(struct hfview_struct *hfview,
  */
 boolean hfview_recv_info(struct hfview_struct *hfview)
 {
-	return hnet_recv(hfview->socket.tcp, 
-			hfview->frecv, sizeof(struct hfview_recv));
+	return hnet_recv(hfview->socket->tcp, 
+			(void *)&hfview->frecv, sizeof(struct hfview_recv));
 }
 
 /*

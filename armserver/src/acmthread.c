@@ -1,45 +1,39 @@
 /*
- * linuxarms/armserver/src/camthread.c
+ * linuxarms/armserver/src/acmthread.c
  * operate amthread_struct structure.
  * Niu Tao:niutao0602@gmail.com
  */
+
 #include "amthread.h"
-
-
+#include "linuxarms.h"
+#include "protocol.h"
+#include "error.h"
+#include "debug.h"
+#include "anet.h"
+#include <wait.h>
 /*
  * amthread_thread  main thread
  */
 boolean amthread_thread(void *p)
 {
 	struct amthread_struct *amthread = (struct amthread_struct *)p;
-	struct mtrans_struct trans_data;
 
 	while (TRUE) {
-		recv(amthread->socket->tcp_fd, &amthread->trans,
-				sizeof(struct mtrans_struct),0);
-		switch (amthread->trans->act) {
-		case LOGIN: 
+		anet_recv(amthread->socket->tcp, (void *)&amthread->trans,
+				sizeof(struct amthread_trans));
+		switch (amthread->trans.protocol) {
+		case SUCCESS: /* execute success */
 
 			break;
-		case LOGOUT:
+		case NOUSER: /* no the user in arm system */
 
 			break;
-		case RESTART:
+		case HASUSER: /* a user had been login */
 
 			break;
-		case SHUTDOWN:
+		case NOCOMPETENCE: /* no competence to execute command */
 
 			break;
-		case CSTHREAD:
-
-			break;
-		case CFTHREAD:
-
-			break;
-		case CCTHREAD:
-
-			break;
-		case NONE:
 		default:
 			break;
 		}
@@ -48,66 +42,51 @@ boolean amthread_thread(void *p)
 	return TRUE;
 }
 
+
 /*
  * init_amthread	initialize amthread_struct structure. if you not give action,
  * 		we set it NONE,it means do nothing.
  * @amthread:	the structure which will be initialized.
  * @user:	the user who use hostclient
  * @scoket:		tcp socket structure
+ * @widget:	GtkWidget structure
  */
 
 int amthread_init(struct amthread_struct *amthread,
 		     struct user_struct *user,
-		     struct anet_struct *scoket,
-		     struct proc_struct *proc,
-		     struct fview_struct *fview)
+		     struct anet_struct *socket)
 {
 	int ret = 0;
 	if (!amthread) {
-		ret = -ENOINIT;
+		ret = ENOINIT;
 		goto out;
 	}
 	if (!user) {
-		ret = -ENOUSER;
+		ret = ENOINIT;
 		goto out;
 	}
 	if (!socket) {
-		ret = -ENOSOCKET;
-		goto out;
-	}
-	if (!proc) {
-		ret = -ENOPROC;
+		ret = ENOSOCKET;
 		goto out;
 	}
 
-	if (!fview) {
-		ret = -EFVIEW;
-		goto out;
-	}
 	amthread->user = user;
-	amthread->scoket = scoket;
+	amthread->socket = socket;
 	amthread->trans.user = *user;
-	amthread->trans.act = NONE;
-	amthread->proc = proc;
-	amthread->fview = fview;
-
-	amthread->down_lock = down_lock;
-	amthread->up_lock = up_lock;
-	amthread->set_user = set_user;
-	amthread->set_act = set_act;
-	amthread->set_socket = set_socket;
-	amthread->set_proc = set_proc;
-	amthread->set_fview = set_fview;
+	amthread->trans.protocol = MMAX;
+	amthread->down_lock = amthread_down_lock;
+	amthread->up_lock = amthread_up_lock;
+	amthread->set_protocol = amthread_set_protocol;
 	amthread->send = amthread_send;
-	amthread->judge_competence = judge_competence;
-	amthread->down_lock();
+	amthread->judge_competence = amthread_judge_competence;
+
+	amthread->down_lock(amthread);
 out:
 	return ret;
 }
 
 
-
-void down_lock(struct amthread_struct *amthread)
+void amthread_down_lock(struct amthread_struct *amthread)
 {
 	if (!amthread)
 		return ;
@@ -115,78 +94,51 @@ void down_lock(struct amthread_struct *amthread)
 		sleep(1);
 	amthread->lock = FALSE;
 }
-void up_lock(struct amthread_struct *amthread)
+void amthread_up_lock(struct amthread_struct *amthread)
 {
 	if (!amthread)
 		return;
 	amthread->lock = TRUE;
 }
-/*
- * set_user	set user field of amthread_struct structure
- * @amthread:	the structure which you will set
- * @user:	the user who use the hostclient
- * @return:	TRUE if success, FALSE if fail.
- */
-boolean set_user(struct amthread_struct *amthread,
-		struct user_struct *user)
-{
-	if (!amthread)
-		goto out;
-	if (!user)
-		goto out;
-	amthread->user = user;
-	return TRUE;
-out:
-	return FALSE;
-}
 
 /*
- * set_act	set act field of amthread_struct structure
- * @amthread:	the structure which you will set
- * @act:	the action which will be set,if it's a invalid parameter,
+ * amthread_set_protocol	set act field of amthread_struct structure
+ * @amthread:   the structure which you will set
+ * @protocol:   the action which will be set,if it's a invalid parameter,
  * 		it will be set NONE.
  * @return:	TRUE if success, FALSE if fail.
  */
-boolean set_act(struct amthread_struct *amthread, protocol_mthread act)
+boolean amthread_set_protocol(struct amthread_struct *amthread, 
+			      protocol_mthread protocol)
 {
 	if (!amthread)
 		return FALSE;
-	if (act < 0 || act > ACTION_NUM - 1)
-		amthread->trans.act = NONE;
+	if (protocol < 0 || protocol > MMAX - 1)
+		amthread->trans.protocol = MMAX;
 	else
-		amthread->trans.act = act;
+		amthread->trans.protocol = protocol;
 	return TRUE;
 }
-
-boolean set_scoket(struct amthread_struct *amthread,
-			struct anet_struct *scoket)
+/*
+boolean set_socket(struct amthread_struct *amthread,
+			struct anet_struct *socket)
 {
-	if (!amthread || !scoket)
+	if (!amthread || !socket)
 		return FALSE;
-	amthread->scoket = scoket;
+	amthread->socket = socket;
 	return TRUE;
 }
 
 
 boolean set_trans(struct amthread_struct *amthread,
-			    struct mtrans_struct *mtrans)
+			    struct amthread_trans *trans)
 {
-	if (!amthread || !mtrans)
+	if (!amthread || !trans)
 		return FALSE;
-	amthread->trans = *mtrans;
+	amthread->trans = *trans;
 	return TRUE;
 }
-
- boolean set_fview(struct amthread_struct *amthread,
-		   struct fview_struct *fview)
-{
-}
-
-boolean set_proc(struct amthread_struct *amthread,
-                 struct proc_struct *proc)
-{
-}
-
+*/
 boolean amthread_send(struct amthread_struct *amthread)
 {
 	if (!amthread)
@@ -194,11 +146,11 @@ boolean amthread_send(struct amthread_struct *amthread)
 
 }
 
-boolean judge_competence(struct amthread_struct *amthread)
+boolean amthread_judge_competence(struct amthread_struct *amthread)
 {
 	if (!amthread || !amthread->user)
 		return FALSE;
-	if ( strcmp(amthread->user->name, "root") == 0)
+	if (amthread->user->competence)
 		return TRUE;
 	return FALSE;
 }
