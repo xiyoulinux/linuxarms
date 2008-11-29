@@ -14,6 +14,12 @@
 #include "mwindow.h"
 #include "support.h"
 #include "debug.h"
+#include "menubar.h"
+#include "toolbar.h"
+#include "sprocess.h"
+#include "fileview.h"
+#include "sctrl.h"
+#include "statusbar.h"
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name)\
 	g_object_set_data_full(G_OBJECT(component), name, \

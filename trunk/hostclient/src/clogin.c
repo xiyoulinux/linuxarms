@@ -5,6 +5,7 @@
 #include <gtk/gtk.h>
 #include "login.h"
 #include "debug.h"
+#include "linuxarms.h"
 
 /*
  * callback functions
