@@ -17,7 +17,10 @@ OBJ= main.o         \
 	acssinfo.o  \
 	clogin.o
 
-HEADER= linuxarms.h protocol.h  arm.h  error.h \
+HEADER=linuxarms.h \
+       protocol.h  \
+       arm.h       \
+       error.h     \
        debug.h     \
        amthread.h  \
        acthread.h  \
@@ -42,7 +45,7 @@ accthread.o : accthread.c  $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@ 
 acfthread.o : acfthread.c  $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
-actthread.o : acthread.c  $(HEADER)
+actthread.o : actthread.c  $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
 proc.o      : proc.c       $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
@@ -59,4 +62,9 @@ clogin.o :   clogin.c    $(HEADER)
 
 clean:
 	rm -f *.o
+	@if [ -e $(object)] ; \
+	then \
+		echo "rm \"$(object)\" " ;\
+		rm $(object) ;\
+	fi
 
