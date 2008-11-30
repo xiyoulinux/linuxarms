@@ -4,9 +4,11 @@
 
 #include <gtk/gtk.h>
 #include "debug.h"
+#include "message.h"
 void cb_fview_back_clicked(GtkButton *button, gpointer user_data)
 {
 	debug_where();
+	gtk_show_message("没有权限执行");
 }
 
 
