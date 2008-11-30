@@ -35,7 +35,7 @@ isprocess.o  \
 issinfo.o    \
 istatusbar.o \
 itoolbar.o   \
-support.o
+support.o   
 
 HEADER= about.h \
 config.h        \
@@ -60,7 +60,8 @@ sprocess.h      \
 ssinfo.h        \
 statusbar.h     \
 support.h       \
-toolbar.h       
+toolbar.h       \
+message.h
 
 $(object):$(OBJ)
 	$(CC) $(CFLAGS) $(OBJ)  -o $(object) $(LINK)
