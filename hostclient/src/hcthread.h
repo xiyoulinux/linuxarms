@@ -1,5 +1,5 @@
 /*
- * linuxarms/hostclient/src/hcthread.c
+ * linuxarms/hostclient/src/hcthread.h
  * chen Jifeng<chengov@gmail.com>
  */
 #ifndef _HCTHREAD_H
@@ -8,7 +8,7 @@
 #include "protocol.h"
 #include "hnet.h"
 
-#define TRAS_SIZE 512
+#define TRANS_SIZE 512
 /* 界面结构体 */
 struct hcthread_widget {
 	GtkWidget *textview_ctrl;
@@ -18,12 +18,12 @@ struct hcthread_widget {
 
 /*  
  * hcthread_trans 实时控制时传送的数据
- * @trans:     控制协议
+ * @protocol:     控制协议
  * @buffer:    传输的数据
  */
 struct hcthread_trans {
-	protocol_cthread trans;
-	char buffer[TRAS_SIZE];
+	protocol_cthread protocol;
+	char buffer[TRANS_SIZE];
 };
 /*  
  *hcthread_strucnt 实时控制线程主数据结构 
