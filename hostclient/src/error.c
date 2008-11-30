@@ -5,30 +5,40 @@
  */
 #include "error.h"
 #include "debug.h"
+#include <stdio.h>
 //#include "statusbar.h"
+/*
+ * print_error  打印错误信息。如果出现严重错误，比如调用系统函数
+ *              出错，建立网络连接，程序将进入死循环。
+ * @error:      错误类型码，详见error.h
+ * @text:       要打印的错误信息
+ */
 void print_error(int error, const char *text)
 {
 	switch (error) {
 	case ESUCCESS:
-		debug_print("success\n");
+		printf("Success: ");
 		break;
 	case ESYSERR:
-		printf("调用系统函数出错\n");
+		printf("Call system function error: ");
 		for(;;);
 		break;
 	case ENOINIT:
-		printf("数据没有初始化\n");
+		printf("Uninitialized: ");
 		break;
 	case ENOSOCKET:
-		printf("没有建立网络连接\n");
+		printf("No socket: ");
 		for(;;);
 		break;
 	case ENULL:
 		break;
 	case EWARNING:
-
-//		statusbar_set_text(text);
+		printf("Warning: ");
 	default:
-	break;
+		printf("The wrong type of error");
+		break;
 	}
+	if (text)
+		printf(text);
+	printf("\n");
 }

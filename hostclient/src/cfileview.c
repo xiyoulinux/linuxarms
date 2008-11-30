@@ -77,6 +77,9 @@ gboolean cb_fview_button_press(GtkWidget *widget,
                                 NULL, NULL, NULL, NULL,
                                 event->button, event->time);
 	}
+	//printf("button %d\n",event->button);
+	if (event->type == 5 && event->button == BUTTON_LEFT)
+		printf("click button %d\n",event->type);
 
 }	                 
 

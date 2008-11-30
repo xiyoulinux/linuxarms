@@ -44,17 +44,23 @@ GtkWidget *create_page_ssinfo(GtkWidget *notebook_main)
 	GtkWidget *hseparator_four;
 	GtkWidget *label_disk;
 	GtkWidget *label_ssinfo;
+	GtkWidget *fixed_ssinfo;
 	
 	hbox_notebook = gtk_hbox_new(FALSE, 0);
 	gtk_widget_show(hbox_notebook);
 	gtk_container_add(GTK_CONTAINER(notebook_main), hbox_notebook);
+	gtk_container_set_border_width(GTK_CONTAINER(hbox_notebook), 8);
 	GTK_WIDGET_SET_FLAGS(hbox_notebook, GTK_CAN_FOCUS);
 	
 	image_sinfo = create_pixmap(window_main, "linuxarms.png");
 	gtk_widget_show(image_sinfo);
-	gtk_box_pack_start(GTK_BOX(hbox_notebook), image_sinfo, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox_notebook), image_sinfo, FALSE, TRUE, 0);
 	gtk_widget_set_size_request(image_sinfo, 247, 230);
-	
+
+	fixed_ssinfo = gtk_fixed_new();
+	gtk_widget_show(fixed_ssinfo);
+	gtk_box_pack_start(GTK_BOX(hbox_notebook), fixed_ssinfo, FALSE, FALSE, 0);
+	gtk_widget_set_size_request(fixed_ssinfo, 45, -1); 
 
 	vbox_sinfo = gtk_vbox_new(FALSE, 0);
 	gtk_widget_show(vbox_sinfo);
