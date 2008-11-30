@@ -3,7 +3,6 @@
 /*
  * 函数执行过程中的错误信息
  */
-
 enum error {
 	ESUCCESS, /* 执行成功 */
 	ESYSERR,  /* 执行系统函数出错 */

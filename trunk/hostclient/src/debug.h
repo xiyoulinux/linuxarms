@@ -21,8 +21,7 @@ static inline void debug_print(const char *format, ...)
 #ifdef _DEBUG_
 
 #define debug_where() \
-	printf("\n###DEBUG###[file name]###[line]###[function name]\n");\
-	printf("########### %s ### %d ### %s\n", \
+	printf("\n###FILE: %s ###LINE: %d ###FUC: %s\n", \
 					__FILE__, __LINE__, __FUNCTION__);
 static inline void debug_print(const char *format, ...)
 {
@@ -36,7 +35,6 @@ static inline void debug_print(const char *format, ...)
 #define debug_where() 
 static inline void debug_print(const char *format, ...)
 {
-
 }
 #endif
 #endif

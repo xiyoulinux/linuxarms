@@ -64,7 +64,7 @@ GtkWidget *create_ctrl_page(GtkWidget *vbox_main,
 
 	hbox_input = gtk_hbox_new (FALSE, 0);
 	gtk_widget_show (hbox_input);
-	gtk_box_pack_start (GTK_BOX (vbox_frame), hbox_input, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (vbox_frame), hbox_input, FALSE, FALSE, 0);
   
 	entry_input = gtk_entry_new();
 	gtk_widget_show(entry_input);

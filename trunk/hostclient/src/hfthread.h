@@ -12,7 +12,7 @@
  * @path:    文件路径
  */
 struct hfthread_trans {
-	protocol_fthread trans;
+	protocol_fthread protocol;
 	char path[PATH_LEN];
 	char rename[2][FNAME_LEN];
 };

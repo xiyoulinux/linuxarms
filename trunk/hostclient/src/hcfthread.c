@@ -50,7 +50,7 @@ gboolean hfthread_thread(void *p)
 	while (TRUE) {
 		recv(hfthread->socket.tcp, &hfthread->trans,
 		     sizeof(struct hfthread_trans), 0);
-		switch (hfthread->trans.trans) {
+		switch (hfthread->trans.protocol) {
 		case FUP:
 			break;
 		case FDOWN:
