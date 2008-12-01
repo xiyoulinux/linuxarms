@@ -4,9 +4,7 @@
  * Niu Tao<niutao0602@gmail.com>
  */
 #include "error.h"
-#include "debug.h"
 #include <stdio.h>
-//#include "statusbar.h"
 /*
  * print_error  打印错误信息。如果出现严重错误，比如调用系统函数
  *              出错，建立网络连接，程序将进入死循环。
@@ -34,6 +32,7 @@ void print_error(int error, const char *text)
 		break;
 	case EWARNING:
 		printf("Warning: ");
+		break;
 	default:
 		printf("The wrong type of error");
 		break;

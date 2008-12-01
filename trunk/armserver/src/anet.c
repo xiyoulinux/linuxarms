@@ -1,3 +1,8 @@
+/*
+ * linuxarms/hostclient/src/hnet.c
+ * 建立网络客户端
+ * Niu Tao<niutao0602@gmail.com>
+ */
 #include<netinet/in.h>
 #include<sys/socket.h>
 #include<sys/wait.h>
@@ -12,8 +17,12 @@
 #include "linuxarms.h"
 #include "error.h"
 #include "debug.h"
+
 /*
  * 初始化struct anet_struct 结构。如果参数anet或者ip为空，则返回错误
+ * @anet:  要初始化的数据结构
+ * @ip:    hostcleint端的ip地址
+ * @port:  建立网络连接时使用的端口
  */
 boolean anet_init(struct anet_struct *anet, char *ip, int port)
 {
@@ -48,16 +57,16 @@ boolean create_tcp_server(struct anet_struct *anet)
 	sin_size = sizeof(struct sockaddr);
 
 	if (bind(socket, (struct sockaddr *)&serv_addr, size) == -1) {
-		print_error(ESYSERR,"bind");
+		print_error(ESYSERR, "bind");
 		goto label;
 	}
 	if (listen(socket, 1) == -1) {
-		print_error(ESYSERR,"listen");
+		print_error(ESYSERR, "listen");
 		goto label;
 	}
 
 	if (anet->tcp = accept(socket, (struct sockaddr *)&client_addr, &size)) {
-		print_error(ESYSERR,"accept");
+		print_error(ESYSERR, "accept");
 		goto label;
 	}
 	debug_print("create tcp client success\n");
@@ -73,39 +82,76 @@ out:
  */
 boolean close_tcp_server(struct anet_struct *anet)
 {
-	if (!anet)
+	if (!anet) {
+		debug_where();
+		print_error(ENULL, "无效的数据");
 		return FALSE;
-	close(anet->tcp);
+	}
+	if (anet->tcp != -1)
+		close(anet->tcp);
 	return TRUE;
 }
 
+/*
+ * 发送数据
+ * @tcp:    网络连接描述符
+ * @data:   要发送的数据
+ * @len:    要发送数据的长度
+ * @return: 如果给出的参数 出错或者发送失败则返回FALSE.
+ */
 boolean anet_send(int tcp, void *data, unsigned int len)
 {
 	if (tcp < 0 || !data) {
-		print_error(EWARNIN, "发送失败，没有建立TCP连接或者"
+		print_error(EWARNING, "发送失败，没有建立TCP连接或者"
 				"发送数据为空");
-		return FALSE;
+		goto out;
 	}
-	if (len) {
-		print_error(EWARNING,"要发送的数据长度为0");
-		return FALSE;
+	if (!len) {
+		print_error(EWARNING, "要发送的数据长度为0");
+		goto out;
 	}
-	if (send(tcp, data, strlen(data), 0) == -1)
-		return FALSE;
+	if (tcp == -1) {
+		print_error(ENOSOCKET, "无效的网络连接描述符");
+		goto out;
+
+	}
+	if (send(tcp, data, len, 0) == -1) {
+		print_error(EWARNING, "发送数据失败");
+		goto out;
+	}
+
 	return TRUE;
+out:
+	return FALSE;
 }
 
+/*
+ * 接收数据
+ * @tcp:    网络连接描述符
+ * @data:   要接收的的数据存放缓冲区
+ * @len:    要接收的数据的长度
+ * @return: 如果给出的参数 出错或者发送失败则返回FALSE.
+ */
 boolean anet_recv(int tcp, void *data,unsigned int len)
 {
 	if (tcp < 0 || !data) {
-		print_error(EWARNIN, "接收失败，没有建立TCP连接");
-		return FALSE;
+		print_error(EWARNING,  "接收失败，没有建立TCP连接");
+		goto out;
 	}
-	if (len) {
-		print_error(EWARNING,"要接收的数据长度为0");
-		return FALSE;
+	if (!len) {
+		print_error(EWARNING, "要接收的数据长度为0");
+		goto out;
 	}
-	if (recv(tcp, data, len, 0) == -1)
-		return FALSE;
+	if (tcp == -1) {
+		print_error(ENOSOCKET,  "无效的网络连接描述符");
+		goto out;
+
+	}
+	if (recv(tcp, data, len, 0) == -1) {
+		print_error(EWARNING, "接收数据失败");
+		goto out;
+	}
 	return TRUE;
+out:
+	return FALSE;
 }
