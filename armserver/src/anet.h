@@ -1,5 +1,5 @@
-#ifndef _HNET_H
-#define _HNET_H
+#ifndef _ANET_H
+#define _ANET_H
 #include "linuxarms.h"
 /*
  * 用于建立网络连接
@@ -13,10 +13,14 @@ struct anet_struct {
 	int port;
 	int tcp;
 };
-
+/* 初始化hnet_struct结构 */
 boolean anet_init(struct anet_struct *anet, char *ip, int port);
+/* 创建一个TCP连接的服务器端 */
 boolean create_tcp_server(struct anet_struct *anet);
+/* 发送数据 */
 boolean anet_send(int tcp, void *data, unsigned int len);
+/* 接收数据 */
 boolean anet_recv(int tcp, void *data, unsigned int len);
+/* 关闭TCP连接 */
 boolean close_tcp_server(struct anet_struct *anet);
 #endif

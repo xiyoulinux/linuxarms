@@ -1,3 +1,10 @@
+/*
+ * linuxarms/hostclient/cstatusbar.c
+ * 显示提示信息。最终显示的信息会以动态的方式显示5秒钟，并自动
+ * 消失。如果在还没有显示完毕(没有到达5秒)就有新的提示信息要显
+ * 示，则清除当前的，显示新的提示信息。
+ * Niu Tao<nituao0602@gmail.com>
+ */
 #include "statusbar.h"
 #include "linuxarms.h"
 #include "hmthread.h"
@@ -6,7 +13,7 @@
 
 static struct statusbar_struct status;
 
-boolean statusbar_init(GtkWidget *statusbar)
+static boolean statusbar_init(GtkWidget *statusbar)
 {
 	if (!statusbar)
 		print_error(ESYSERR,"statusbar not init");
@@ -19,7 +26,7 @@ boolean statusbar_init(GtkWidget *statusbar)
 	status.set_text = set_text;
 }
 
-gboolean statusbar_clock(gpointer data)
+static gboolean statusbar_clock(gpointer data)
 {
 	if (status.time == SHOW_TIMEOUT) {
 		gtk_statusbar_remove(GTK_STATUSBAR(status.statusbar),
@@ -49,4 +56,5 @@ boolean statusbar_set_text(char *text)
 	status.time = 0;
 	status.clock_id = gtk_timeout_add(CLOCK_TIMEOUT, 
 			(GSourceFunc)statusbar_clock, NULL);
+	return TRUE;
 }
