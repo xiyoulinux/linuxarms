@@ -22,7 +22,7 @@ void cb_process_update_five_activate(GtkMenuItem *menuitem,
 void cb_process_kill_activate(GtkMenuItem *menuitem, gpointer user_data);
 void cb_fview_delete_activate(GtkMenuItem *menuitem, gpointer user_data);
 void cb_fview_upload_activate(GtkMenuItem *menuitem, gpointer user_data);
-void cb_fview_downolad_activate(GtkMenuItem *menuitem, gpointer user_data);
+void cb_fview_download_activate(GtkMenuItem *menuitem, gpointer user_data);
 void cb_fview_rename_activate(GtkMenuItem *menuitem, gpointer user_data);
 
 void cb_help_topic_activate(GtkMenuItem *menuitem, gpointer user_data);

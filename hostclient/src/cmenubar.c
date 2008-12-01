@@ -6,6 +6,8 @@
 #include "debug.h"
 #include "about.h"
 #include "help.h"
+#include "filetrans.h"
+
 void cb_login_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
 	debug_where();
@@ -67,38 +69,13 @@ void cb_process_kill_activate(GtkMenuItem *menuitem, gpointer user_data)
 
 }
 
+extern void cb_fview_upload_activate(GtkMenuItem *menuitem, gpointer user_data);
 
-void cb_fview_rename_activate(GtkMenuItem *menuitem, gpointer user_data)
-{
-	debug_where();
-	debug_print("");
+extern void cb_fview_downooad_activate(GtkMenuItem *menuitem, gpointer user_data);
 
-}
+extern void cb_fview_rename_activate(GtkMenuItem *menuitem, gpointer user_data);
 
-
-void cb_fview_delete_activate(GtkMenuItem *menuitem, gpointer user_data)
-{
-	debug_where();
-	debug_print("");
-
-}
-
-
-void cb_fview_upload_activate(GtkMenuItem *menuitem, gpointer user_data)
-{
-	debug_where();
-	debug_print("");
-
-}
-
-
-void cb_fview_downolad_activate(GtkMenuItem *menuitem, gpointer user_data)
-{
-	debug_where();
-	debug_print("");
-
-}
-
+extern void cb_fview_delete_activate(GtkMenuItem *menuitem, gpointer user_data);
 
 void cb_help_topic_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
