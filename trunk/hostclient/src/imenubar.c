@@ -52,7 +52,7 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	GtkWidget *edit_separator_one;
 	GtkWidget *fview_upload;
 	GtkWidget *image344;
-	GtkWidget *fview_downolad;
+	GtkWidget *fview_download;
 	GtkWidget *image345;
 	GtkWidget *menubar_help;
 	GtkWidget *menubar_help_menu;
@@ -239,20 +239,20 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_widget_show(image344);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(fview_upload), image344);
 
-	fview_downolad = gtk_image_menu_item_new_with_mnemonic(
+	fview_download = gtk_image_menu_item_new_with_mnemonic(
 			_("\344\270\213\350\275\275\346\226\207\344\273\266"));
-	gtk_widget_show(fview_downolad);
-	gtk_container_add(GTK_CONTAINER(menubar_fview_menu), fview_downolad);
-	gtk_tooltips_set_tip(tooltips, fview_downolad,
+	gtk_widget_show(fview_download);
+	gtk_container_add(GTK_CONTAINER(menubar_fview_menu), fview_download);
+	gtk_tooltips_set_tip(tooltips, fview_download,
 			     _("\344\273\216\346\234\254\346\234\272\344"
 			     "\270\213\350\275\275\346\226\207\344\273\266"
 			     "\345\210\260arm\347\263\273\347\273\237\344\270\212"), NULL);
-	gtk_widget_add_accelerator(fview_downolad, "activate", accel_group,
+	gtk_widget_add_accelerator(fview_download, "activate", accel_group,
 			GDK_D, (GdkModifierType)GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
 	image345 = gtk_image_new_from_stock("gtk-goto-bottom", GTK_ICON_SIZE_MENU);
 	gtk_widget_show(image345);
-	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(fview_downolad), image345);
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(fview_download), image345);
 	/* 创建帮助子菜单 */
 	menubar_help = gtk_menu_item_new_with_mnemonic(_("\345\270\256\345\212\251(_H)"));
 	gtk_widget_show(menubar_help);
@@ -314,8 +314,8 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 			 G_CALLBACK(cb_fview_delete_activate), NULL);
 	g_signal_connect((gpointer)fview_upload, "activate", 
 			 G_CALLBACK(cb_fview_upload_activate), NULL);
-	g_signal_connect((gpointer)fview_downolad, "activate",
-			 G_CALLBACK(cb_fview_downolad_activate), NULL);
+	g_signal_connect((gpointer)fview_download, "activate",
+			 G_CALLBACK(cb_fview_download_activate), NULL);
 	g_signal_connect((gpointer)help_topic, "activate",
 			 G_CALLBACK(cb_help_topic_activate), NULL);
 	g_signal_connect((gpointer)help_about, "activate",
@@ -347,7 +347,7 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	GLADE_HOOKUP_OBJECT(window_main, edit_separator_one, "edit_separator_one");
 	GLADE_HOOKUP_OBJECT(window_main, fview_upload, "fview_upload");
 	GLADE_HOOKUP_OBJECT(window_main, image344, "image344");
-	GLADE_HOOKUP_OBJECT(window_main, fview_downolad, "fview_downolad");
+	GLADE_HOOKUP_OBJECT(window_main, fview_download, "fview_download");
 	GLADE_HOOKUP_OBJECT(window_main, image345, "image345");
 	GLADE_HOOKUP_OBJECT(window_main, menubar_help, "menubar_help");
 	GLADE_HOOKUP_OBJECT(window_main, menubar_help_menu, "menubar_help_menu");
