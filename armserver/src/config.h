@@ -2,6 +2,7 @@
 #define _CONFIG_H
 
 #include "linuxarms.h"
+#define PORT_CONFIG_FILE "/etc/linuxarms-armserver/config/port.conf"
 /*
  * config_struct 配置文件读取相关的数据结构
  * @mthread_port: 主控连接的端口

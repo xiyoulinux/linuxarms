@@ -48,11 +48,11 @@ install:
 		echo "ERROR:can't find \"$(CONFIG_FILE)\" directory..." ;\
 		exit 1 ; \
 	fi
-	@if [ -e "$(CONFIG_FILE)/config" ] ; \
+	@if [ -e "$(CONFIG_FILE)/port.conf" ] ; \
 	then \
-		echo "test file \"$(CONFIG_FILE)/config\":exist..." ;\
+		echo "test file \"$(CONFIG_FILE)/port.conf\":exist..." ;\
 	else \
-		echo "ERROR:can't find file  \"$(CONFIG_FILE)/config\" ..." ;\
+		echo "ERROR:can't find file  \"$(CONFIG_FILE)/port.conf\" ..." ;\
 		exit 1 ; \
 	fi
 	@if [ -e $(CONFIG_DIR) ]; \
