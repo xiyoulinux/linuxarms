@@ -28,6 +28,6 @@ GtkWidget *create_statusbar(GtkWidget *vbox_main)
 	gtk_widget_show (statusbar);
 	gtk_box_pack_start(GTK_BOX(vbox_main), statusbar, FALSE, FALSE, 0);     
 	GLADE_HOOKUP_OBJECT(window_main, statusbar, "statusbar");
-	
+	statusbar_init(statusbar);
 	return statusbar;
 }
