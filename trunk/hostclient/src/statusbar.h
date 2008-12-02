@@ -16,21 +16,11 @@ struct statusbar_struct {
 	GtkWidget *statusbar;
 	char *text;
 	int cid;
-	int mid;
 	boolean clock;
 	int clock_id;
 	int time;
-
-	boolean (*set_text)(struct statusbar_struct *status, char *text);
 };
 /* 显示系统信息 */
 boolean statusbar_set_text(char *text);
-
-static inline boolean set_text(struct statusbar_struct *status, char *text)
-{
-	if (!text)
-		return FALSE;
-	status->text = text;
-	return TRUE;
-}
+boolean statusbar_init(GtkWidget *statusbar);
 #endif
