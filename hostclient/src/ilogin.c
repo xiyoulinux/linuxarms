@@ -61,6 +61,8 @@ GtkWidget* create_window_login(void)
 	gtk_window_set_position(GTK_WINDOW(window_login), GTK_WIN_POS_CENTER);
 	gtk_window_set_default_size(GTK_WINDOW(window_login), 330, 262);
 	gtk_window_set_resizable(GTK_WINDOW(window_login), FALSE);
+	gtk_window_set_decorated(GTK_WINDOW(window_login),TRUE);
+	
 
 	vbox_login = gtk_vbox_new(FALSE, 0);
 	gtk_widget_show(vbox_login);
@@ -98,13 +100,23 @@ GtkWidget* create_window_login(void)
 			(GtkAttachOptions)(0), 0, 0);
 	gtk_misc_set_alignment(GTK_MISC(label_passwd), 0, 0.5);
 
+//	comboboxentry_name = gtk_combo_new();//gtk_combo_box_entry_new_text(); /* combo name */
+/*	GList *items = NULL;
+	items = g_list_append(items, "lizeliang");
+	items = g_list_append(items, "niutao");
+	gtk_combo_set_popdown_strings(GTK_COMBO(comboboxentry_name), items);
+	*/
 	comboboxentry_name = gtk_combo_box_entry_new_text();
+	gtk_combo_box_append_text(GTK_COMBO_BOX(comboboxentry_name), "lizeliang");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(comboboxentry_name),"niutao");
 	gtk_widget_show(comboboxentry_name);
 	gtk_table_attach(GTK_TABLE(table_login), comboboxentry_name, 1, 2, 1, 2,
 			(GtkAttachOptions)(GTK_FILL),
 			(GtkAttachOptions)(GTK_FILL), 0, 0);
-
-	comboboxentry_ip = gtk_combo_box_entry_new_text();
+	
+	comboboxentry_ip = gtk_combo_box_entry_new_text();/*combo ip*/
+	gtk_combo_box_append_text(GTK_COMBO_BOX(comboboxentry_ip), "192.168.200.67");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(comboboxentry_ip), "192.168.200.68");
 	gtk_widget_show(comboboxentry_ip);
 	gtk_table_attach(GTK_TABLE(table_login), comboboxentry_ip, 1, 2, 0, 1,
 			(GtkAttachOptions)(GTK_FILL),
@@ -123,6 +135,7 @@ GtkWidget* create_window_login(void)
 	gtk_widget_set_size_request(entry_passwd, 163, -1);
 	gtk_entry_set_max_length(GTK_ENTRY(entry_passwd), 20);
 	gtk_entry_set_invisible_char(GTK_ENTRY(entry_passwd), 9679);
+	gtk_entry_set_visibility(GTK_ENTRY(entry_passwd),FALSE);
 
 	fixed5 = gtk_fixed_new();
 	gtk_widget_show(fixed5);
@@ -130,7 +143,7 @@ GtkWidget* create_window_login(void)
 
 	checkbutton_rem =
 		gtk_check_button_new_with_mnemonic(_("\350\256\260\344"
-		"\275\217\345\257\206\347\240\201\357\274\237"));
+		"\275\217\345\257\206\347\240\201\357\274\237")); /*xuan ze kuang*/
 	gtk_widget_show(checkbutton_rem);
 	gtk_box_pack_start(GTK_BOX(vbox_login), checkbutton_rem, FALSE, FALSE, 0);
 	gtk_widget_set_size_request(checkbutton_rem, -1, 29);
@@ -190,6 +203,7 @@ GtkWidget* create_window_login(void)
 	gtk_widget_show(button_ok);
 	gtk_box_pack_start(GTK_BOX(hbox2), button_ok, FALSE, FALSE, 0);
 	gtk_widget_set_size_request(button_ok, 70, -1);
+	gtk_widget_set_sensitive(button_ok,FALSE);
 
 	alignment7 = gtk_alignment_new(0.5, 0.5, 0, 0);
 	gtk_widget_show(alignment7);
@@ -212,7 +226,7 @@ GtkWidget* create_window_login(void)
 			NULL);
 	g_signal_connect((gpointer)checkbutton_rem, "toggled",
 			G_CALLBACK(cb_login_rem_toggled),
-			NULL);
+			checkbutton_rem);
 	g_signal_connect((gpointer)button_help, "clicked",
 			G_CALLBACK(cb_login_help_clicked),
 			NULL);
@@ -222,7 +236,9 @@ GtkWidget* create_window_login(void)
 	g_signal_connect((gpointer)button_ok, "clicked",
 			G_CALLBACK(cb_login_ok_clicked),
 			NULL);
-
+	g_signal_connect((gpointer)comboboxentry_ip, "changed",
+			G_CALLBACK(cb_comboboxentry_ip_changed),
+			NULL);
 	/* Store pointers to all widgets, for use by lookup_widget(). */
 	GLADE_HOOKUP_OBJECT_NO_REF(window_login, window_login, "window_login");
 	GLADE_HOOKUP_OBJECT(window_login, vbox_login, "vbox_login");

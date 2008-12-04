@@ -22,14 +22,6 @@ struct user_struct {
 	char passwd[PASSWD_LEN];
 	int is_record;
 	boolean competence;
-	
-	boolean (*set_ip)(struct user_struct *user, const char *ip);
-	boolean (*set_name)(struct user_struct *user, const char *name);
-	boolean (*set_passwd)(struct user_struct *user, const char *passwd);
-	boolean (*set_is_record)(struct user_struct *user, int is_record);
-	boolean (*get_is_record)(struct user_struct *user);
-	boolean (*print_info)(char *text);
-	void (*print_error)(int error,const char *text);
 };
 /*
  * login handling function definitions
@@ -45,7 +37,6 @@ boolean print_info(char *text);
  * 
  */
 struct user_config_struct {
-	
 	boolean (*is_config_exist)(void);
 	boolean (*is_path_exist)(const char *pathname);
 	boolean (*is_file_exist)(const char *path);
@@ -104,4 +95,6 @@ void cb_login_cancel_clicked(GtkButton *button, gpointer user_data);
 void cb_login_ok_clicked(GtkButton *button, gpointer user_data);
 
 void cb_login_rem_toggled(GtkToggleButton *togglebutton, gpointer user_data);
+
+void cb_comboboxentry_ip_changed(GtkComboBox *widget, gpointer user_data);
 #endif
