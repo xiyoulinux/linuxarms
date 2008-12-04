@@ -1,5 +1,5 @@
 /*
- * linuxarms/hostclient/src/error.c
+ * linuxarms/armserver/src/error.c
  * 打印错误信息
  * Niu Tao<niutao0602@gmail.com>
  */
@@ -38,6 +38,6 @@ void print_error(int error, const char *text)
 		break;
 	}
 	if (text)
-		printf(text);
+		printf("%s",text);
 	printf("\n");
 }

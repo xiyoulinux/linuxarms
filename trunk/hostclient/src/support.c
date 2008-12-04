@@ -40,15 +40,17 @@ GtkWidget* lookup_widget(GtkWidget *widget, const gchar *widget_name)
 
 static GList *pixmaps_directories = NULL;
 
-/* Use this function to set the directory containing installed pixmaps. */
-void add_pixmap_directory(const gchar *directory)
+void add_file_directory(const gchar *directory)
 {
 	pixmaps_directories = g_list_prepend (pixmaps_directories,
 			g_strdup (directory));
 }
-
-/* This is an internally used function to find pixmap files. */
-gchar *find_pixmap_file(const gchar *filename)
+/*
+ * 查找一个文件
+ * @filename:   要查找的文件名
+ * @return:     如果没有找到，则返回NULL,否则返回文件所在路径
+ */
+gchar *find_file(const gchar *filename)
 {
 	GList *elem;
 
@@ -74,7 +76,7 @@ GtkWidget* create_pixmap(GtkWidget *widget, const gchar *filename)
 	if (!filename || !filename[0])
 		return gtk_image_new ();
 
-	pathname = find_pixmap_file (filename);
+	pathname = find_file (filename);
 
 	if (!pathname) {
 		g_warning (_("Couldn't find pixmap file: %s"), filename);
@@ -96,7 +98,7 @@ GdkPixbuf* create_pixbuf(const gchar *filename)
 	if (!filename || !filename[0])
 		return NULL;
 
-	pathname = find_pixmap_file (filename);
+	pathname = find_file (filename);
 
 	if (!pathname) {
 		g_warning (_("Couldn't find pixmap file: %s"), filename);

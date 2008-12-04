@@ -36,6 +36,7 @@ struct amthread_struct {
 	boolean (*set_protocol)(struct amthread_struct *amthread, 
 				protocol_mthread protocol);
 	boolean (*send)(struct amthread_struct *amthread);
+	boolean (*recv)(struct amthread_struct *amthread);
 	boolean (*judge_competence)(struct amthread_struct *amthread);
 
 };

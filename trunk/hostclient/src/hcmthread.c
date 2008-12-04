@@ -10,6 +10,15 @@
 #include "statusbar.h"
 #include "error.h"
 #include <gtk/gtk.h>
+
+
+static boolean hmthread_send(struct hmthread_struct *hmthread);
+static boolean hmthread_recv(struct hmthread_struct *hmthread);
+static void hmthread_down_lock(struct hmthread_struct *hmthread);
+static void hmthread_up_lock(struct hmthread_struct *hmthread);
+static boolean hmthread_set_protocol(struct hmthread_struct *hmthread, 
+		                     protocol_mthread protocol);
+static boolean hmthread_judge_competence(struct hmthread_struct *hmthread);
 /*
  * hmthread_thread  main thread
  */
@@ -18,19 +27,21 @@ boolean hmthread_thread(void *p)
 	struct hmthread_struct *hmthread = (struct hmthread_struct *)p;
 
 	while (TRUE) {
-		recv(hmthread->socket->tcp, &hmthread->trans,
-				sizeof(struct hmthread_trans),0);
+		hmthread->recv(hmthread);
 		switch (hmthread->trans.protocol) {
+		case LOGIN: /* 用户登录成功，创建主窗口 */
+			
+			break;
 		case MSUCCESS: /* execute success */
 
 			break;
-		case NOUSER: /* no the user in arm system */
+		case NOUSER: /* 没有用户信息 */
 
 			break;
-		case HASUSER: /* a user had been login */
+		case HASUSER: /* 已经有一个用户登录 */
 
 			break;
-		case NOCOMPETENCE: /* no competence to execute command */
+		case NOCOMPETENCE: /* 没有权限执行命令 */
 
 			break;
 		default:
@@ -79,6 +90,7 @@ int hmthread_init(struct hmthread_struct *hmthread,
 	hmthread->up_lock = hmthread_up_lock;
 	hmthread->set_protocol = hmthread_set_protocol;
 	hmthread->send = hmthread_send;
+	hmthread->recv = hmthread_recv;
 	hmthread->judge_competence = hmthread_judge_competence;
 
 	hmthread->down_lock(hmthread);
@@ -86,8 +98,7 @@ out:
 	return ret;
 }
 
-
-void hmthread_down_lock(struct hmthread_struct *hmthread)
+static void hmthread_down_lock(struct hmthread_struct *hmthread)
 {
 	if (!hmthread)
 		return ;
@@ -95,7 +106,7 @@ void hmthread_down_lock(struct hmthread_struct *hmthread)
 		sleep(1);
 	hmthread->lock = FALSE;
 }
-void hmthread_up_lock(struct hmthread_struct *hmthread)
+static void hmthread_up_lock(struct hmthread_struct *hmthread)
 {
 	if (!hmthread)
 		return;
@@ -109,7 +120,7 @@ void hmthread_up_lock(struct hmthread_struct *hmthread)
  * 		it will be set NONE.
  * @return:	TRUE if success, FALSE if fail.
  */
-boolean hmthread_set_protocol(struct hmthread_struct *hmthread, 
+static boolean hmthread_set_protocol(struct hmthread_struct *hmthread, 
 			      protocol_mthread protocol)
 {
 	if (!hmthread)
@@ -120,34 +131,24 @@ boolean hmthread_set_protocol(struct hmthread_struct *hmthread,
 		hmthread->trans.protocol = protocol;
 	return TRUE;
 }
-/*
-boolean set_socket(struct hmthread_struct *hmthread,
-			struct hnet_struct *socket)
-{
-	if (!hmthread || !socket)
-		return FALSE;
-	hmthread->socket = socket;
-	return TRUE;
-}
-
-
-boolean set_trans(struct hmthread_struct *hmthread,
-			    struct hmthread_trans *trans)
-{
-	if (!hmthread || !trans)
-		return FALSE;
-	hmthread->trans = *trans;
-	return TRUE;
-}
-*/
-boolean hmthread_send(struct hmthread_struct *hmthread)
+static boolean hmthread_send(struct hmthread_struct *hmthread)
 {
 	if (!hmthread)
 		return FALSE;
+	return hnet_send(hmthread->socket->tcp, &hmthread->trans, 
+			sizeof(struct hmthread_trans));
 
 }
 
-boolean hmthread_judge_competence(struct hmthread_struct *hmthread)
+static boolean hmthread_recv(struct hmthread_struct *hmthread)
+{
+	if (!hmthread)
+		return FALSE;
+	return hnet_recv(hmthread->socket->tcp, &hmthread->trans, 
+			sizeof(struct hmthread_trans));
+
+}
+static boolean hmthread_judge_competence(struct hmthread_struct *hmthread)
 {
 	if (!hmthread || !hmthread->user)
 		return FALSE;
