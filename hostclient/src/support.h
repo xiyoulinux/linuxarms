@@ -36,8 +36,7 @@
  */
 GtkWidget* lookup_widget(GtkWidget *widget, const gchar *widget_name);
 
-/* Use this function to set the directory containing installed pixmaps. */
-void add_pixmap_directory(const gchar *directory);
+void add_file_directory(const gchar *directory);
 
 /* This is used to create the pixmaps used in the interface. */
 GtkWidget* create_pixmap(GtkWidget *widget, const gchar *filename);
@@ -49,4 +48,4 @@ GdkPixbuf* create_pixbuf(const gchar *filename);
 void glade_set_atk_action_description(AtkAction *action,
 			const gchar *action_name,
 			const gchar *description);
-gchar *find_pixmap_file(const gchar *filename);
+gchar *find_file(const gchar *filename);

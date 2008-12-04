@@ -1,9 +1,9 @@
-#ifndef _hmthread_H
-#define _hmthread_H
 /*
  * linuxarms/hostclient/src/hmthread.h
  * Niu Tao:niutao0602@gmail.com
  */
+#ifndef _hmthread_H
+#define _hmthread_H
 #include "linuxarms.h"
 #include <gtk/gtk.h>
 #include "login.h"
@@ -20,8 +20,8 @@ struct hmthread_widget {
 };
 /*
  * hmthread_trans  the packet which send or receive
- * @user:	user information
- * @protocol:        the action arm system will execute
+ * @user:        user information
+ * @protocol:    the action arm system will execute
  */
 struct hmthread_trans {
         struct user_struct user;
@@ -48,21 +48,26 @@ struct hmthread_struct {
 	boolean (*set_protocol)(struct hmthread_struct *hmthread, 
 				protocol_mthread protocol);
 	boolean (*send)(struct hmthread_struct *hmthread);
+	boolean (*recv)(struct hmthread_struct *hmthread);
 	boolean (*judge_competence)(struct hmthread_struct *hmthread);
 
 };
 
+/* 初始化hmthread_struct结构体 */
 int hmthread_init(struct hmthread_struct *hmthread,
                  struct user_struct *user,
                  struct hnet_struct *socket,
                  struct hmthread_widget *widget);
-
+/* 主线程执行体 */
+ boolean hmthread_thread(void *p);
+/*
 void hmthread_down_lock(struct hmthread_struct *hmthread);
 void hmthread_up_lock(struct hmthread_struct *hmthread);
 boolean hmthread_set_protocol(struct hmthread_struct *hmthread, 
 		     protocol_mthread protocol);
-boolean hmthread_set_socket(struct hmthread_struct *hmthread,
-		   struct hnet_struct *socket);
 boolean hmthread_send(struct hmthread_struct *hmthread);
+boolean hmthread_recv(struct hmthread_struct *hmthread);
+
 boolean hmthread_judge_competence(struct hmthread_struct *hmthread);
+*/
 #endif

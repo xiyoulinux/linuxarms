@@ -38,6 +38,6 @@ void print_error(int error, const char *text)
 		break;
 	}
 	if (text)
-		printf(text);
+		printf("%s",text);
 	printf("\n");
 }
