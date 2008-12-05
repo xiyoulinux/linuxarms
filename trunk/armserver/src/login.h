@@ -17,8 +17,8 @@
 #define INFO_SIZE 80
 
 typedef enum {
-	FAILURE = -1, /* -1 */
-	SUCCESS /* 0 */
+	FAILURE_ = -1, /* -1 */
+	SUCCESS_ /* 0 */
 }Status;
 
 /*
@@ -64,7 +64,7 @@ struct user_config_struct {
  * configure function definitions
  */
 /*public interface*/
-boolean create_file(const char *filename);
+boolean create_config_file(const char *filename);
 boolean read_from_config_file(const char *filename, char buffer[]);
 boolean write_to_config_file(const char *filename, const char *buffer);
 /*inward interface*/
