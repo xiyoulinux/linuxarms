@@ -119,26 +119,6 @@ boolean amthread_set_protocol(struct amthread_struct *amthread,
 		amthread->trans.protocol = protocol;
 	return TRUE;
 }
-/*
-boolean set_socket(struct amthread_struct *amthread,
-			struct anet_struct *socket)
-{
-	if (!amthread || !socket)
-		return FALSE;
-	amthread->socket = socket;
-	return TRUE;
-}
-
-
-boolean set_trans(struct amthread_struct *amthread,
-			    struct amthread_trans *trans)
-{
-	if (!amthread || !trans)
-		return FALSE;
-	amthread->trans = *trans;
-	return TRUE;
-}
-*/
 boolean amthread_send(struct amthread_struct *amthread)
 {
 	if (!amthread)

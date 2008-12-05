@@ -35,8 +35,9 @@ struct asthread_struct {
 	struct proc_struct proc;
 	boolean lock;
 
-
 	boolean (*send)(struct asthread_struct *asthread);
+	boolean (*recv)(struct asthread_struct *asthread);
+
 };
 
 boolean asthread_init(struct asthread_struct *asthread,
@@ -44,5 +45,7 @@ boolean asthread_init(struct asthread_struct *asthread,
 		      struct asprocess_struct *asprocess,
 		      struct asthread_trans *trans,
 		      struct anet_struct *socket);
-
+boolean asthread_set_trans(struct asthread_struct *asthread,protocol_sthread ctrl, int kill);
+boolean asthread_send(struct asthread_struct *asthread);
+boolean asthread_recv(struct asthread_struct *asthread);
 #endif

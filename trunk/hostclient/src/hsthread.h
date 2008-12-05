@@ -49,17 +49,26 @@ struct hsthread_struct {
 	struct hsthread_trans trans;
 	struct hnet_struct socket;
 	struct hsthread_timer timer;
-	boolean lock;
-
 
 	boolean (*send)(struct hsthread_struct *hsthread);
+	boolean (*recv)(struct hsthread_struct *hsthread);
+	boolean lock;
 };
-
+/* 初始化hsthread_struct结构体 */
 boolean hsthread_init(struct hsthread_struct *hsthread,
-				   struct hssinfo_struct *ssinfo,
-				   struct hsprocess_struct *hsprocess,
-				   struct hsthread_trans *trans,
-				   struct hnet_struct *socket,
-				   struct hsthread_timer *timer);
-
+		      struct hssinfo_struct *ssinfo,
+		      struct hsprocess_struct *sprocess,
+		      struct hsthread_trans *trans,
+		      struct hnet_struct *socket,
+		      struct hsthread_timer *timer);
+/* 系统信息显示和进程信息显示线程执行体 */
+gboolean hsthread_thread(void *p);
+/* 
+ * 发送一个信息给armserver，其中kill为要杀死的进程的id，
+ * 如果不是杀死进程，则忽略该参数(设置为-1).
+ */
+boolean hsthread_send(struct hsthread_struct *hsthread);
+/* 接收armserver发送过来的信息 */
+boolean hsthread_recv(struct hsthread_struct *hsthread);
+boolean hsthread_set_trans(struct hsthread_struct *hsthread, protocol_sthread ctrl, int kill);
 #endif

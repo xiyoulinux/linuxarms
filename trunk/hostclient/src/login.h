@@ -97,4 +97,6 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data);
 void cb_login_rem_toggled(GtkToggleButton *togglebutton, gpointer user_data);
 
 void cb_comboboxentry_ip_changed(GtkComboBox *widget, gpointer user_data);
+
+char *get_armserver_ip();
 #endif
