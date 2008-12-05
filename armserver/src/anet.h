@@ -23,4 +23,5 @@ boolean anet_send(int tcp, void *data, unsigned int len);
 boolean anet_recv(int tcp, void *data, unsigned int len);
 /* 关闭TCP连接 */
 boolean close_tcp_server(struct anet_struct *anet);
+char *get_host_ip();
 #endif

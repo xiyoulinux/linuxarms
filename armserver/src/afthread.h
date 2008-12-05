@@ -41,6 +41,6 @@ boolean afthread_init(struct afthread_struct *afthread,
 		      struct afthread_trans *trans,
 		      struct anet_struct *socket);
 boolean afthread_send(struct afthread_struct *afthread);
-boolean afthread_recv(struct hfthread_struct *afthread);
+boolean afthread_recv(struct afthread_struct *afthread);
 boolean afthread_thread(void *p);
 #endif
