@@ -141,5 +141,6 @@ clean:
 	rm -f *.o
 	@if [ -e $(object) ]; \
 	then \
+		echo "rm $(object)" ;\
 		rm $(object) ; \
 	fi

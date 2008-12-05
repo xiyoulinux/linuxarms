@@ -191,3 +191,7 @@ void show_help_dialog(const char *help_info)
 {
 	
 }
+
+char *get_armserver_ip()
+{
+}
