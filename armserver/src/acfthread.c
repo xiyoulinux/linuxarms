@@ -4,6 +4,7 @@
 #include "atthread.h"
 #include "debug.h"
 #include "error.h"
+#include "config.h"
 
 /*
  * 初始化文件浏览和文件传输控制主数据结构
@@ -15,22 +16,21 @@ boolean afthread_init(struct afthread_struct *afthread,
                       struct anet_struct *socket)
 {
 	            
-        if (!afthread) {
+        if (!afthread || !afview || !aftrans ||
+	    !trans || !socket) {
+		devug_where();
                 print_error(ESYSERR,"错误");
                 return FALSE;
         }   
-        afthread->send = afthread_send;
+	afthread->afview = afview;
+	afthread->aftrans = aftrans;
+	afthread->trans = *trans;
+	afthread->socket = *socket;
 
-}
-/*
- * 发送一个请求到armserver上
- */
-boolean afthread_send(struct afthread_struct *afthread)
-{
-        if (!afthread)
-                anet_send(afthread->socket.tcp, &afthread->trans,
-                     sizeof(struct afthread_trans)); 
-        return TRUE;
+        afthread->send = afthread_send;
+	afthread->recv = afthread_recv;
+	return TRUE;
+
 }
 /*
  * 文件浏览和文件传输主线程执行体
@@ -39,15 +39,16 @@ boolean afthread_send(struct afthread_struct *afthread)
 boolean afthread_thread(void *p)
 {
 	struct afthread_struct *afthread =
-	(struct afthread_struct *)p;
+		(struct afthread_struct *)p;
+
+	anet_init(&afthread->socket, get_host_ip(),get_fthread_port());
 	if (!create_tcp_client(&afthread->socket)) {
 		print_error(ESYSERR,"建立文件浏览和文件传输网络连接错误");
 		return FALSE;
 	}
 
 	while (TRUE) {
-		anet_recv(afthread->socket.tcp, &afthread->trans,
-		     sizeof(struct afthread_trans));
+		afthread->recv(afthread);
 		switch (afthread->trans.protocol) {
 		case FUP:
 			break;
@@ -66,3 +67,23 @@ boolean afthread_thread(void *p)
 	return TRUE;
 }
 
+boolean afthread_send(struct afthread_struct *afthread)
+{
+	if (!afthread) {
+		debug_where();
+		print_error(EWARNING, "无效的参数");
+		return FALSE;
+	}
+	return anet_send(afthread->socket.tcp, (void *)&afthread->trans,
+			 sizeof(struct afthread_trans));
+}
+boolean afthread_recv(struct hfthread_struct *afthread)
+{
+	if (!afthread) {
+		debug_where();
+		print_error(EWARNING, "无效的参数");
+		return FALSE;
+	}
+	return anet_recv(afthread->socket.tcp, (void *)&afthread->trans,
+			 sizeof(struct afthread_trans));
+}

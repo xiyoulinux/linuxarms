@@ -29,11 +29,12 @@ struct hnet_struct;
  */
 struct hfthread_struct {
 	struct hfview_struct *hfview;
-	struct htthread_struct *ftrans;
+	struct htthread_struct *hftrans;
 	struct hfthread_trans trans;
 	struct hnet_struct socket;
 
 	boolean (*send)(struct hfthread_struct *hfthread);
+	boolean (*recv)(struct hfthread_struct *hfthread);
 };
 
 
@@ -42,6 +43,10 @@ boolean hfthread_init(struct hfthread_struct *hfthread,
 		      struct htthread_struct *hftrans,
 		      struct hfthread_trans *trans,
 		      struct hnet_struct *socket);
+boolean hfthread_set_trans(struct hfthread_struct *hfthread, 
+			   protocol_fthread protocol,
+			   char *path, char *oldname, char *newname);
 boolean hfthread_send(struct hfthread_struct *hfthread);
+boolean hfthread_recv(struct hfthread_struct *hfthread);
 gboolean hfthread_thread(void *p);
 #endif
