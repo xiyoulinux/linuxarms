@@ -9,6 +9,40 @@
 
 struct user_struct user;
 /*
+ * static function definitions
+ */
+/*inward interface*/
+static boolean set_ip(struct user_struct *user, const char *ip);
+static boolean set_name(struct user_struct *user, const char *name);
+static boolean set_passwd(struct user_struct *user, const char *passwd);
+static boolean set_is_record(struct user_struct *user, int is_record);
+static boolean get_is_record(struct user_struct *user);
+static boolean print_info(char *text);
+/*
+ * configure function definitions
+ */
+/*inward interface*/
+static boolean is_config_exist(void);
+static boolean is_path_exist(const char *pathname);
+static boolean is_file_exist(const char *path);
+static boolean config_create(); /*create $HOME/.linuxarms*/
+static boolean create_path(const char *path);
+static boolean create_file(const char *path, const char *filename);
+static const char *search_file(const char *filename); /*return file path*/
+static const char *read_file(const char *filename);
+static const  char *write_file(const char *filename);
+/*
+ * login functions definitions
+ */
+/*inward interface*/
+static boolean set_error_info(struct login_struct *login, const char *error_info);
+static const char *get_error(struct login_struct *login);
+static void show_error_dialog(const char *error); /*display the error dialog*/
+static void show_ip_tooltips(GtkWidget *login);
+static void show_name_tooltips(GtkWidget *login);
+static void show_passwd_toolstips(GtkWidget *login);
+static void show_help_dialog(const char *help_info);
+/*
  * callback functions
  */
 void cb_login_rem_toggled(GtkToggleButton *togglebutton, gpointer user_data)

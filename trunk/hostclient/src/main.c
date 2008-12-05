@@ -27,7 +27,6 @@ int main(int argc, char *argv[])
 	window_main = create_window_main();
 	//window_main = create_window_login();
 	gtk_widget_show(window_main);
-
 	gtk_main();
 	return 0;
 }
