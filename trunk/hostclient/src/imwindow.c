@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -16,17 +12,11 @@
 #include "debug.h"
 #include "menubar.h"
 #include "toolbar.h"
+#include "ssinfo.h"
 #include "sprocess.h"
 #include "fileview.h"
 #include "sctrl.h"
 #include "statusbar.h"
-
-#define GLADE_HOOKUP_OBJECT(component,widget,name)\
-	g_object_set_data_full(G_OBJECT(component), name, \
-	gtk_widget_ref(widget),(GDestroyNotify)gtk_widget_unref)
-
-#define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name)\
-	g_object_set_data(G_OBJECT(component), name, widget)
 
 GtkWidget *window_main;
 /*
@@ -81,11 +71,6 @@ GtkWidget *create_window_main()
 	g_signal_connect((gpointer)notebook_main, "switch_page", 
 			 G_CALLBACK(cb_notebook_switch_page), NULL);
 	
-	GLADE_HOOKUP_OBJECT_NO_REF(window_main, window_main, "window_main");
-	GLADE_HOOKUP_OBJECT(window_main, vbox_main, "vbox_main");
-	GLADE_HOOKUP_OBJECT(window_main, notebook_main, "notebook_main");
-	GLADE_HOOKUP_OBJECT_NO_REF(window_main, tooltips, "tooltips");
-			 
 	gtk_widget_grab_focus(notebook_main);
 	gtk_window_add_accel_group(GTK_WINDOW(window_main), accel_group); 
 

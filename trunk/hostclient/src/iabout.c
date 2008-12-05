@@ -1,6 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -12,15 +9,6 @@
 
 #include "support.h"
 #include "about.h"
-
-
-#define GLADE_HOOKUP_OBJECT(component,widget,name)\
-	g_object_set_data_full(G_OBJECT(component), name, \
-	gtk_widget_ref(widget),(GDestroyNotify)gtk_widget_unref)
-
-#define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name)\
-	g_object_set_data(G_OBJECT(component), name, widget)
-
 
 GtkWidget* create_window_about(void)
 {
@@ -169,30 +157,6 @@ GtkWidget* create_window_about(void)
 			 G_CALLBACK(cb_button_close_clicked),
 			 (gpointer)window_about);
 
-	/* Store pointers to all widgets, for use by lookup_widget(). */
-	GLADE_HOOKUP_OBJECT_NO_REF(window_about, window_about, "window_about");
-	GLADE_HOOKUP_OBJECT(window_about, vbox3, "vbox3");
-	GLADE_HOOKUP_OBJECT(window_about, image_linuxarms, "image_linuxarms");
-	GLADE_HOOKUP_OBJECT(window_about, label_text, "label_text");
-	GLADE_HOOKUP_OBJECT(window_about, hbox17, "hbox17");
-	GLADE_HOOKUP_OBJECT(window_about, fixed6, "fixed6");
-	GLADE_HOOKUP_OBJECT(window_about, button_link, "button_link");
-	GLADE_HOOKUP_OBJECT(window_about, fixed7, "fixed7");
-	GLADE_HOOKUP_OBJECT(window_about, hbox15, "hbox15");
-	GLADE_HOOKUP_OBJECT(window_about, button_credits, "button_credits");
-	GLADE_HOOKUP_OBJECT(window_about, alignment10, "alignment10");
-	GLADE_HOOKUP_OBJECT(window_about, hbox18, "hbox18");
-	GLADE_HOOKUP_OBJECT(window_about, image12, "image12");
-	GLADE_HOOKUP_OBJECT(window_about, label_credits, "label_credits");
-	GLADE_HOOKUP_OBJECT(window_about, button_licence, "button_licence");
-	GLADE_HOOKUP_OBJECT(window_about, fixed12, "fixed12");
-	GLADE_HOOKUP_OBJECT(window_about, button_close, "button_close");
-	GLADE_HOOKUP_OBJECT(window_about, alignment12, "alignment12");
-	GLADE_HOOKUP_OBJECT(window_about, hbox20, "hbox20");
-	GLADE_HOOKUP_OBJECT(window_about, image14, "image14");
-	GLADE_HOOKUP_OBJECT(window_about, label8, "label8");
-
-
 	return window_about;
 }
 
@@ -242,7 +206,8 @@ create_window_credits(void)
 	gtk_widget_show(scrolledwindow2);
 	gtk_container_add(GTK_CONTAINER(notebook1), scrolledwindow2);
 	gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow2), 5);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow2), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow2), 
+				GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow2), GTK_SHADOW_IN);
 
 	textview_author = gtk_text_view_new();
@@ -340,24 +305,6 @@ create_window_credits(void)
 			 G_CALLBACK(cb_button_close_clicked),
 			 (gpointer)window_credits);
 
-	/* Store pointers to all widgets, for use by lookup_widget(). */
-	GLADE_HOOKUP_OBJECT_NO_REF(window_credits, window_credits, "window_credits");
-	GLADE_HOOKUP_OBJECT(window_credits, vbox5, "vbox5");
-	GLADE_HOOKUP_OBJECT(window_credits, notebook1, "notebook1");
-	GLADE_HOOKUP_OBJECT(window_credits, scrolledwindow2, "scrolledwindow2");
-	GLADE_HOOKUP_OBJECT(window_credits, textview_author, "textview_author");
-	GLADE_HOOKUP_OBJECT(window_credits, label_author, "label_author");
-	GLADE_HOOKUP_OBJECT(window_credits, scrolledwindow3, "scrolledwindow3");
-	GLADE_HOOKUP_OBJECT(window_credits, textview_doc, "textview_doc");
-	GLADE_HOOKUP_OBJECT(window_credits, label_document, "label_document");
-	GLADE_HOOKUP_OBJECT(window_credits, hbox21, "hbox21");
-	GLADE_HOOKUP_OBJECT(window_credits, fixed10, "fixed10");
-	GLADE_HOOKUP_OBJECT(window_credits, button_thank_close, "button_thank_close");
-	GLADE_HOOKUP_OBJECT(window_credits, alignment13, "alignment13");
-	GLADE_HOOKUP_OBJECT(window_credits, hbox23, "hbox23");
-	GLADE_HOOKUP_OBJECT(window_credits, image15, "image15");
-	GLADE_HOOKUP_OBJECT(window_credits, label11, "label11");
-
 	gtk_window_add_accel_group(GTK_WINDOW(window_credits), accel_group);
 
 	return window_credits;
@@ -445,19 +392,6 @@ GtkWidget* create_window_licence(void)
 	g_signal_connect((gpointer)button_licence, "clicked",
 			 G_CALLBACK(cb_button_close_clicked),
 			 (gpointer)window_licence);
-
-	/* Store pointers to all widgets, for use by lookup_widget(). */
-	GLADE_HOOKUP_OBJECT_NO_REF(window_licence, window_licence, "window_licence");
-	GLADE_HOOKUP_OBJECT(window_licence, vbox6, "vbox6");
-	GLADE_HOOKUP_OBJECT(window_licence, scrolledwindow4, "scrolledwindow4");
-	GLADE_HOOKUP_OBJECT(window_licence, textview_licence, "textview_licence");
-	GLADE_HOOKUP_OBJECT(window_licence, hbox22, "hbox22");
-	GLADE_HOOKUP_OBJECT(window_licence, fixed11, "fixed11");
-	GLADE_HOOKUP_OBJECT(window_licence, button_licence, "button_licence");
-	GLADE_HOOKUP_OBJECT(window_licence, alignment14, "alignment14");
-	GLADE_HOOKUP_OBJECT(window_licence, hbox24, "hbox24");
-	GLADE_HOOKUP_OBJECT(window_licence, image16, "image16");
-	GLADE_HOOKUP_OBJECT(window_licence, label12, "label12");
 
 	gtk_window_add_accel_group(GTK_WINDOW(window_licence), accel_group);
 

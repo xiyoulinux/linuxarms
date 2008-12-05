@@ -26,7 +26,7 @@ gboolean cb_process_button_press(GtkWidget *widget,
 				event->button, event->time);
 	}
 	debug_where();
-	debug_print("");
+	debug_print(" ");
 }
 /*
  * 用户在treeview)process控件上按下鼠标右键弹出的右键菜单中

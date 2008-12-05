@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -14,13 +10,6 @@
 #include "sctrl.h"
 #include "mwindow.h"
 #include "support.h"
-
-#define GLADE_HOOKUP_OBJECT(component,widget,name)\
-	g_object_set_data_full(G_OBJECT(component), name, \
-	gtk_widget_ref(widget),(GDestroyNotify)gtk_widget_unref)
-
-#define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name)\
-	g_object_set_data(G_OBJECT(component), name, widget)
 
 GtkWidget *create_ctrl_page(GtkWidget *vbox_main,
 			    GtkTooltips *tooltips)
@@ -86,14 +75,6 @@ GtkWidget *create_ctrl_page(GtkWidget *vbox_main,
 	g_signal_connect((gpointer)entry_input, "key_press_event",
 			 G_CALLBACK(cb_ctrl_input_key_press),
 			 NULL);
-
-	GLADE_HOOKUP_OBJECT(window_main, frame_main, "frame_main");
-	GLADE_HOOKUP_OBJECT(window_main, alignment_frame, "alignment_frame");
-	GLADE_HOOKUP_OBJECT(window_main, vbox_frame, "vbox_frame");
-	GLADE_HOOKUP_OBJECT(window_main, scrolledwindow_frame, "scrolledwindow_frame");
-	GLADE_HOOKUP_OBJECT(window_main, textview_ctrl, "textview_ctrl");
-	GLADE_HOOKUP_OBJECT(window_main, entry_input, "entry_input");
-	GLADE_HOOKUP_OBJECT(window_main, label_frame, "label_frame");
 
 	return NULL;
 }

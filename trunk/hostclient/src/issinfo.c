@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -14,13 +10,6 @@
 #include "sprocess.h"
 #include "mwindow.h"
 #include "support.h"
-
-#define GLADE_HOOKUP_OBJECT(component,widget,name) \
-	g_object_set_data_full(G_OBJECT(component), name, \
-	gtk_widget_ref(widget),(GDestroyNotify) gtk_widget_unref)
-
-#define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
-	g_object_set_data(G_OBJECT(component), name, widget)
 
 GtkWidget *create_page_ssinfo(GtkWidget *notebook_main)
 {
@@ -169,26 +158,6 @@ GtkWidget *create_page_ssinfo(GtkWidget *notebook_main)
 			gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook_main),
 			0), label_ssinfo);
 	GTK_WIDGET_SET_FLAGS(label_ssinfo, GTK_CAN_FOCUS);
-	
-	GLADE_HOOKUP_OBJECT(window_main, image_sinfo, "image_sinfo");
-	GLADE_HOOKUP_OBJECT(window_main, vbox_sinfo, "vbox_sinfo");
-	GLADE_HOOKUP_OBJECT(window_main, label_hostname, "label_hostname");
-	GLADE_HOOKUP_OBJECT(window_main, hseparator_one, "hseparator_one");
-	GLADE_HOOKUP_OBJECT(window_main, label_release, "label_release");
-	GLADE_HOOKUP_OBJECT(window_main, label_kernel, "label_kernel");
-	GLADE_HOOKUP_OBJECT(window_main, label_memory, "label_memory");
-	GLADE_HOOKUP_OBJECT(window_main, hseparator_two, "hseparator_two");
-	GLADE_HOOKUP_OBJECT(window_main, label_net, "label_net");
-	GLADE_HOOKUP_OBJECT(window_main, hbox_net, "hbox_net");
-	GLADE_HOOKUP_OBJECT(window_main, label_netrecv, "label_netrecv");
-	GLADE_HOOKUP_OBJECT(window_main, label_netsend, "label_netsend");
-	GLADE_HOOKUP_OBJECT(window_main, hseparator_three, "hseparator_three");
-	GLADE_HOOKUP_OBJECT(window_main, label_cpuinfo, "label_cpuinfo");
-	GLADE_HOOKUP_OBJECT(window_main, label_cpuused, "label_cpuused");
-	GLADE_HOOKUP_OBJECT(window_main, label_cpuload, "label_cpuload");
-	GLADE_HOOKUP_OBJECT(window_main, hseparator_four, "hseparator_four");
-	GLADE_HOOKUP_OBJECT(window_main, label_disk, "label_disk");
-	GLADE_HOOKUP_OBJECT(window_main, label_ssinfo, "label_ssinfo");
 	
 	return NULL;
 }
