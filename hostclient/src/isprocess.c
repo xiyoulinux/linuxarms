@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -15,13 +11,6 @@
 #include "mwindow.h"
 #include "support.h"
 
-#define GLADE_HOOKUP_OBJECT(component,widget,name) \
-	g_object_set_data_full(G_OBJECT(component), name, \
-	gtk_widget_ref(widget),(GDestroyNotify) gtk_widget_unref)
-
-#define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
-	g_object_set_data(G_OBJECT(component), name, widget)
-	
 static char *column_name[]={
 		"进程名",
 		"进程号",
@@ -172,13 +161,6 @@ GtkWidget *create_popup_menu_process(void)
 
 	g_signal_connect((gpointer) popup_process_kill, "activate",
 			 G_CALLBACK(cb_popup_process_kill_activate), NULL);
-
-	/* Store pointers to all widgets, for use by lookup_widget(). */
-	GLADE_HOOKUP_OBJECT_NO_REF(popup_menu_process, popup_menu_process, "popup_menu_process");
-	GLADE_HOOKUP_OBJECT(popup_menu_process, spopup_eparator, "spopup_eparator");
-	GLADE_HOOKUP_OBJECT(popup_menu_process, popup_process_kill, "popup_process_kill");
-	GLADE_HOOKUP_OBJECT(popup_menu_process, image209, "image209");
-	GLADE_HOOKUP_OBJECT_NO_REF(popup_menu_process, tooltips, "tooltips");
 
 	return popup_menu_process;
 }

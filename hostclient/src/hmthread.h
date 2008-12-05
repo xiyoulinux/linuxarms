@@ -59,15 +59,5 @@ int hmthread_init(struct hmthread_struct *hmthread,
                  struct hnet_struct *socket,
                  struct hmthread_widget *widget);
 /* 主线程执行体 */
- boolean hmthread_thread(void *p);
-/*
-void hmthread_down_lock(struct hmthread_struct *hmthread);
-void hmthread_up_lock(struct hmthread_struct *hmthread);
-boolean hmthread_set_protocol(struct hmthread_struct *hmthread, 
-		     protocol_mthread protocol);
-boolean hmthread_send(struct hmthread_struct *hmthread);
-boolean hmthread_recv(struct hmthread_struct *hmthread);
-
-boolean hmthread_judge_competence(struct hmthread_struct *hmthread);
-*/
+boolean hmthread_thread(void *p);
 #endif

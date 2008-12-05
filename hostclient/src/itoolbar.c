@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -14,13 +10,6 @@
 #include "toolbar.h"
 #include "support.h"
 #include "mwindow.h"
-
-#define GLADE_HOOKUP_OBJECT(component,widget,name) \
-	g_object_set_data_full(G_OBJECT(component), name, \
-	gtk_widget_ref(widget),(GDestroyNotify) gtk_widget_unref)
-
-#define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
-	g_object_set_data(G_OBJECT(component), name, widget)
 
 GtkWidget *create_toolbar(GtkWidget *vbox_main,
 			  GtkTooltips *tooltips)
@@ -199,33 +188,5 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 			 G_CALLBACK(cb_upload_clicked),
 			 NULL);
 		 
-	GLADE_HOOKUP_OBJECT(window_main, toolbar, "toolbar");
-	GLADE_HOOKUP_OBJECT(window_main, toolitem_back, "toolitem_back");
-	GLADE_HOOKUP_OBJECT(window_main, button_back, "button_back");
-	GLADE_HOOKUP_OBJECT(window_main, alignment2, "alignment2");
-	GLADE_HOOKUP_OBJECT(window_main, vbox_tool_back, "vbox_tool_back");
-	GLADE_HOOKUP_OBJECT(window_main, image_back, "image_back");
-	GLADE_HOOKUP_OBJECT(window_main, label_back, "label_back");
-	GLADE_HOOKUP_OBJECT(window_main, toolitem_up, "toolitem_up");
-	GLADE_HOOKUP_OBJECT(window_main, button_up, "button_up");
-	GLADE_HOOKUP_OBJECT(window_main, alignment3, "alignment3");
-	GLADE_HOOKUP_OBJECT(window_main, vbox_tool_up, "vbox_tool_up");
-	GLADE_HOOKUP_OBJECT(window_main, image_up, "image_up");
-	GLADE_HOOKUP_OBJECT(window_main, label_up, "label_up");
-	GLADE_HOOKUP_OBJECT(window_main, toolitem_tool, "toolitem_tool");
-	GLADE_HOOKUP_OBJECT(window_main, vseparator_tool, "vseparator_tool");
-	GLADE_HOOKUP_OBJECT(window_main, toolitem_downolad, "toolitem_downolad");
-	GLADE_HOOKUP_OBJECT(window_main, button_download, "button_download");
-	GLADE_HOOKUP_OBJECT(window_main, alignment4, "alignment4");
-	GLADE_HOOKUP_OBJECT(window_main, vbox_tool_download, "vbox_tool_download");
-	GLADE_HOOKUP_OBJECT(window_main, image_download, "image_download");
-	GLADE_HOOKUP_OBJECT(window_main, label_download, "label_download");
-	GLADE_HOOKUP_OBJECT(window_main, toolitem_upload, "toolitem_upload");
-	GLADE_HOOKUP_OBJECT(window_main, button_upload, "button_upload");
-	GLADE_HOOKUP_OBJECT(window_main, alignment5, "alignment5");
-	GLADE_HOOKUP_OBJECT(window_main, vbox8, "vbox8");
-	GLADE_HOOKUP_OBJECT(window_main, image_upload, "image_upload");
-	GLADE_HOOKUP_OBJECT(window_main, label_upload, "label_upload");
-
 	return toolbar;
 }

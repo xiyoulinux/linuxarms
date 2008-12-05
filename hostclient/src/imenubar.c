@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -16,10 +12,6 @@
 #include "mwindow.h"
 #include "debug.h"
 
-#define GLADE_HOOKUP_OBJECT(component,widget,name)\
-	g_object_set_data_full(G_OBJECT(component), name, \
-	gtk_widget_ref(widget),(GDestroyNotify)gtk_widget_unref)
-		
 GtkWidget *create_menubar(GtkWidget *vbox_main,
 			  GtkTooltips *tooltips,
 			  GtkAccelGroup *accel_group)
@@ -320,42 +312,6 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 			 G_CALLBACK(cb_help_topic_activate), NULL);
 	g_signal_connect((gpointer)help_about, "activate",
 			 G_CALLBACK(cb_help_about_activate), NULL);  
-
-	GLADE_HOOKUP_OBJECT(window_main, menubar, "menubar");
-	GLADE_HOOKUP_OBJECT(window_main, menubar_file, "menubar_file");
-	GLADE_HOOKUP_OBJECT(window_main, menubar_file_menu, "menubar_file_menu");
-	GLADE_HOOKUP_OBJECT(window_main, login, "login");
-	GLADE_HOOKUP_OBJECT(window_main, logout, "logout");
-	GLADE_HOOKUP_OBJECT(window_main, file_separator_one, "file_separator_one");
-	GLADE_HOOKUP_OBJECT(window_main, restart, "restart");
-	GLADE_HOOKUP_OBJECT(window_main, shutdown, "shutdown");
-	GLADE_HOOKUP_OBJECT(window_main, file_separator_two, "file_separator_two");
-	GLADE_HOOKUP_OBJECT(window_main, quit, "quit");
-	GLADE_HOOKUP_OBJECT(window_main, menubar_process, "menubar_process");
-	GLADE_HOOKUP_OBJECT(window_main, menubar_process_menu, "menubar_process_menu");
-	GLADE_HOOKUP_OBJECT(window_main, process_update_three, "process_update_three");
-	GLADE_HOOKUP_OBJECT(window_main, process_update_five, "process_update_five");
-	GLADE_HOOKUP_OBJECT(window_main, separator_one, "separator_one");
-	GLADE_HOOKUP_OBJECT(window_main, process_kill, "process_kill");
-	GLADE_HOOKUP_OBJECT(window_main, image341, "image341");
-	GLADE_HOOKUP_OBJECT(window_main, menubar_fview, "menubar_fview");
-	GLADE_HOOKUP_OBJECT(window_main, menubar_fview_menu, "menubar_fview_menu");
-	GLADE_HOOKUP_OBJECT(window_main, fview_rename, "fview_rename");
-	GLADE_HOOKUP_OBJECT(window_main, image342, "image342");
-	GLADE_HOOKUP_OBJECT(window_main, fview_delete, "fview_delete");
-	GLADE_HOOKUP_OBJECT(window_main, image343, "image343");
-	GLADE_HOOKUP_OBJECT(window_main, edit_separator_one, "edit_separator_one");
-	GLADE_HOOKUP_OBJECT(window_main, fview_upload, "fview_upload");
-	GLADE_HOOKUP_OBJECT(window_main, image344, "image344");
-	GLADE_HOOKUP_OBJECT(window_main, fview_download, "fview_download");
-	GLADE_HOOKUP_OBJECT(window_main, image345, "image345");
-	GLADE_HOOKUP_OBJECT(window_main, menubar_help, "menubar_help");
-	GLADE_HOOKUP_OBJECT(window_main, menubar_help_menu, "menubar_help_menu");
-	GLADE_HOOKUP_OBJECT(window_main, help_topic, "help_topic");
-	GLADE_HOOKUP_OBJECT(window_main, image346, "image346");
-	GLADE_HOOKUP_OBJECT(window_main, help_separator_one, "help_separator_one");
-	GLADE_HOOKUP_OBJECT(window_main, help_about, "help_about");
-	GLADE_HOOKUP_OBJECT(window_main, image347, "image347");
 
 	return menubar;
 }

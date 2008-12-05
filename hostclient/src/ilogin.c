@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -13,13 +9,6 @@
 #include "login.h"
 #include "support.h"
 
-
-#define GLADE_HOOKUP_OBJECT(component,widget,name)\
-	g_object_set_data_full(G_OBJECT(component), name, \
-	gtk_widget_ref(widget),(GDestroyNotify)gtk_widget_unref)
-
-#define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name)\
-	g_object_set_data(G_OBJECT(component), name, widget)
 GtkWidget* create_window_login(void)
 {
 	GtkWidget *window_login;
@@ -239,37 +228,6 @@ GtkWidget* create_window_login(void)
 	g_signal_connect((gpointer)comboboxentry_ip, "changed",
 			G_CALLBACK(cb_comboboxentry_ip_changed),
 			NULL);
-	/* Store pointers to all widgets, for use by lookup_widget(). */
-	GLADE_HOOKUP_OBJECT_NO_REF(window_login, window_login, "window_login");
-	GLADE_HOOKUP_OBJECT(window_login, vbox_login, "vbox_login");
-	GLADE_HOOKUP_OBJECT(window_login, image_login, "image_login");
-	GLADE_HOOKUP_OBJECT(window_login, table_login, "table_login");
-	GLADE_HOOKUP_OBJECT(window_login, label_ip, "label_ip");
-	GLADE_HOOKUP_OBJECT(window_login, label_name, "label_name");
-	GLADE_HOOKUP_OBJECT(window_login, label_passwd, "label_passwd");
-	GLADE_HOOKUP_OBJECT(window_login, comboboxentry_name, "comboboxentry_name");
-	GLADE_HOOKUP_OBJECT(window_login, comboboxentry_ip, "comboboxentry_ip");
-	GLADE_HOOKUP_OBJECT(window_login, hbox5, "hbox5");
-	GLADE_HOOKUP_OBJECT(window_login, entry_passwd, "entry_passwd");
-	GLADE_HOOKUP_OBJECT(window_login, fixed5, "fixed5");
-	GLADE_HOOKUP_OBJECT(window_login, checkbutton_rem, "checkbutton_rem");
-	GLADE_HOOKUP_OBJECT(window_login, hbox2, "hbox2");
-	GLADE_HOOKUP_OBJECT(window_login, button_help, "button_help");
-	GLADE_HOOKUP_OBJECT(window_login, alignment8, "alignment8");
-	GLADE_HOOKUP_OBJECT(window_login, hbox6, "hbox6");
-	GLADE_HOOKUP_OBJECT(window_login, image324, "image324");
-	GLADE_HOOKUP_OBJECT(window_login, label6, "label6");
-	GLADE_HOOKUP_OBJECT(window_login, fixed4, "fixed4");
-	GLADE_HOOKUP_OBJECT(window_login, button_cancel, "button_cancel");
-	GLADE_HOOKUP_OBJECT(window_login, alignment6, "alignment6");
-	GLADE_HOOKUP_OBJECT(window_login, hbox3, "hbox3");
-	GLADE_HOOKUP_OBJECT(window_login, image322, "image322");
-	GLADE_HOOKUP_OBJECT(window_login, label_cancel, "label_cancel");
-	GLADE_HOOKUP_OBJECT(window_login, button_ok, "button_ok");
-	GLADE_HOOKUP_OBJECT(window_login, alignment7, "alignment7");
-	GLADE_HOOKUP_OBJECT(window_login, hbox4, "hbox4");
-	GLADE_HOOKUP_OBJECT(window_login, image323, "image323");
-	GLADE_HOOKUP_OBJECT(window_login, label5, "label5");
 
 	return window_login;
 }

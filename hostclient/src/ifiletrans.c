@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -14,13 +10,6 @@
 #include "filetrans.h"
 #include "mwindow.h"
 #include "support.h"
-
-#define GLADE_HOOKUP_OBJECT(component,widget,name)\
-	g_object_set_data_full(G_OBJECT(component), name, \
-	gtk_widget_ref(widget),(GDestroyNotify)gtk_widget_unref)
-
-#define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name)\
-	g_object_set_data(G_OBJECT(component), name, widget)
 	
 GtkWidget* create_popup_menu_fview(void)
 {
@@ -116,20 +105,6 @@ GtkWidget* create_popup_menu_fview(void)
 			 G_CALLBACK(cb_fview_download_activate),
 			 NULL);
 
-	/* Store pointers to all widgets, for use by lookup_widget(). */
-	GLADE_HOOKUP_OBJECT_NO_REF(popup_menu_fview, popup_menu_fview, "popup_menu_fview");
-	GLADE_HOOKUP_OBJECT(popup_menu_fview, popup_separator, "popup_separator");
-	GLADE_HOOKUP_OBJECT(popup_menu_fview, fview_rename, "fview_rename");
-	GLADE_HOOKUP_OBJECT(popup_menu_fview, image203, "image203");
-	GLADE_HOOKUP_OBJECT(popup_menu_fview, fview_delete, "fview_delete");
-	GLADE_HOOKUP_OBJECT(popup_menu_fview, image204, "image204");
-	GLADE_HOOKUP_OBJECT(popup_menu_fview, edit_separator_one, "edit_separator_one");
-	GLADE_HOOKUP_OBJECT(popup_menu_fview, edit_upload, "edit_upload");
-	GLADE_HOOKUP_OBJECT(popup_menu_fview, image205, "image205");
-	GLADE_HOOKUP_OBJECT(popup_menu_fview, edit_download, "edit_download");
-	GLADE_HOOKUP_OBJECT(popup_menu_fview, image206, "image206");
-	GLADE_HOOKUP_OBJECT_NO_REF(popup_menu_fview, tooltips, "tooltips");
-
 	return popup_menu_fview;
 }
 
@@ -213,21 +188,6 @@ GtkWidget* create_filechooserdialog(void)
 	g_signal_connect((gpointer)filechooserdialog, "delete_event",
 				    G_CALLBACK(gtk_widget_destroy),
 				    NULL);				   
-
-	/* Store pointers to all widgets, for use by lookup_widget(). */
-	GLADE_HOOKUP_OBJECT_NO_REF(filechooserdialog, filechooserdialog, "filechooserdialog");
-	GLADE_HOOKUP_OBJECT_NO_REF(filechooserdialog, dialog_vbox, "dialog_vbox");
-	GLADE_HOOKUP_OBJECT_NO_REF(filechooserdialog, dialog_action_area, "dialog_action_area");
-	GLADE_HOOKUP_OBJECT(filechooserdialog, button_cancel, "button_cancel");
-	GLADE_HOOKUP_OBJECT(filechooserdialog, alignment9, "alignment9");
-	GLADE_HOOKUP_OBJECT(filechooserdialog, hbox7, "hbox7");
-	GLADE_HOOKUP_OBJECT(filechooserdialog, image348, "image348");
-	GLADE_HOOKUP_OBJECT(filechooserdialog, label7, "label7");
-	GLADE_HOOKUP_OBJECT(filechooserdialog, button_open, "button_open");
-	GLADE_HOOKUP_OBJECT(filechooserdialog, alignment10, "alignment10");
-	GLADE_HOOKUP_OBJECT(filechooserdialog, hbox8, "hbox8");
-	GLADE_HOOKUP_OBJECT(filechooserdialog, image349, "image349");
-	GLADE_HOOKUP_OBJECT(filechooserdialog, label8, "label8");
 
 	gtk_widget_grab_default(button_open);
 	return filechooserdialog;

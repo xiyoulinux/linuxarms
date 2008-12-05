@@ -59,6 +59,7 @@ struct hsprocess_struct {
 	boolean (*recv)(struct hsprocess_struct *hsprocess);
 };
 GtkListStore *create_page_sprocess(GtkWidget *notebook_main);
+GtkWidget *create_popup_menu_process(void);
 void cb_process_selection_changed(GtkWidget *widget, gpointer user_data); 
 
 gboolean cb_process_button_press(GtkWidget *widget,

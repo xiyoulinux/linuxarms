@@ -1,6 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -11,14 +8,6 @@
 #include <gtk/gtk.h>
 #include "support.h"
 #include "help.h"
-
-
-#define GLADE_HOOKUP_OBJECT(component,widget,name) \
-	g_object_set_data_full(G_OBJECT(component), name, \
-	gtk_widget_ref(widget),(GDestroyNotify) gtk_widget_unref)
-
-#define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
-	g_object_set_data(G_OBJECT(component), name, widget)
 
 GtkWidget* create_window_help()
 {
@@ -77,16 +66,6 @@ GtkWidget* create_window_help()
 	g_signal_connect((gpointer) button_ok, "clicked",
 			 G_CALLBACK(on_button_ok_clicked),
 			 (gpointer)window_help);
-
-	/* Store pointers to all widgets, for use by lookup_widget(). */
-	GLADE_HOOKUP_OBJECT_NO_REF(window_help, window_help, "window_help");
-	GLADE_HOOKUP_OBJECT(window_help, vbox_main, "vbox_main");
-	GLADE_HOOKUP_OBJECT(window_help, scrolledwindow, "scrolledwindow");
-	GLADE_HOOKUP_OBJECT(window_help, textview, "textview");
-	GLADE_HOOKUP_OBJECT(window_help, hseparator, "hseparator");
-	GLADE_HOOKUP_OBJECT(window_help, hbox, "hbox");
-	GLADE_HOOKUP_OBJECT(window_help, button_ok, "button_ok");
-	
 	
 	gtk_widget_show(window_help);
 	return textview;
