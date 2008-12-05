@@ -1,6 +1,7 @@
 CONFIG_DIR=/etc/linuxarms-armserver/
 CONFIG_FILE=./config
 EXECUTE_DIR=/usr/bin
+DRIVE_FILE=./drive
 OBJECT=armserver
 $(OBJECT):
 	@echo start compiling armserver...
@@ -31,6 +32,20 @@ install:
 		echo "ERROR:can't find file  \"$(CONFIG_FILE)/port.conf\" ..." ;\
 		exit 1 ; \
 	fi
+	@if [ -e "$(DRIVE_FILE)/beep/beepdrv.ko" ] ; \
+	then \
+		echo "test file \"$(DRIVE_FILE)/beep/beepdrv.ko\":exist..." ;\
+	else \
+		echo "ERROR:can't find file  \"$(DRIVE_FILE)/beep/beepdrv.ko\" ..." ;\
+		exit 1 ; \
+	fi
+	@if [ -e "$(DRIVE_FILE)/led/leddrv.ko" ] ; \
+	then \
+		echo "test file \"$(DRIVE_FILE)/led/leddrv.ko\":exist..." ;\
+	else \
+		echo "ERROR:can't find file  \"$(DRIVE_FILE)/led/leddrv.ko\" ..." ;\
+		exit 1 ; \
+	fi
 	@if [ -e $(CONFIG_DIR) ]; \
 	then \
 		echo "WARNING:directory $(CONFIG_DIR) exist..." ; \
@@ -46,6 +61,7 @@ install:
 		exit 1; \
 	fi
 	cp -r $(CONFIG_FILE) $(CONFIG_DIR)
+	cp -r $(DRIVE_FILE) $(CONFIG_DIR)
 	@echo install end.you can type \"make uninstall\" to uninstall \"$(OBJECT)\".
 uninstall:
 	@echo "uninstall \"$(OBJECT)\""

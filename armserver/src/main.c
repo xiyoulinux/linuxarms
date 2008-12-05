@@ -9,6 +9,12 @@ int main(int args, char *argv[])
 	add_file_directory("/etc/linuxarms-armserver/config");
 	add_file_directory("../config");
 	add_file_directory("./config");
+	add_file_directory("/etc/linuxarms-armserver/drive/beep");
+	add_file_directory("../drive/beep");
+	add_file_directory("./drive/beep");
+	add_file_directory("/etc/linuxarms-armserver/drive/led");
+	add_file_directory("../drive/led");
+	add_file_directory("./drive/led");
 	config_file = find_file("port.conf");
 	config_init(config_file);
 

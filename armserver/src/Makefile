@@ -16,7 +16,8 @@ OBJ= main.o         \
 	acsprocess.o\
 	acssinfo.o  \
 	clogin.o    \
-	support.o
+	support.o   \
+	arm.o
 
 HEADER=linuxarms.h \
        protocol.h  \
@@ -33,7 +34,9 @@ HEADER=linuxarms.h \
        asprocess.h \
        assinfo.h   \
        login.h     \
-       support.h
+       support.h   \
+       beepdrv.h   \
+       leddrv.h
 
 $(object):$(OBJ)
 	$(CC) $(CFLAGS) $(OBJ)  -o $(object) $(LINK)
@@ -62,6 +65,8 @@ acssinfo.o :  acssinfo.c   $(HEADER)
 clogin.o :   clogin.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
 support.o :   support.c    $(HEADER)
+	$(CC) $(CFLAGS) -c $<   -o $@  
+arm.o :   arm.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
 
 clean:
