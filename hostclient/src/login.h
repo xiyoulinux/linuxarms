@@ -4,99 +4,93 @@
  * 
  * The file contains the private data structure and API definitions.
  */
+
 #ifndef _LOGIN_H
 #define _LOGIN_H
+
 #include "linuxarms.h"
 #include "error.h"
 #include "debug.h"
-#include <gtk/gtk.h>
+
 #define USER_NAME_LEN 20
 #define PASSWD_LEN 20
+#define CONFIG_BUF_SIZE 4096
+#define INFO_SIZE 80
+
+typedef enum {
+	FAILURE = -1, /* -1 */
+	SUCCESS /* 0 */
+}Status;
+
 /*
- * 
- * 
+ * user_struct  用于存放获取的用户信息
+ * @ip: 用户输入的IP地址
+ * @name: 用户输入的用户名
+ * @passwd: 用户输入的密码
+ * @is_record: 用户是否选择记住用户名和密码
+ * @competence: 
  */
 struct user_struct {
-	char ip[15];
+	char ip[16];
 	char name[USER_NAME_LEN];
 	char passwd[PASSWD_LEN];
 	int is_record;
 	boolean competence;
 };
+
 /*
- * login handling function definitions
- */
-boolean set_ip(struct user_struct *user, const char *ip);
-boolean set_name(struct user_struct *user, const char *name);
-boolean set_passwd(struct user_struct *user, const char *passwd);
-boolean set_is_record(struct user_struct *user, int is_record);
-boolean get_is_record(struct user_struct *user);
-boolean print_info(char *text);
-/*
- * 
- * 
+ * user_config_struct 目录及文件安装配置相关数据结构和公用接口API
+ * @buffer: 读文件存放临时数据的缓冲区
+ * @create_file: 根据提供的文件名创建配置文件
+ * @read_from_config_file: 根据提供的文件名读取数据到缓冲区
+ * @write_to_config_file: 把提供的数据写入到提供文件名文件中
  */
 struct user_config_struct {
-	boolean (*is_config_exist)(void);
-	boolean (*is_path_exist)(const char *pathname);
-	boolean (*is_file_exist)(const char *path);
-	boolean (*config_create)(); /*create $HOME/.linuxarms*/
-	boolean (*create_path)(const char *path);
-	boolean (*create_file)(const char *path, const char *filename);
-	const char *(*search_file)(const char *filename); /*return file path*/
-	const char *(*read_file)(const char *filename);
-	const  char *(*write_file)(const char *filename);
+	char buffer[CONFIG_BUF_SIZE];
+	
+	boolean (*create_file)(const char *filename);
+	boolean (*read_from_config_file)(const char *filename, char buffer[]);
+	boolean (*write_to_config_file)(const char *filename, const char *buffer);
 };
+
 /*
  * configure function definitions
  */
-boolean is_config_exist(void);
-boolean is_path_exist(const char *pathname);
-boolean is_file_exist(const char *path);
-boolean config_create(); /*create $HOME/.linuxarms*/
-boolean create_path(const char *path);
-boolean create_file(const char *path, const char *filename);
-const char *search_file(const char *filename); /*return file path*/
-const char *read_file(const char *filename);
-const  char *write_file(const char *filename);
+/*public interface*/
+boolean create_config_file(const char *filename);
+boolean read_from_config_file(const char *filename, char buffer[]);
+boolean write_to_config_file(const char *filename, const char *buffer);
+
 /*
- * 
- * 
+ * login_struct 用户登录处理及相关信息显示和出错处理
+ * @user: 用户信息
+ * @socket: 网络相关模块
+ * @hmthread: 主线程控制相关
+ * @error_info: 出错信息缓冲
+ * @help_info: 提示、帮助信息缓冲
+ * @status: 网络结果状态信息
  */
 struct login_struct {
-	char error_info[80];
-	char help_info[80];
-	
-	boolean (*set_error_info)(struct login_struct *login, const char *error_info);
-	const char *(*get_error)(struct login_struct *login);
-	void (*show_error_dialog)(const char *error); /*display the error dialog*/
-	void (*show_ip_tooltips)(GtkWidget *login);
-	void (*show_name_tooltips)(GtkWidget *login);
-	void (*show_passwd_toolstips)(GtkWidget *login);
-	void (*show_help_dialog)(const char *help_info);
+	struct user_struct *user;
+	struct hnet_struct *socket;
+	struct hmthread_struct *hmthread;
+	char error_info[INFO_SIZE];
+	char help_info[INFO_SIZE];
+	Status status;
 };
+
 /*
  * login functions definitions
  */
-boolean set_error_info(struct login_struct *login, const char *error_info);
-const char *get_error(struct login_struct *login);
-void show_error_dialog(const char *error); /*display the error dialog*/
-void show_ip_tooltips(GtkWidget *login);
-void show_name_tooltips(GtkWidget *login);
-void show_passwd_toolstips(GtkWidget *login);
-void show_help_dialog(const char *help_info);
+char* get_armserver_ip();
+
 /*
- * callback functions definitions
+ * GTK signal connect callback functions definitions
  */ 
 void cb_login_help_clicked(GtkButton *button, gpointer user_data); /*call login->show_help_dialog(struct login)*/
-
 void cb_login_cancel_clicked(GtkButton *button, gpointer user_data);
-
 void cb_login_ok_clicked(GtkButton *button, gpointer user_data);
-
 void cb_login_rem_toggled(GtkToggleButton *togglebutton, gpointer user_data);
-
 void cb_comboboxentry_ip_changed(GtkComboBox *widget, gpointer user_data);
 
-char *get_armserver_ip();
 #endif
