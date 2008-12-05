@@ -13,50 +13,10 @@
  * not define it.
  */ 
 #define EPC8000
-
-#include <stdio.h>
-
-#ifdef EPC8000
-/*
- * open led
- */
-static void led_clew_open()
-{
-	printf("led open\n");
-}
-/*
- * close led
- */ 
-static void led_clew_close()
-{
-	printf("led close\n");
-}
-/*
- * open beep
- */
-static void beep_ring()
-{
-	printf("beep ring\n");
-}
-
-#else
-static void led_clew_open()
-{
-}
-
-/*
- * close led
- */ 
-static void led_clew_close()
-{
-
-}
-/*
- * open beep
- */
-static void beep_ring()
-{
-
-}
-#endif
+void init_led_beep();
+void close_led_beep();
+void led_clew_open();
+void led_clew_close();
+void beep_ring();
+void beep_close();
 #endif
