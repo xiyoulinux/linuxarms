@@ -17,12 +17,15 @@
 #include "fileview.h"
 #include "sctrl.h"
 #include "statusbar.h"
+#include "hsthread.h"
+#include "hcthread.h"
 
 GtkWidget *window_main;
 /*
  * 创建主窗口
  */
-GtkWidget *create_window_main()
+GtkWidget *create_window_main(struct hsthread_struct *hsthread,
+			      struct hcthread_struct *hcthread)
 {
 	
 	GtkWidget *vbox_main;
@@ -63,13 +66,13 @@ GtkWidget *create_window_main()
 	/* 创建文件浏览界面 */
 	list_store_fview = (GtkListStore *)create_page_fview(notebook_main);
 	/* 创建实时控制界面 */
-	create_ctrl_page(vbox_main, tooltips);
+	create_ctrl_page(vbox_main, tooltips, hcthread);
 	create_statusbar(vbox_main);
 
 	g_signal_connect((gpointer)window_main, "destroy", 
 			 G_CALLBACK(gtk_main_quit), NULL);
 	g_signal_connect((gpointer)notebook_main, "switch_page", 
-			 G_CALLBACK(cb_notebook_switch_page), NULL);
+			 G_CALLBACK(cb_notebook_switch_page), (gpointer)hsthread);
 	
 	gtk_widget_grab_focus(notebook_main);
 	gtk_window_add_accel_group(GTK_WINDOW(window_main), accel_group); 

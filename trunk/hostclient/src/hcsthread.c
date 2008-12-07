@@ -156,7 +156,8 @@ gboolean hsthread_timer(gpointer data)
 		print_error(EWARNING,"启动定时器失败，无法更新时间");
 		return FALSE;
 	}
-	hsthread->send(hsthread);
+	//hsthread->send(hsthread);
+	debug_print("定时器在运行中\n");
 	return TRUE;
 }
 /*
@@ -188,6 +189,7 @@ boolean hsthread_create_timer(struct hsthread_struct *hsthread)
 		return FALSE;
 	}
 	hsthread->timer.timer = gtk_timeout_add(hsthread->timer.time, hsthread_timer, hsthread);
+	debug_print("创建定时器\n");
 	return TRUE;
 	
 }
@@ -199,5 +201,6 @@ boolean hsthread_close_timer(struct hsthread_struct *hsthread)
 		return FALSE;
 	}
 	gtk_timeout_remove(hsthread->timer.timer);
+	debug_print("删除定时器\n");
 	return TRUE;
 }
