@@ -24,8 +24,8 @@ int main(int argc, char *argv[])
 	config_file = find_file("port.conf");
 	if (!config_init(config_file))
 		return 1;
-	//window_main = create_window_main();
-	window_main = create_window_login();
+	window_main = create_window_main();
+	//window_main = create_window_login();
 	gtk_widget_show(window_main);
 	gtk_main();
 	return 0;
