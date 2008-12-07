@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "hcthread.h"
 #include "linuxarms.h"
@@ -44,7 +45,7 @@ boolean showinfo(struct hcthread_struct *hcthread)
 	GtkWidget *textview = hcthread->widget.textview_ctrl;
 	GtkTextBuffer *buffer;
 
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview_ctrl));
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
 	if (hcthread->trans.buffer) {
 		gtk_widget_set_sensitive(hcthread->widget.entry_input, FALSE);
 		gtk_text_buffer_insert_at_cursor(GTK_TEXT_BUFFER(buffer), 
