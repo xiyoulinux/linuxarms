@@ -27,8 +27,8 @@ boolean armserver_init_log(char *usename)
 	/* 创建配置文件 */
 	char log_conf_dir[30] = "_log.conf";
 	char log_dir[30] = "_log";
-	char use_dir[50] = '\0';
-	char temp_dir[50] = '\0';
+	char use_dir[50] = "\0";
+	char temp_dir[50] = "\0";
 	char *conf_sentence = "file_max_size:";
 	int fd;
 	FILE *fp;

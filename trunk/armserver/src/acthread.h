@@ -9,6 +9,7 @@
 #include "anet.h"
 
 #define TRANS_SIZE 512
+#define TEMP_FILE "/tmp/result.txt"
 /*  
  * acthread_trans 实时控制时传送的数据
  * @trans:     控制协议
