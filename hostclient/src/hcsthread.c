@@ -79,20 +79,14 @@ gboolean hsthread_thread(void *p)
 	}
 	return TRUE;
 }
-
-gboolean hsthread_timer(gpointer data)
-{
-	struct hsthread_struct *hsthread =
-		(struct hsthread_struct *)data;
-	if (!hsthread) {
-		print_error(EWARNING,"启动定时器失败，无法更新时间");
-		return FALSE;
-	}
-	hsthread->send(hsthread);
-	return TRUE;
-}
-
-boolean hsthread_set_trans(struct hsthread_struct *hsthread, protocol_sthread ctrl, int kill)
+/*
+ * 设置要传输的数据
+ * @protocol:  要发送的协议
+ * @kill:      要杀死的进程的进程号，如果进程号无效，则置为-1
+ * @return:    成功设置好则则返回TRUE.
+ */
+boolean hsthread_set_trans(struct hsthread_struct *hsthread, 
+			   protocol_sthread protocol, int kill)
 {
 	if (!hsthread) {
 		debug_where();
@@ -148,3 +142,55 @@ boolean hsthread_recv(struct hsthread_struct *hsthread)
 			sizeof(struct hsthread_trans));
 }
 
+/*
+ * 定时器函数，功能是定时向armserver发送更新信息
+ * (系统信息和进程信息)请求.
+ * @data:    struct hsthread_struct.
+ * @return:  如果返回FALSE，则结束定时器。
+ */
+gboolean hsthread_timer(gpointer data)
+{
+	struct hsthread_struct *hsthread =
+		(struct hsthread_struct *)data;
+	if (!hsthread) {
+		print_error(EWARNING,"启动定时器失败，无法更新时间");
+		return FALSE;
+	}
+	hsthread->send(hsthread);
+	return TRUE;
+}
+/*
+ * 设置定时器定时时间，如果给出的定时时间错误，则设置为默认值(3秒)
+ */
+boolean hsthread_set_timer_time(struct hsthread_struct *hsthread, timer_time time)
+{
+	if (!hsthread) {
+		print_error(EWARNING, "无效的参数");
+		return FALSE;
+	}
+	if (!(HSTHREAD_IS_TIMER_TIME(time))) {
+		print_error(EARNING, "定时器时间错误");
+		hsthread->timer.time = TM_THREE * 1000;
+	} else {
+		hsthread->timer.time = time * 1000;
+	}
+	return TRUE;
+
+}
+/*
+ * 创建一个定时器
+ */
+boolean hsthread_create_timer(struct hsthread_struct *hsthread)
+{
+	if (!hsthread) {
+		debug_where();
+		print_error(EWARNING, "无效的参数");
+		return FALSE;
+	}
+	hsthread->timer.timer = gtk_timeout_add(hsthread->timer.time, );
+	
+}
+boolean hsthread_close_timer(struct hsthread_struct *hsthread)
+{
+	 gtk_timeout_remove
+}

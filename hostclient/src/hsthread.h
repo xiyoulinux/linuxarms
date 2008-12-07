@@ -6,10 +6,11 @@
 /*
  * 定时更新的时间间隔
  */
-enum _Timeout {
-	THREE,
-	FIVE,
-};
+typedef enum _Timeout {
+	TM_THREE = 3,
+	TM_FIVE = 5,
+}timer_time;
+#define HSTHREAD_IS_TIMER_TIME(time) (time >= TM_THREE && time <= TM_FIVE)
 /*
  * hsthread_timer 定时器
  * @time:  定时时间
@@ -22,11 +23,11 @@ struct hsthread_timer {
 /*
  * hsthread_trans 系统信息显示和实时监视(进程信息显示)线程
  * 		  传送的数据
- * @ctrl:  控制(见protocol_sthread)
+ * @protocol:  控制(见protocol_sthread)
  * @kill:  要杀死的进程的进程号(当ctrl = KILL时，该域才有效)
  */
 struct hsthread_trans {
-	protocol_sthread ctrl;
+	protocol_sthread protocol;
 	int kill;
 };
 
@@ -68,7 +69,11 @@ gboolean hsthread_thread(void *p);
  * 如果不是杀死进程，则忽略该参数(设置为-1).
  */
 boolean hsthread_send(struct hsthread_struct *hsthread);
+boolean hsthread_set_timer_time(struct hsthread_struct *hsthread, timer_time time);
+boolean hsthread_create_timer(struct hsthread_struct *hsthread);
+boolean hsthread_close_timer(struct hsthread_struct *hsthread);
 /* 接收armserver发送过来的信息 */
 boolean hsthread_recv(struct hsthread_struct *hsthread);
-boolean hsthread_set_trans(struct hsthread_struct *hsthread, protocol_sthread ctrl, int kill);
+boolean hsthread_set_trans(struct hsthread_struct *hsthread,
+			   protocol_sthread protocol, int kill);
 #endif

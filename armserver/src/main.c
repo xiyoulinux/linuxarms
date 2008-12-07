@@ -1,6 +1,7 @@
 #include "amthread.h"
 #include "login.h"
 #include "support.h"
+#include "config.h"
 
 int main(int args, char *argv[])
 {
