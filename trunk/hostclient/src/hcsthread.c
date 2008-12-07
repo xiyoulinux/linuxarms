@@ -58,7 +58,7 @@ gboolean hsthread_thread(void *p)
 	}
 	while (TRUE) {
 		hsthread->recv(hsthread);
-		switch (hsthread->trans.ctrl) {
+		switch (hsthread->trans.protocol) {
 		case SYSINFO:
 			/*显示系统信息*/
 			break;
@@ -93,7 +93,7 @@ boolean hsthread_set_trans(struct hsthread_struct *hsthread,
 		print_error(EWARNING, "无效的参数");
 		return FALSE;
 	}
-	if (!PROTOCOL_IS_STHREAD(ctrl)) {
+	if (!PROTOCOL_IS_STHREAD(protocol)) {
 		debug_where();
 		print_error(EWARNING, "无效的协议，设置发送失败");
 		return FALSE;
@@ -101,7 +101,7 @@ boolean hsthread_set_trans(struct hsthread_struct *hsthread,
 	if (kill < -1) {
 		kill = -1;
 	}
-	hsthread->trans.ctrl = ctrl;
+	hsthread->trans.protocol = protocol;
 	hsthread->trans.kill = kill;
 	return TRUE;
 }
@@ -118,7 +118,7 @@ boolean hsthread_send(struct hsthread_struct *hsthread)
 		return FALSE;
 	}
 	
-	if (!PROTOCOL_IS_STHREAD(hsthread->trans.ctrl)) {
+	if (!PROTOCOL_IS_STHREAD(hsthread->trans.protocol)) {
 		print_error(EWARNING, "无效的协议，发送失败");
 		return FALSE;
 	}
@@ -169,7 +169,7 @@ boolean hsthread_set_timer_time(struct hsthread_struct *hsthread, timer_time tim
 		return FALSE;
 	}
 	if (!(HSTHREAD_IS_TIMER_TIME(time))) {
-		print_error(EARNING, "定时器时间错误");
+		print_error(EWARNING, "定时器时间错误");
 		hsthread->timer.time = TM_THREE * 1000;
 	} else {
 		hsthread->timer.time = time * 1000;
@@ -187,10 +187,17 @@ boolean hsthread_create_timer(struct hsthread_struct *hsthread)
 		print_error(EWARNING, "无效的参数");
 		return FALSE;
 	}
-	hsthread->timer.timer = gtk_timeout_add(hsthread->timer.time, );
+	hsthread->timer.timer = gtk_timeout_add(hsthread->timer.time, hsthread_timer, hsthread);
+	return TRUE;
 	
 }
 boolean hsthread_close_timer(struct hsthread_struct *hsthread)
 {
-	 gtk_timeout_remove
+	if (!hsthread) {
+		debug_where();
+		print_error(EWARNING, "无效的参数");
+		return FALSE;
+	}
+	gtk_timeout_remove(hsthread->timer.timer);
+	return TRUE;
 }
