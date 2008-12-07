@@ -12,7 +12,8 @@
 #include "support.h"
 
 GtkWidget *create_ctrl_page(GtkWidget *vbox_main,
-			    GtkTooltips *tooltips)
+			    GtkTooltips *tooltips,
+			    struct hcthread_struct *hcthread)
 {
 	GtkWidget *frame_main;
 	GtkWidget *alignment_frame;
@@ -75,6 +76,9 @@ GtkWidget *create_ctrl_page(GtkWidget *vbox_main,
 	g_signal_connect((gpointer)entry_input, "key_press_event",
 			 G_CALLBACK(cb_ctrl_input_key_press),
 			 NULL);
+	hcthread->widget.textview_ctrl = textview_ctrl;
+	hcthread->widget.entry_input   = entry_input;
+	hcthread->widget.label_path    = label_frame;
 
 	return NULL;
 }
