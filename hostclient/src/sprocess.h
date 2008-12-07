@@ -23,12 +23,12 @@ enum {
 /*
  * hsprocess_struct 接收armserver发送过来的进程信息
  * @num:   要接收的进程信息的总数
- * @state: 接收的状态。如果为STOP，则停止接收
+ * @protocol: 接收的状态。
  * @info:  接收到的信息
  */
 struct hsprocess_trans {
 	int num;
-	protocol_sthread state;
+	protocol_sthread protocol;
 	char info[PROCESS_INFO_LEN];
 };
 /*
@@ -56,6 +56,7 @@ struct hsprocess_struct {
 	int clock;
 	int kill;
 
+	boolean (*send)(struct hsprocess_struct *hsprocess);
 	boolean (*recv)(struct hsprocess_struct *hsprocess);
 };
 GtkListStore *create_page_sprocess(GtkWidget *notebook_main);
