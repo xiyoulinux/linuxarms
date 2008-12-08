@@ -4,7 +4,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
+#include <string.h>
 
 #include "acthread.h"
 #include "linuxarms.h"
@@ -59,6 +59,8 @@ boolean acthread_handle(struct acthread_struct *acthread)
 	} else if (ret != 0) {
 		printf("command not found\n");
 	} 
+	 if(strstr(acthread->trans.buffer, "cd"))
+		 chdir(&acthread->trans.buffer[3]);
 	return TRUE;
 }
 /*
@@ -89,6 +91,7 @@ boolean acthread_thread(void *p)
 			acthread_recv(acthread); /* 接受数据 */
 		} while (acthread->trans.protocol != CRECVALL);
 		close(fd);
+		remove(TEMP_FILE);
 	}
 	return TRUE;
 }

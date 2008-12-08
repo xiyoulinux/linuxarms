@@ -55,8 +55,6 @@ boolean showinfo(struct hcthread_struct *hcthread)
 				 strlen(hcthread->trans.buffer));
 	}
 	return TRUE;
-
-
 }
 /*
  *实时控制主线程执行体
