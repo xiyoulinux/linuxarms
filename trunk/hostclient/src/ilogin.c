@@ -102,6 +102,7 @@ GtkWidget* create_window_login(void)
 	gtk_table_attach(GTK_TABLE(table_login), comboboxentry_name, 1, 2, 1, 2,
 			(GtkAttachOptions)(GTK_FILL),
 			(GtkAttachOptions)(GTK_FILL), 0, 0);
+	gtk_combo_box_set_add_tearoffs(comboboxentry_name, TRUE);
 	
 	comboboxentry_ip = gtk_combo_box_entry_new_text();/*combo ip*/
 	gtk_combo_box_append_text(GTK_COMBO_BOX(comboboxentry_ip), "192.168.200.67");
@@ -125,6 +126,7 @@ GtkWidget* create_window_login(void)
 	gtk_entry_set_max_length(GTK_ENTRY(entry_passwd), 20);
 	gtk_entry_set_invisible_char(GTK_ENTRY(entry_passwd), 9679);
 	gtk_entry_set_visibility(GTK_ENTRY(entry_passwd),FALSE);
+	gtk_entry_set_width_chars(entry_passwd, 20);
 
 	fixed5 = gtk_fixed_new();
 	gtk_widget_show(fixed5);
@@ -227,7 +229,10 @@ GtkWidget* create_window_login(void)
 			NULL);
 	g_signal_connect((gpointer)comboboxentry_ip, "changed",
 			G_CALLBACK(cb_comboboxentry_ip_changed),
-			NULL);
+			button_ok);
+	g_signal_connect((gpointer)comboboxentry_name, "changed",
+			G_CALLBACK(cb_comboboxentry_name_changed),
+			button_ok);
 
 	return window_login;
 }
