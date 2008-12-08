@@ -11,7 +11,7 @@
 #include "linuxarms.h"
 #include "error.h"
 #include "debug.h"
-
+#include <gtk/gtk.h>
 #define USER_NAME_LEN 20
 #define PASSWD_LEN 20
 #define CONFIG_BUF_SIZE 4096
@@ -92,5 +92,6 @@ void cb_login_cancel_clicked(GtkButton *button, gpointer user_data);
 void cb_login_ok_clicked(GtkButton *button, gpointer user_data);
 void cb_login_rem_toggled(GtkToggleButton *togglebutton, gpointer user_data);
 void cb_comboboxentry_ip_changed(GtkComboBox *widget, gpointer user_data);
+void cb_comboboxentry_name_changed(GtkComboBox *widget, gpointer user_data);
 
 #endif
