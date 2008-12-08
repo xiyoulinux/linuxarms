@@ -10,10 +10,17 @@
 #include "toolbar.h"
 #include "support.h"
 #include "mwindow.h"
+#include "hfthread.h"
+#include "fileview.h"
+#include "htthread.h"
 
 GtkWidget *create_toolbar(GtkWidget *vbox_main,
-			  GtkTooltips *tooltips)
+			  GtkTooltips *tooltips,
+			  struct hfthread_struct *hfthread)
 {
+	struct htthread_struct *hftrans = hfthread->hftrans;
+	struct hfview_struct *hfview = hfthread->hfview;
+
 	GtkWidget *toolbar;
 	GtkIconSize tmp_toolbar_icon_size;
 	GtkWidget *toolitem_back;
@@ -187,6 +194,11 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 	g_signal_connect((gpointer) button_upload, "clicked",
 			 G_CALLBACK(cb_upload_clicked),
 			 NULL);
-		 
+	hfview->widget.up = button_up;
+	hfview->widget.back = button_back;
+	debug_print("为控件指针赋值\n");
+	hftrans->widget.toolbar_upload = button_upload;
+	hftrans->widget.toolbar_download = button_download;
+
 	return toolbar;
 }

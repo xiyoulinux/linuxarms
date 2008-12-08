@@ -11,12 +11,22 @@
 #include "support.h"
 #include "mwindow.h"
 #include "debug.h"
+#include "sprocess.h"
+#include "hsthread.h"
+#include "ssinfo.h"
+#include "fileview.h"
+#include "htthread.h"
 
 GtkWidget *create_menubar(GtkWidget *vbox_main,
 			  GtkTooltips *tooltips,
-			  GtkAccelGroup *accel_group)
+			  GtkAccelGroup *accel_group,
+			  struct main_struct *hmain)
 {
-	
+	struct hsthread_struct *hsthread = hmain->hsthread;
+	struct hsprocess_struct *sprocess = hsthread->sprocess;
+	struct hfview_struct *hfview = hmain->hfthread->hfview;
+	struct htthread_struct *htthread = hmain->hfthread->hftrans;
+
 	GtkWidget *menubar;
 	GtkWidget *menubar_file;
 	GtkWidget *menubar_file_menu;
@@ -295,9 +305,9 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	g_signal_connect((gpointer)quit, "activate",
 			 G_CALLBACK(cb_quit_activate), NULL);
 	g_signal_connect((gpointer)process_update_three, "activate",
-			 G_CALLBACK(cb_process_update_three_activate), NULL);
+			 G_CALLBACK(cb_process_update_three_activate), (gpointer)sprocess);
 	g_signal_connect((gpointer)process_update_five, "activate",
-			 G_CALLBACK(cb_process_update_five_activate), NULL);
+			 G_CALLBACK(cb_process_update_five_activate), (gpointer)sprocess);
 	g_signal_connect((gpointer)process_kill, "activate",
 			 G_CALLBACK(cb_process_kill_activate), NULL);
 	g_signal_connect((gpointer)fview_rename, "activate",
@@ -312,6 +322,15 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 			 G_CALLBACK(cb_help_topic_activate), NULL);
 	g_signal_connect((gpointer)help_about, "activate",
 			 G_CALLBACK(cb_help_about_activate), NULL);  
+	
+	sprocess->widget.menu_kill = process_kill;
+	sprocess->widget.menu_three = process_update_three;
+	sprocess->widget.menu_five = process_update_five;
+
+	hfview->widget.rename = fview_rename;
+	hfview->widget.del = fview_delete;
+	htthread->widget.menubar_upload = fview_upload;
+	htthread->widget.menubar_download = fview_download;
 
 	return menubar;
 }

@@ -4,12 +4,15 @@
 #include <gtk/gtk.h>
 #include "hsthread.h"
 #include "hcthread.h"
-/*gboolean cb_window_main_button_press_event(GtkWidget *widget,
-			GdkEventButton  *event, gpointer user_data);
-*/
+#include "hfthread.h"
+struct main_struct {
+	struct hfthread_struct *hfthread;
+	struct hsthread_struct *hsthread;
+	struct hcthread_struct *hcthread;
+};
+
 extern GtkWidget *window_main;
-GtkWidget *create_window_main(struct hsthread_struct *hsthread,
-			      struct hcthread_struct *hcthread);
+GtkWidget *create_window_main(struct main_struct *main);
 void cb_notebook_switch_page(GtkNotebook *notebook,
 			     GtkNotebookPage *page,
 			     guint page_num, gpointer user_data);

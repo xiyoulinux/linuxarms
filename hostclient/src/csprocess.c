@@ -1,7 +1,8 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
+/*
+ * linuxarms/hostclient/src/csprocess.c
+ * 实时监视(显示进程信息)模块处理函数
+ * Niu Tao<niutao0602@gmail.com>
+ */
 #include <gtk/gtk.h>
 #include "linuxarms.h"
 #include "sprocess.h"
@@ -12,6 +13,7 @@
  */
 void cb_process_selection_changed(GtkWidget *widget, gpointer user_data)
 {
+
 }
 /*
  * 用户在treeview_process控件上按下鼠标的时候，调用该回调函数
@@ -32,7 +34,7 @@ gboolean cb_process_button_press(GtkWidget *widget,
  * 用户在treeview)process控件上按下鼠标右键弹出的右键菜单中
  * 选择杀死进程的时候，调用该回调函数
  */
-void cb_popup_process_kill_activate(GtkMenuItem *menuitem,gpointer user_data)
+void cb_process_kill_activate(GtkMenuItem *menuitem,gpointer user_data)
 {
 
 }

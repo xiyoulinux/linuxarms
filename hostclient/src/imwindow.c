@@ -24,10 +24,13 @@ GtkWidget *window_main;
 /*
  * 创建主窗口
  */
-GtkWidget *create_window_main(struct hsthread_struct *hsthread,
-			      struct hcthread_struct *hcthread)
+GtkWidget *create_window_main(struct main_struct *hmain)
 {
-	
+	struct hsthread_struct *hsthread = hmain->hsthread;
+	struct hcthread_struct *hcthread = hmain->hcthread;
+	struct hfthread_struct *hfthread = hmain->hfthread;
+	struct htthread_struct *htthread = hmain->hfthread->hftrans;
+
 	GtkWidget *vbox_main;
 	GtkWidget *menubar;
 	GtkWidget *toolbar;
@@ -53,8 +56,8 @@ GtkWidget *create_window_main(struct hsthread_struct *hsthread,
 	gtk_widget_show(vbox_main);
 	gtk_container_add(GTK_CONTAINER(window_main), vbox_main);
 
-	menubar = (GtkWidget *)create_menubar(vbox_main, tooltips,accel_group);
-	toolbar = (GtkWidget *)create_toolbar(vbox_main,tooltips);
+	menubar = (GtkWidget *)create_menubar(vbox_main, tooltips,accel_group,hmain);
+	toolbar = (GtkWidget *)create_toolbar(vbox_main,tooltips, hfthread);
 
 	notebook_main = gtk_notebook_new();
 	gtk_widget_show(notebook_main);
@@ -62,7 +65,7 @@ GtkWidget *create_window_main(struct hsthread_struct *hsthread,
 	/* 创建系统信息显示界面 */
 	create_page_ssinfo(notebook_main);
 	/* 创建进程信息显示界面 */
-	list_store_process = (GtkListStore *)create_page_sprocess(notebook_main);
+	list_store_process = (GtkListStore *)create_page_sprocess(notebook_main, hsthread);
 	/* 创建文件浏览界面 */
 	list_store_fview = (GtkListStore *)create_page_fview(notebook_main);
 	/* 创建实时控制界面 */
@@ -72,7 +75,7 @@ GtkWidget *create_window_main(struct hsthread_struct *hsthread,
 	g_signal_connect((gpointer)window_main, "destroy", 
 			 G_CALLBACK(gtk_main_quit), NULL);
 	g_signal_connect((gpointer)notebook_main, "switch_page", 
-			 G_CALLBACK(cb_notebook_switch_page), (gpointer)hsthread);
+			 G_CALLBACK(cb_notebook_switch_page), (gpointer)hmain);
 	
 	gtk_widget_grab_focus(notebook_main);
 	gtk_window_add_accel_group(GTK_WINDOW(window_main), accel_group); 

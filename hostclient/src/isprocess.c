@@ -10,6 +10,7 @@
 #include "sprocess.h"
 #include "mwindow.h"
 #include "support.h"
+#include "hsthread.h"
 
 static char *column_name[]={
 		"进程名",
@@ -19,8 +20,11 @@ static char *column_name[]={
 		"内存使用",
 };
 
-GtkListStore  *create_page_sprocess(GtkWidget *notebook_main)
+GtkListStore  *create_page_sprocess(GtkWidget *notebook_main,
+				    struct hsthread_struct *hsthread)
 {
+	struct hsprocess_struct *sprocess = hsthread->sprocess;
+
 	GtkWidget *label_sprocess;
 	GtkWidget *scrolledwindow_process;
 	GtkWidget *treeview_process;
@@ -160,7 +164,7 @@ GtkWidget *create_popup_menu_process(void)
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(popup_process_kill), image209);
 
 	g_signal_connect((gpointer) popup_process_kill, "activate",
-			 G_CALLBACK(cb_popup_process_kill_activate), NULL);
+			 G_CALLBACK(cb_process_kill_activate), NULL);
 
 	return popup_menu_process;
 }

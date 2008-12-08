@@ -1,10 +1,12 @@
 #ifndef _MENUBAR_H
 #define _MENUBAR_H
 #include <gtk/gtk.h>
+#include "mwindow.h"
 
 GtkWidget *create_menubar(GtkWidget *vbox_main,
 			  GtkTooltips *tooltips,
-			  GtkAccelGroup *accel_group);
+			  GtkAccelGroup *accel_group,
+			  struct main_struct *hmain);
 void cb_login_activate(GtkMenuItem *menuitem, gpointer user_data);
 
 void cb_logout_activate(GtkMenuItem *menuitem, gpointer user_data);
@@ -19,11 +21,16 @@ void cb_process_update_three_activate(GtkMenuItem *menuitem,
 
 void cb_process_update_five_activate(GtkMenuItem *menuitem,
 				     gpointer user_data);    
-void cb_process_kill_activate(GtkMenuItem *menuitem, gpointer user_data);
-void cb_fview_delete_activate(GtkMenuItem *menuitem, gpointer user_data);
-void cb_fview_upload_activate(GtkMenuItem *menuitem, gpointer user_data);
-void cb_fview_download_activate(GtkMenuItem *menuitem, gpointer user_data);
-void cb_fview_rename_activate(GtkMenuItem *menuitem, gpointer user_data);
+/*csprocess.c */
+extern void cb_process_kill_activate(GtkMenuItem *menuitem, gpointer user_data);
+/* cfiletrans.c */
+extern void cb_fview_upload_activate(GtkMenuItem *menuitem, gpointer user_data);
+/* cfiletrans.c */
+extern void cb_fview_download_activate(GtkMenuItem *menuitem, gpointer user_data);
+/* cfiletrans.c */
+extern void cb_fview_rename_activate(GtkMenuItem *menuitem, gpointer user_data);
+/* cfiletrans.c */
+extern void cb_fview_delete_activate(GtkMenuItem *menuitem, gpointer user_data);
 
 void cb_help_topic_activate(GtkMenuItem *menuitem, gpointer user_data);
 

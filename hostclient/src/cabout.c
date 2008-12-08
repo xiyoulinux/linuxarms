@@ -1,6 +1,7 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include "support.h"
 #include "about.h"
