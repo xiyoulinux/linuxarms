@@ -3,7 +3,6 @@
 /*
  * 主线程交互协议
  */
-#define  PROTOCOL_IS_MTHREAD(protocol) (protocol >= LOGIN && protocol < MMAX)
 typedef enum _Mthread {
         LOGIN,       /* 用户登录 */
 	NOUSER,      /* 没有用户信息 */
@@ -18,10 +17,10 @@ typedef enum _Mthread {
 	MSUCCESS,    /* 执行成功 */
         MMAX         /* 无效命令 */
 }protocol_mthread;
+#define  PROTOCOL_IS_MTHREAD(protocol) (protocol >= LOGIN && protocol < MMAX)
 /*
  * 系统信息显示和实时监视线程交互协议
  */
-#define  PROTOCOL_IS_STHREAD(protocol) (protocol >= SYSINFO && protocol < SMAX)
 typedef enum _Sthread {
 	SYSINFO,  /* 系统信息显示 */
 	SPROCESS, /* 实时监视(进程信息显示) */
@@ -34,10 +33,10 @@ typedef enum _Sthread {
 	SRECVERR, /* 接收错误 */ 
 	SMAX,     /* 无效命令 */
 }protocol_sthread;
+#define  PROTOCOL_IS_STHREAD(protocol) (protocol >= SYSINFO && protocol < SMAX)
 /*
  * 文件浏览和文件传输交互协议
  */
-#define  PROTOCOL_IS_FTHREAD(protocol) (protocol >= FUP && protocol < FMAX)
 typedef enum _Fthread {
 	FUP,      /* 上传文件 */
 	FDOWN,    /* 下载文件 */
@@ -52,10 +51,10 @@ typedef enum _Fthread {
 	FSENDALL, /* 发送完毕 */
 	FMAX      /* 无效命令 */
 }protocol_fthread;
+#define  PROTOCOL_IS_FTHREAD(protocol) (protocol >= FUP && protocol < FMAX)
 /*
  * 实时控制交互协议
  */
-#define  PROTOCOL_IS_CTHREAD(protocol) (protocol >= CSEND && protocol < CMAX)
 typedef enum _Cthread {
 	CSEND,    /* 发送数据 */
 	CRECV,    /* 接收数据 */
@@ -63,5 +62,6 @@ typedef enum _Cthread {
 	CRECVALL, /* 接收完毕 */
 	CMAX      /* 无效命令 */
 }protocol_cthread;
+#define  PROTOCOL_IS_CTHREAD(protocol) (protocol >= CSEND && protocol < CMAX)
 
 #endif

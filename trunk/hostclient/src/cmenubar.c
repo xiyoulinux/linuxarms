@@ -3,6 +3,8 @@
 #include "about.h"
 #include "help.h"
 #include "filetrans.h"
+#include "hsthread.h"
+#include "sprocess.h"
 #include "support.h"
 #include "error.h"
 
@@ -46,34 +48,25 @@ void cb_quit_activate(GtkMenuItem *menuitem, gpointer user_data)
 
 void cb_process_update_three_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
-	debug_where();
-	debug_print("");
+	struct hsprocess_struct *hsprocess = 
+		(struct hsprocess_struct *)user_data;
 
+	debug_where();
+	hsprocess->clock = TM_THREE;
+	debug_print("修改定时时间为3秒钟\n");
 }
 
 
 void cb_process_update_five_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
+	struct hsprocess_struct *hsprocess = 
+		(struct hsprocess_struct *)user_data;
+
 	debug_where();
-	debug_print("");
+	hsprocess->clock = TM_FIVE;
+	debug_print("修改定时时间为5秒钟\n");
 
 }
-
-
-void cb_process_kill_activate(GtkMenuItem *menuitem, gpointer user_data)
-{
-	debug_where();
-	debug_print("");
-
-}
-
-extern void cb_fview_upload_activate(GtkMenuItem *menuitem, gpointer user_data);
-
-extern void cb_fview_downooad_activate(GtkMenuItem *menuitem, gpointer user_data);
-
-extern void cb_fview_rename_activate(GtkMenuItem *menuitem, gpointer user_data);
-
-extern void cb_fview_delete_activate(GtkMenuItem *menuitem, gpointer user_data);
 
 void cb_help_topic_activate(GtkMenuItem *menuitem, gpointer user_data)
 {

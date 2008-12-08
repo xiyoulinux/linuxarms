@@ -5,16 +5,27 @@
 #include "config.h"
 #include "hsthread.h"
 #include "hcthread.h"
+#include "sprocess.h"
+#include "hfthread.h"
+#include "htthread.h"
+#include "fileview.h"
 
 int main(int argc, char *argv[])
 {
 	//GtkWidget *window_main;
 	char *config_file;
-	
+	struct main_struct hmain;
+
 	struct hsthread_struct hsthread;
 	struct hsthread_timer timer;
-	/***************hcthread_struct***************************************/
+	struct hsprocess_struct sprocess;
+	/***************hcthread_struct****************************/
 	struct hcthread_struct hcthread;
+	/***************hfthread_struct****************************/
+	struct hfthread_struct hfthread;
+	struct hfview_struct hfview;
+	struct htthread_struct hftrans;
+
 	gtk_set_locale();
 	gtk_init(&argc, &argv);
 	add_file_directory("/usr/share/linuxarms-hostclient/pixmaps");
@@ -30,11 +41,24 @@ int main(int argc, char *argv[])
 	config_file = find_file("port.conf");
 	if (!config_init(config_file))
 		return 1;
-	//hsthread_set_timer_time(&hsthread, TM_THREE);
+	/***************init hsthread**************************/
 	timer.time = TM_THREE * 1000;
 	timer.timer = -1;
 	hsthread.timer = timer;
-	window_main = create_window_main(&hsthread, &hcthread);
+
+	sprocess.clock = TM_THREE;
+	hsthread.sprocess = &sprocess;
+	
+	/***************init hfthread**************************/
+	hfthread.hfview = &hfview;
+	hfthread.hftrans = &hftrans;
+
+	hmain.hsthread = &hsthread;
+	hmain.hcthread = &hcthread;
+	hmain.hfthread = &hfthread;
+	
+	window_main = create_window_main(&hmain);
+
 	//window_main = create_window_login();
 	gtk_widget_show(window_main);
 	hsthread_set_trans(&hsthread, SYSINFO, -1);

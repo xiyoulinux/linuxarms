@@ -3,6 +3,7 @@
 #include <gtk/gtk.h>
 #include "protocol.h"
 #include "linuxarms.h"
+#include "hsthread.h"
 
 #define PROCESS_COLUMNS 5
 #define PROCESS_INFO_LEN 256
@@ -39,8 +40,10 @@ struct hsprocess_trans {
  * @popup_kill:    右键菜单杀死进程控件
  */
 struct sprocess_widget {
-	GtkListStore *treeview;
+	GtkWidget *treeview;
 	GtkWidget *menu_kill;
+	GtkWidget *menu_three;
+	GtkWidget *menu_five;
 	GtkWidget *popup_kill;
 };
 /*
@@ -53,13 +56,14 @@ struct sprocess_widget {
 struct hsprocess_struct {
 	struct hsprocess_trans trans;
 	struct sprocess_widget widget;
-	int clock;
+	timer_time clock;
 	int kill;
 
 	boolean (*send)(struct hsprocess_struct *hsprocess);
 	boolean (*recv)(struct hsprocess_struct *hsprocess);
 };
-GtkListStore *create_page_sprocess(GtkWidget *notebook_main);
+GtkListStore *create_page_sprocess(GtkWidget *notebook_main,
+				   struct hsthread_struct *hsthread);
 GtkWidget *create_popup_menu_process(void);
 void cb_process_selection_changed(GtkWidget *widget, gpointer user_data); 
 
@@ -68,6 +72,6 @@ gboolean cb_process_button_press(GtkWidget *widget,
 
 
 
-void cb_popup_process_kill_activate(GtkMenuItem*menuitem,
+void cb_process_kill_activate(GtkMenuItem*menuitem,
                                     gpointer user_data);
 #endif
