@@ -226,13 +226,24 @@ GtkWidget* create_window_login(void)
 			NULL);
 	g_signal_connect((gpointer)button_ok, "clicked",
 			G_CALLBACK(cb_login_ok_clicked),
-			NULL);
+			window_login);
 	g_signal_connect((gpointer)comboboxentry_ip, "changed",
 			G_CALLBACK(cb_comboboxentry_ip_changed),
 			button_ok);
 	g_signal_connect((gpointer)comboboxentry_name, "changed",
 			G_CALLBACK(cb_comboboxentry_name_changed),
 			button_ok);
-
+	g_signal_connect((gpointer)entry_passwd, "activate",
+			G_CALLBACK(cb_entry_passwd_activate),
+			button_ok);			
+	g_signal_connect((gpointer)entry_passwd, "backspace",
+			G_CALLBACK(cb_entry_passwd_backspace),
+			button_ok);
+	g_signal_connect((gpointer)entry_passwd, "insert-at-cursor",
+			G_CALLBACK(cb_entry_passwd_backspace),
+			button_ok);
+	g_signal_connect((gpointer)entry_passwd, "focus-out-event",
+			G_CALLBACK(cb_entry_passwd_focus_out_event),
+			button_ok);
 	return window_login;
 }

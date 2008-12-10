@@ -14,7 +14,7 @@
 #include <gtk/gtk.h>
 #define USER_NAME_LEN 20
 #define PASSWD_LEN 20
-#define CONFIG_BUF_SIZE 4096
+#define CONFIG_BUF_SIZE 256
 #define INFO_SIZE 80
 
 typedef enum {
@@ -75,7 +75,6 @@ struct login_struct {
 	struct hnet_struct *socket;
 	struct hmthread_struct *hmthread;
 	char error_info[INFO_SIZE];
-	char help_info[INFO_SIZE];
 	Status status;
 };
 
@@ -93,5 +92,7 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data);
 void cb_login_rem_toggled(GtkToggleButton *togglebutton, gpointer user_data);
 void cb_comboboxentry_ip_changed(GtkComboBox *widget, gpointer user_data);
 void cb_comboboxentry_name_changed(GtkComboBox *widget, gpointer user_data);
-
+void cb_entry_passwd_activate(GtkEntry *widget, gpointer *user_data);
+void cb_entry_passwd_backspace(GtkEntry *widget, gpointer *user_data);
+gboolean cb_entry_passwd_focus_out_event(GtkWidget *widget, GdkEventFocus *event, gpointer *user_data);
 #endif

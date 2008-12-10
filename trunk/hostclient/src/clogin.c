@@ -17,11 +17,6 @@ int ok_on_flag[3] = {0};
  * static function definitions
  */
 /*inward interface*/
-static boolean set_ip(struct user_struct *user, const char *ip);
-static boolean set_name(struct user_struct *user, const char *name);
-static boolean set_passwd(struct user_struct *user, const char *passwd);
-static boolean set_is_record(struct user_struct *user, int is_record);
-static boolean get_is_record(struct user_struct *user);
 static boolean print_info(char *text);
 /*
  * configure function definitions
@@ -41,14 +36,13 @@ static const  char *write_file(const char *filename);
  */
 /*inward interface*/
 static boolean is_ip_right(const char *ip, char *error_info);
+static boolean is_name_right(const char *name, char *error_info);
+static boolean is_passwd_right(const char *passwd, char *error_info);
 static inline int get_domain(const char *ip, const int n);
 static boolean is_name_right(const char *name, char *error_info);
 static boolean set_error_info(struct login_struct *login, const char *error_info);
 static const char *get_error(struct login_struct *login);
-static void show_error_dialog(const char *error); /*display the error dialog*/
-static void show_ip_tooltips(GtkWidget *login);
-static void show_name_tooltips(GtkWidget *login);
-static void show_passwd_toolstips(GtkWidget *login);
+static void show_error_dialog(GtkWidget *widget, const char *error); /*display the error dialog*/
 static void show_help_dialog(const char *help_info);
 /*
  * callback functions
@@ -64,7 +58,6 @@ void cb_login_rem_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 		printf("user.is_record = %d\n", user.is_record);
 #endif
 }
-
 
 void cb_login_help_clicked(GtkButton *button, gpointer user_data)
 {
@@ -98,109 +91,161 @@ void cb_login_help_clicked(GtkButton *button, gpointer user_data)
 
 }
 
-
 void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 {
-	//debug_where();
+	char error_info[80] = { 0 };
+	char error_box[200] = { 0 };
+	boolean ret;
 	
+	ret = is_ip_right(user.ip, error_info);
+	if (ret == FALSE) {
+		strcat(error_box, "IP ERROR:\n\t");
+		strcat(error_box, error_info);
+	}
+	ret = is_name_right(user.name, error_info);
+	if (ret == FALSE) {
+		strcat(error_box, "NAME ERROR:\n\t");
+		strcat(error_box, error_info);
+	}
+	ret = is_passwd_right(user.passwd, error_info);
+	if (ret == FALSE) {
+		strcat(error_box, "PASSWD ERROR:\n\t");
+		strcat(error_box, error_info);
+	}
+	if (strlen(error_box) != 0) {
+		show_error_dialog(user_data, error_box);
+		goto out;
+	} else {
+		printf("all right\n");
+		goto out1;
+	}
+	//printf("error_box = %s \n error_info = %s \n",error_box, error_info);
+out1:
+	show_error_dialog(user_data, "\n\tlogin fail???");
+out:
+	return;
 }
 
 void cb_comboboxentry_ip_changed(GtkComboBox *widget, gpointer user_data)
 {
 	char *user_ip;
-	//have not fix
-	char buf[20];
-	GtkTreeIter iter;
 	
-	user_ip = gtk_combo_box_get_active_text(widget); //get user input ip
-	if (strcmp(user.ip, user_ip) != 0)
-		strcpy(user.ip, user_ip);
-		
-#ifdef _DEBUG_LZEL_
+	if (gtk_combo_box_get_active(widget) >= 0) {
+		user_ip = gtk_combo_box_get_active_text(widget);
+		if (strcmp(user.ip, user_ip) != 0)
+			strcpy(user.ip, user_ip);
+#ifdef _DEBUG_LZEL
+		printf("user.ip = %s\n", user.ip);
+#endif
+	} else if (gtk_combo_box_get_active(widget) == -1) {
+		user_ip = gtk_combo_box_get_active_text(widget); //get user input ip
+		if (strcmp(user.ip, user_ip) != 0)
+			strcpy(user.ip, user_ip);
+#ifdef _DEBUG_LZEL
 	printf("user.ip = %s\n", user.ip);
 #endif
-	
-	switch (gtk_combo_box_get_active(widget)) {
-	case 0:
-		printf("chioce 0\n");
-		break;
-	case 1:
-		printf("chioce 1\n");
-		break;
-	default:
-		break;
+	} else {
+		debug_where();
 	}
-	ok_on_flag[0] = 1;
-	ok_on_flag[2] = 1;
+	if ((user.ip == NULL) || (strlen(user.ip) == 0))
+		ok_on_flag[0] = 0;
+	else
+		ok_on_flag[0] = 1;
 	if ((ok_on_flag[0] == 1) && (ok_on_flag[1] == 1) && (ok_on_flag[2] == 1))
 		gtk_widget_set_sensitive(user_data, TRUE);
+	else
+		gtk_widget_set_sensitive(user_data, FALSE);
 }
+
 void cb_comboboxentry_name_changed(GtkComboBox *widget, gpointer user_data)
 {
 	char *user_name;
-	//have not fix
-	char buf[20];
-	GtkTreeIter iter;
-	
-	user_name = gtk_combo_box_get_active_text(widget); //get user input ip
-	if (strcmp(user.name, user_name) != 0)
-		strcpy(user.name, user_name);
-#ifdef _DEBUG_LZEL_
-	printf("user.ip = %s\n", user.name);
-#endif
 
-#if 0
-	if (gtk_combo_box_get_focus_on_click(widget) == TRUE) {
-		printf("focus on\n");
-	}
-	if (gtk_combo_box_get_focus_on_click(widget) == FALSE) {
-		printf("focus off\n");
-	}
+	if (gtk_combo_box_get_active(widget) >= 0) {
+	user_name = gtk_combo_box_get_active_text(widget);
+		if (strcmp(user.name, user_name) != 0)
+				strcpy(user.name, user_name);
+#ifdef _DEBUG_LZEL
+		printf("user.name = %s\n", user.name);
 #endif
-	//if (gtk_combo_box_get_focus_on_click(widget) == TRUE)
-	//	printf("mouse is move off\n");
-	//printf("%s\n",point);
-	//if (gtk_combo_box_get_active_iter(widget, &iter) == FALSE) 
-	//	printf("%s\n",point);
-	//gtk_combo_box_append_text(widget, point);
-	switch (gtk_combo_box_get_active(widget)) {
-	case 0:
-		printf("chioce 0\n");
-		break;
-	case 1:
-		printf("chioce 1\n");
-		break;
-	default:
-		break;
+	} else if (gtk_combo_box_get_active(widget) == -1) {
+		user_name = gtk_combo_box_get_active_text(widget); //get user input ip
+		if (strcmp(user.name, user_name) != 0)
+			strcpy(user.name, user_name);
+#ifdef _DEBUG_LZEL
+		printf("user.name = %s\n", user.name);
+#endif
+	} else {
+		debug_where();
 	}
-	ok_on_flag[1] = 1;
+	if ((strlen(user.name) == 0) || (user.name == NULL))
+		ok_on_flag[1] = 0;
+	else
+		ok_on_flag[1] = 1;
 	if ((ok_on_flag[0] == 1) && (ok_on_flag[1] == 1) && (ok_on_flag[2] == 1))
 		gtk_widget_set_sensitive(user_data, TRUE);
+	else
+		gtk_widget_set_sensitive(user_data, FALSE);
+//#endif
 }
-
+gboolean cb_entry_passwd_focus_out_event(GtkWidget *widget, GdkEventFocus *event, gpointer *user_data)
+{
+	char *tmp;
+	
+	tmp = gtk_entry_get_text(GTK_ENTRY(widget));
+	if (strcmp(user.passwd, tmp) != 0)
+		strcpy(user.passwd, tmp);
+#ifdef _DEBUG_LZEL
+	printf("user.passwd = %s\n",user.passwd);
+#endif
+	if ((user.passwd == NULL) || (strlen(user.passwd) == 0))
+		ok_on_flag[2] = 0;
+	else
+		ok_on_flag[2] = 1;
+	if ((ok_on_flag[0] == 1) && (ok_on_flag[1] == 1) && (ok_on_flag[2] == 1))
+		gtk_widget_set_sensitive(user_data, TRUE);
+	else
+		gtk_widget_set_sensitive(user_data, FALSE);
+	return FALSE;
+}
+void cb_entry_passwd_activate(GtkEntry *widget, gpointer *user_data)
+{
+	char *tmp;
+	
+	tmp = gtk_entry_get_text(widget);
+	if (strcmp(user.passwd, tmp) != 0)
+		strcpy(user.passwd, tmp);
+#ifdef _DEBUG_LZEL
+	printf("user.passwd = %s\n",user.passwd);
+#endif
+	if ((user.passwd == NULL) || (strlen(user.passwd) == 0))
+		ok_on_flag[2] = 0;
+	else
+		ok_on_flag[2] = 1;
+	if ((ok_on_flag[0] == 1) && (ok_on_flag[1] == 1) && (ok_on_flag[2] == 1))
+		gtk_widget_set_sensitive(user_data, TRUE);
+	else
+		gtk_widget_set_sensitive(user_data, FALSE);
+}
+void cb_entry_passwd_backspace(GtkEntry *widget, gpointer *user_data)
+{
+	char *tmp;
+	
+	tmp = gtk_entry_get_text(widget);
+	if (strcmp(user.passwd, tmp) != 0)
+		strcpy(user.passwd, tmp);
+	if ((user.passwd == NULL) || (strlen(user.passwd) == 0))
+		ok_on_flag[2] = 0;
+	else
+		ok_on_flag[2] = 1;
+	if ((ok_on_flag[0] == 1) && (ok_on_flag[1] == 1) && (ok_on_flag[2] == 1))
+		gtk_widget_set_sensitive(user_data, TRUE);
+	else
+		gtk_widget_set_sensitive(user_data, FALSE);
+}
 /*
  * some handling functions for login using
  */
-boolean set_ip(struct user_struct *user, const char *ip)
-{
-	
-}
-boolean set_name(struct user_struct *user, const char *name)
-{
-	
-}
-boolean set_passwd(struct user_struct *user, const char *passwd)
-{
-	
-}
-boolean set_is_record(struct user_struct *user, int is_record)
-{
-	
-}
-boolean get_is_record(struct user_struct *user)
-{
-	
-}
 boolean print_info(char *text)
 {
 	
@@ -249,7 +294,7 @@ const  char *write_file(const char *filename)
 /*
  * some handling functions for login
  */
-static boolean is_ip_right(const char *ip, char *error_info)
+boolean is_ip_right(const char *ip, char *error_info)
 {
 	boolean is_right = FALSE;
 	int ip_len;
@@ -257,11 +302,11 @@ static boolean is_ip_right(const char *ip, char *error_info)
 	int i;
 	
 	ip_len = strlen(ip);
-	if (ip_len != 15) {
+	if (ip_len != 14) {
 #ifdef _DEBUG_LZEL
-		printf("the lenght of ip is %d not 15 \n", ip_len);
+		printf("the lenght of ip is %d not 14 \n", ip_len);
 #endif
-		sprintf(error_info,"the totle lenght of ip is not right");
+		sprintf(error_info,"the totle lenght of ip is not right\n");
 		goto out;
 	}
 	if ( !((ip[3] == '.') && (ip[7] == '.') && (ip[11] == '.')) ) {
@@ -274,7 +319,7 @@ static boolean is_ip_right(const char *ip, char *error_info)
 	for ( i = 0; i <= 4; i++) {
 		if ((ip_domain = get_domain(ip, i)) < 0) {
 #ifdef _DEBUG_LZEL
-		debug_where();
+			debug_where();
 #endif				
 			goto out;
 		}
@@ -282,8 +327,8 @@ static boolean is_ip_right(const char *ip, char *error_info)
 #ifdef _DEBUG_LZEL
 		printf("IP domain in the %dth is wrong\n", i);
 #endif				
-		sprintf(error_info, "the format of some domain is not right\n");
-		goto out;
+			sprintf(error_info, "the format of some domain is not right\n");
+			goto out;
 		}
 	}
 	is_right = TRUE;
@@ -321,6 +366,25 @@ static boolean is_name_right(const char *name, char *error_info)
 out:
 	return is_right;
 }
+
+static boolean is_passwd_right(const char *passwd, char *error_info)
+{
+	boolean is_right = FALSE;
+	int passwd_len;
+	
+	passwd_len = strlen(passwd);
+	if ((passwd_len < 6) || (passwd_len > 20)) {
+#ifdef _DEBUG_LZEL
+		printf("name length should between 4 and 20\n");
+#endif		
+		sprintf(error_info, "passwd length should between 6 and 20\n");
+		goto out;		
+	}
+	is_right = TRUE;
+out:
+	return is_right;
+}
+
 boolean set_error_info(struct login_struct *login, const char *error_info)
 {
 	
@@ -329,9 +393,17 @@ const char *get_error(struct login_struct *login)
 {
 	
 }
-void show_error_dialog(const char *error) /*display the error dialog*/
+static void show_error_dialog(GtkWidget *widget, const char *error) /*display the error dialog*/
 {
-	
+	GtkWidget *dialog;
+	 dialog = gtk_message_dialog_new (GTK_WIDGET(widget),
+                                  GTK_DIALOG_DESTROY_WITH_PARENT,
+                                  GTK_MESSAGE_ERROR,
+                                  GTK_BUTTONS_CLOSE,
+                                  "\t\tERROR!\n%s",
+                                  error);
+ 	gtk_dialog_run (GTK_DIALOG (dialog));
+ 	gtk_widget_destroy (dialog);
 }
 void show_ip_tooltips(GtkWidget *login)
 {
@@ -352,4 +424,5 @@ void show_help_dialog(const char *help_info)
 
 char *get_armserver_ip()
 {
+	
 }
