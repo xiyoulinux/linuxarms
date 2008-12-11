@@ -102,7 +102,7 @@ GtkWidget* create_window_login(void)
 	gtk_table_attach(GTK_TABLE(table_login), comboboxentry_name, 1, 2, 1, 2,
 			(GtkAttachOptions)(GTK_FILL),
 			(GtkAttachOptions)(GTK_FILL), 0, 0);
-	gtk_combo_box_set_add_tearoffs(comboboxentry_name, TRUE);
+	gtk_combo_box_set_add_tearoffs(GTK_COMBO_BOX(comboboxentry_name), TRUE);
 	
 	comboboxentry_ip = gtk_combo_box_entry_new_text();/*combo ip*/
 	gtk_combo_box_append_text(GTK_COMBO_BOX(comboboxentry_ip), "192.168.200.67");
@@ -126,7 +126,7 @@ GtkWidget* create_window_login(void)
 	gtk_entry_set_max_length(GTK_ENTRY(entry_passwd), 20);
 	gtk_entry_set_invisible_char(GTK_ENTRY(entry_passwd), 9679);
 	gtk_entry_set_visibility(GTK_ENTRY(entry_passwd),FALSE);
-	gtk_entry_set_width_chars(entry_passwd, 20);
+	gtk_entry_set_width_chars(GTK_ENTRY(entry_passwd), 20);
 
 	fixed5 = gtk_fixed_new();
 	gtk_widget_show(fixed5);
@@ -217,33 +217,33 @@ GtkWidget* create_window_login(void)
 			NULL);
 	g_signal_connect((gpointer)checkbutton_rem, "toggled",
 			G_CALLBACK(cb_login_rem_toggled),
-			checkbutton_rem);
+			(gpointer)checkbutton_rem);
 	g_signal_connect((gpointer)button_help, "clicked",
 			G_CALLBACK(cb_login_help_clicked),
-			NULL);
+			(gpointer)window_login);
 	g_signal_connect((gpointer)button_cancel, "clicked",
 			G_CALLBACK(gtk_main_quit),
 			NULL);
 	g_signal_connect((gpointer)button_ok, "clicked",
 			G_CALLBACK(cb_login_ok_clicked),
-			window_login);
+			(gpointer)window_login);
 	g_signal_connect((gpointer)comboboxentry_ip, "changed",
 			G_CALLBACK(cb_comboboxentry_ip_changed),
-			button_ok);
+			(gpointer)button_ok);
 	g_signal_connect((gpointer)comboboxentry_name, "changed",
 			G_CALLBACK(cb_comboboxentry_name_changed),
-			button_ok);
+			(gpointer)button_ok);
 	g_signal_connect((gpointer)entry_passwd, "activate",
 			G_CALLBACK(cb_entry_passwd_activate),
-			button_ok);			
+			(gpointer)button_ok);			
 	g_signal_connect((gpointer)entry_passwd, "backspace",
 			G_CALLBACK(cb_entry_passwd_backspace),
-			button_ok);
+			(gpointer)button_ok);
 	g_signal_connect((gpointer)entry_passwd, "insert-at-cursor",
 			G_CALLBACK(cb_entry_passwd_backspace),
-			button_ok);
+			(gpointer)button_ok);
 	g_signal_connect((gpointer)entry_passwd, "focus-out-event",
 			G_CALLBACK(cb_entry_passwd_focus_out_event),
-			button_ok);
+			(gpointer)button_ok);
 	return window_login;
 }

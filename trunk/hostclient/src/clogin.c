@@ -4,6 +4,8 @@
  */
 #include <gtk/gtk.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
 #include "login.h"
 #include "debug.h"
 #include "linuxarms.h"
@@ -39,11 +41,11 @@ static boolean is_ip_right(const char *ip, char *error_info);
 static boolean is_name_right(const char *name, char *error_info);
 static boolean is_passwd_right(const char *passwd, char *error_info);
 static inline int get_domain(const char *ip, const int n);
-static boolean is_name_right(const char *name, char *error_info);
 static boolean set_error_info(struct login_struct *login, const char *error_info);
 static const char *get_error(struct login_struct *login);
 static void show_error_dialog(GtkWidget *widget, const char *error); /*display the error dialog*/
 static void show_help_dialog(const char *help_info);
+char *get_armserver_ip();
 /*
  * callback functions
  */
@@ -77,7 +79,7 @@ void cb_login_help_clicked(GtkButton *button, gpointer user_data)
 		"\n\t选中则下次登录时会自动输入密码,无需用户再次手动输入。"
 		;
 
-	dialog = gtk_message_dialog_new (GTK_WIDGET(user_data),
+	dialog = gtk_message_dialog_new (GTK_WINDOW(user_data),
                                   GTK_DIALOG_DESTROY_WITH_PARENT,
                                   GTK_MESSAGE_QUESTION,
                                   GTK_BUTTONS_CLOSE,
@@ -188,9 +190,9 @@ void cb_comboboxentry_name_changed(GtkComboBox *widget, gpointer user_data)
 		gtk_widget_set_sensitive(user_data, FALSE);
 //#endif
 }
-gboolean cb_entry_passwd_focus_out_event(GtkWidget *widget, GdkEventFocus *event, gpointer *user_data)
+gboolean cb_entry_passwd_focus_out_event(GtkWidget *widget, GdkEventFocus *event, gpointer user_data)
 {
-	char *tmp;
+	gchar *tmp;
 	
 	tmp = gtk_entry_get_text(GTK_ENTRY(widget));
 	if (strcmp(user.passwd, tmp) != 0)
@@ -203,16 +205,16 @@ gboolean cb_entry_passwd_focus_out_event(GtkWidget *widget, GdkEventFocus *event
 	else
 		ok_on_flag[2] = 1;
 	if ((ok_on_flag[0] == 1) && (ok_on_flag[1] == 1) && (ok_on_flag[2] == 1))
-		gtk_widget_set_sensitive(user_data, TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(user_data), TRUE);
 	else
-		gtk_widget_set_sensitive(user_data, FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(user_data), FALSE);
 	return FALSE;
 }
-void cb_entry_passwd_activate(GtkEntry *widget, gpointer *user_data)
+void cb_entry_passwd_activate(GtkEntry *widget, gpointer user_data)
 {
-	char *tmp;
+	gchar *tmp;
 	
-	tmp = gtk_entry_get_text(widget);
+	tmp = gtk_entry_get_text(GTK_ENTRY(widget));
 	if (strcmp(user.passwd, tmp) != 0)
 		strcpy(user.passwd, tmp);
 #ifdef _DEBUG_LZEL
@@ -223,13 +225,13 @@ void cb_entry_passwd_activate(GtkEntry *widget, gpointer *user_data)
 	else
 		ok_on_flag[2] = 1;
 	if ((ok_on_flag[0] == 1) && (ok_on_flag[1] == 1) && (ok_on_flag[2] == 1))
-		gtk_widget_set_sensitive(user_data, TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(user_data), TRUE);
 	else
-		gtk_widget_set_sensitive(user_data, FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(user_data), FALSE);
 }
-void cb_entry_passwd_backspace(GtkEntry *widget, gpointer *user_data)
+void cb_entry_passwd_backspace(GtkEntry *widget, gpointer user_data)
 {
-	char *tmp;
+	gchar *tmp;
 	
 	tmp = gtk_entry_get_text(widget);
 	if (strcmp(user.passwd, tmp) != 0)
@@ -239,9 +241,9 @@ void cb_entry_passwd_backspace(GtkEntry *widget, gpointer *user_data)
 	else
 		ok_on_flag[2] = 1;
 	if ((ok_on_flag[0] == 1) && (ok_on_flag[1] == 1) && (ok_on_flag[2] == 1))
-		gtk_widget_set_sensitive(user_data, TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(user_data), TRUE);
 	else
-		gtk_widget_set_sensitive(user_data, FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(user_data), FALSE);
 }
 /*
  * some handling functions for login using
@@ -254,39 +256,39 @@ boolean print_info(char *text)
 /*
  * some handling functions for configure using
  */
-boolean is_config_exist(void)
+static boolean is_config_exist(void)
+{
+
+}
+static boolean is_path_exist(const char *pathname)
 {
 	
 }
-boolean is_path_exist(const char *pathname)
+static boolean is_file_exist(const char *path)
 {
 	
 }
-boolean is_file_exist(const char *path)
+static boolean config_create() /*create $HOME/.linuxarms*/
 {
 	
 }
-boolean config_create() /*create $HOME/.linuxarms*/
+static boolean create_path(const char *path)
 {
 	
 }
-boolean create_path(const char *path)
+static boolean create_file(const char *path, const char *filename)
 {
 	
 }
-boolean create_file(const char *path, const char *filename)
+static const char *search_file(const char *filename) /*return file path*/
 {
 	
 }
-const char *search_file(const char *filename) /*return file path*/
+static const char *read_file(const char *filename)
 {
 	
 }
-const char *read_file(const char *filename)
-{
-	
-}
-const  char *write_file(const char *filename)
+static const  char *write_file(const char *filename)
 {
 	
 }
@@ -294,7 +296,7 @@ const  char *write_file(const char *filename)
 /*
  * some handling functions for login
  */
-boolean is_ip_right(const char *ip, char *error_info)
+static boolean is_ip_right(const char *ip, char *error_info)
 {
 	boolean is_right = FALSE;
 	int ip_len;
@@ -338,11 +340,11 @@ out:
 static inline int get_domain(const char *ip, const int n)
 {
 	int result;
-	char tmp[3];
+	char tmp[4];
 	int i, j = 0;
 	if ((n < 0) || (n >3))
 		goto out;
-	for (i = n*4; i <= (n*4 + 3); i++, j++) {
+	for (i = n*4; i < (n*4 + 3); i++, j++) {
 		tmp[j] = ip[i];
 	}
 	result = atoi(tmp);
@@ -385,18 +387,18 @@ out:
 	return is_right;
 }
 
-boolean set_error_info(struct login_struct *login, const char *error_info)
+static boolean set_error_info(struct login_struct *login, const char *error_info)
 {
 	
 }
-const char *get_error(struct login_struct *login)
+static const char *get_error(struct login_struct *login)
 {
 	
 }
 static void show_error_dialog(GtkWidget *widget, const char *error) /*display the error dialog*/
 {
 	GtkWidget *dialog;
-	 dialog = gtk_message_dialog_new (GTK_WIDGET(widget),
+	 dialog = gtk_message_dialog_new (GTK_WINDOW(widget),
                                   GTK_DIALOG_DESTROY_WITH_PARENT,
                                   GTK_MESSAGE_ERROR,
                                   GTK_BUTTONS_CLOSE,
@@ -405,19 +407,8 @@ static void show_error_dialog(GtkWidget *widget, const char *error) /*display th
  	gtk_dialog_run (GTK_DIALOG (dialog));
  	gtk_widget_destroy (dialog);
 }
-void show_ip_tooltips(GtkWidget *login)
-{
-	
-}
-void show_name_tooltips(GtkWidget *login)
-{
-	
-}
-void show_passwd_toolstips(GtkWidget *login)
-{
-	
-}
-void show_help_dialog(const char *help_info)
+
+static void show_help_dialog(const char *help_info)
 {
 	
 }

@@ -92,7 +92,7 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data);
 void cb_login_rem_toggled(GtkToggleButton *togglebutton, gpointer user_data);
 void cb_comboboxentry_ip_changed(GtkComboBox *widget, gpointer user_data);
 void cb_comboboxentry_name_changed(GtkComboBox *widget, gpointer user_data);
-void cb_entry_passwd_activate(GtkEntry *widget, gpointer *user_data);
-void cb_entry_passwd_backspace(GtkEntry *widget, gpointer *user_data);
-gboolean cb_entry_passwd_focus_out_event(GtkWidget *widget, GdkEventFocus *event, gpointer *user_data);
+void cb_entry_passwd_activate(GtkEntry *widget, gpointer user_data);
+void cb_entry_passwd_backspace(GtkEntry *widget, gpointer user_data);
+gboolean cb_entry_passwd_focus_out_event(GtkWidget *widget, GdkEventFocus *event, gpointer user_data);
 #endif
