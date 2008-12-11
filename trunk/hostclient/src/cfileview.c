@@ -41,6 +41,7 @@ boolean hfview_send_info(struct hfview_struct *hfview)
  */
 boolean hfview_show_info(struct hfview_struct *hfview)
 {
+	/*gtk_list_store_clear*/
 }
 
 /*

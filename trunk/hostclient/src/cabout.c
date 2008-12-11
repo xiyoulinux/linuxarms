@@ -22,7 +22,8 @@ void cb_button_link_clicked(GtkButton *button, gpointer user_data)
 {
 	gchar tmp[80];
 	g_snprintf(tmp, 80, "firefox http://xiyoulinux.cn & >/dev/null");
-	system(tmp);
+	if (system(tmp) == -1)
+		g_print("execute command error\n");
 }
 
 

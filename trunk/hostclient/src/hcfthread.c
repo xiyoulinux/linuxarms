@@ -1,6 +1,7 @@
 /*
  * linuxarms/hostclient/
  */
+#include <string.h>
 #include "hfthread.h"
 #include "hnet.h"
 #include "fileview.h"

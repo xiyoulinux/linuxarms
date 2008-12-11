@@ -8,7 +8,6 @@
 #include <gtk/gtk.h>
 #include "login.h"
 #include "support.h"
-
 GtkWidget* create_window_login(void)
 {
 	GtkWidget *window_login;

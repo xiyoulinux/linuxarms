@@ -16,12 +16,14 @@
 #include "ssinfo.h"
 #include "fileview.h"
 #include "htthread.h"
+#include "hmthread.h"
 
 GtkWidget *create_menubar(GtkWidget *vbox_main,
 			  GtkTooltips *tooltips,
 			  GtkAccelGroup *accel_group,
 			  struct main_struct *hmain)
 {
+	struct hmthread_struct *hmthread = hmain->hmthread;
 	struct hsthread_struct *hsthread = hmain->hsthread;
 	struct hsprocess_struct *sprocess = hsthread->sprocess;
 	struct hfview_struct *hfview = hmain->hfthread->hfview;
@@ -323,6 +325,11 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	g_signal_connect((gpointer)help_about, "activate",
 			 G_CALLBACK(cb_help_about_activate), NULL);  
 	
+	hmthread->widget.login = login;
+	hmthread->widget.logout = logout;
+	hmthread->widget.restart = restart;
+	hmthread->widget.shutdown = shutdown;
+
 	sprocess->widget.menu_kill = process_kill;
 	sprocess->widget.menu_three = process_update_three;
 	sprocess->widget.menu_five = process_update_five;

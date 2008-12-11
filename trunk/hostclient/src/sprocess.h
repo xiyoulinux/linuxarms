@@ -45,6 +45,7 @@ struct sprocess_widget {
 	GtkWidget *menu_three;
 	GtkWidget *menu_five;
 	GtkWidget *popup_kill;
+	GtkTreeIter *selected_row;
 };
 /*
  * hsprocess_struct 实时监视主数据结构
@@ -52,19 +53,23 @@ struct sprocess_widget {
  * @clock:  进程信息更新频率(3秒/5秒)
  * @widget: 实时监视相关界面
  * @kill:   要杀死的进程号
+ * @pnum:   当前显示进程信息的个数
  */
 struct hsprocess_struct {
 	struct hsprocess_trans trans;
 	struct sprocess_widget widget;
 	timer_time clock;
 	int kill;
+	int pnum;
 
-	boolean (*send)(struct hsprocess_struct *hsprocess);
-	boolean (*recv)(struct hsprocess_struct *hsprocess);
+	boolean (*send)(int tcp, struct hsprocess_struct *hsprocess);
+	boolean (*recv)(int tcp,struct hsprocess_struct *hsprocess);
 };
+boolean process_show_info(struct hsprocess_struct *process);
+boolean hsprocess_struct_init(struct hsprocess_struct *sprocess);
 GtkListStore *create_page_sprocess(GtkWidget *notebook_main,
 				   struct hsthread_struct *hsthread);
-GtkWidget *create_popup_menu_process(void);
+GtkWidget *create_popup_menu_process(struct hsthread_struct *hsthread);
 void cb_process_selection_changed(GtkWidget *widget, gpointer user_data); 
 
 gboolean cb_process_button_press(GtkWidget *widget,

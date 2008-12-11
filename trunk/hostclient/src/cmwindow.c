@@ -2,6 +2,7 @@
 #include "mwindow.h"
 #include "debug.h"
 #include "error.h"
+#include "hmthread.h"
 #include "hsthread.h"
 #include "sprocess.h"
 #include "fileview.h"
@@ -83,4 +84,31 @@ void cb_notebook_switch_page(GtkNotebook *notebook,
 		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.toolbar_download), TRUE);
 		old_num = PFILEVIEW;
 	}
+}
+
+boolean gtk_window_main_set_sensitive(struct main_struct *hmain)
+{
+	struct hsthread_struct *hsthread = hmain->hsthread;
+	struct hsprocess_struct *sprocess = hsthread->sprocess;
+	struct hfview_struct *hfview = hmain->hfthread->hfview;
+	struct htthread_struct *htthread = hmain->hfthread->hftrans;
+	struct hmthread_struct *hmthread = hmain->hmthread;
+
+	gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_kill), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_three), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_five), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.back), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.up), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.rename), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.del), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_upload), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_download), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.toolbar_upload), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.toolbar_download), FALSE);
+
+	gtk_widget_set_sensitive(GTK_WIDGET(hmthread->widget.login), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(hmthread->widget.logout), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(hmthread->widget.restart), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(hmthread->widget.shutdown), FALSE);
+	return TRUE;
 }
