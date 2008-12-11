@@ -3,6 +3,7 @@
 #include "support.h"
 #include "mwindow.h"
 #include "config.h"
+#include "hmthread.h"
 #include "hsthread.h"
 #include "hcthread.h"
 #include "sprocess.h"
@@ -25,6 +26,8 @@ int main(int argc, char *argv[])
 	struct hfthread_struct hfthread;
 	struct hfview_struct hfview;
 	struct htthread_struct hftrans;
+	/***************hmthread_struct*******************************/
+	struct hmthread_struct hmthread;
 
 	gtk_set_locale();
 	gtk_init(&argc, &argv);
@@ -46,18 +49,20 @@ int main(int argc, char *argv[])
 	timer.timer = -1;
 	hsthread.timer = timer;
 
-	sprocess.clock = TM_THREE;
+	hsprocess_struct_init(&sprocess);
 	hsthread.sprocess = &sprocess;
 	
 	/***************init hfthread**************************/
 	hfthread.hfview = &hfview;
 	hfthread.hftrans = &hftrans;
 
+	hmain.hmthread = &hmthread;
 	hmain.hsthread = &hsthread;
 	hmain.hcthread = &hcthread;
 	hmain.hfthread = &hfthread;
 	
 	window_main = create_window_main(&hmain);
+	gtk_window_main_set_sensitive(&hmain);
 
 	//window_main = create_window_login();
 	gtk_widget_show(window_main);

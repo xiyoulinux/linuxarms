@@ -31,7 +31,6 @@ GtkListStore  *create_page_sprocess(GtkWidget *notebook_main,
 	GtkCellRenderer *cell_renderer;
 	GtkListStore *list_store;
 	GtkTreeViewColumn *column;
-	GtkTreeIter tree_iter;
 	GtkTreeSelection *selection;
 
 	int i;
@@ -125,16 +124,18 @@ GtkListStore  *create_page_sprocess(GtkWidget *notebook_main,
 	GTK_WIDGET_SET_FLAGS(label_sprocess, GTK_CAN_FOCUS);
 	
 	g_signal_connect(G_OBJECT(treeview_process), "button_press_event",
-                          G_CALLBACK(cb_process_button_press), NULL);
+                          G_CALLBACK(cb_process_button_press), (gpointer)hsthread);
+
+	sprocess->widget.treeview = treeview_process;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview_process));
 
   	g_signal_connect(selection, "changed", 
-		         G_CALLBACK(cb_process_selection_changed), NULL);
+		         G_CALLBACK(cb_process_selection_changed), (gpointer)hsthread);
 	return list_store;
 }
 
-GtkWidget *create_popup_menu_process(void)
+GtkWidget *create_popup_menu_process(struct hsthread_struct *hsthread)
 {
 	GtkWidget *popup_menu_process;
 	GtkWidget *spopup_eparator;
@@ -163,8 +164,10 @@ GtkWidget *create_popup_menu_process(void)
 	gtk_widget_show(image209);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(popup_process_kill), image209);
 
+	hsthread->sprocess->widget.popup_kill = popup_menu_process;
 	g_signal_connect((gpointer) popup_process_kill, "activate",
-			 G_CALLBACK(cb_process_kill_activate), NULL);
+			 G_CALLBACK(cb_process_kill_activate), 
+			 (gpointer)hsthread);
 
 	return popup_menu_process;
 }

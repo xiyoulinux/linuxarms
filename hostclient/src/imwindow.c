@@ -17,6 +17,7 @@
 #include "fileview.h"
 #include "sctrl.h"
 #include "statusbar.h"
+#include "hmthread.h"
 #include "hsthread.h"
 #include "hcthread.h"
 

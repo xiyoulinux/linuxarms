@@ -3,7 +3,8 @@ CONFIG_FILE=./config
 EXECUTE_DIR=/usr/bin
 DRIVE_FILE=./drive
 OBJECT=armserver
-$(OBJECT):
+DEPEND=./src/*.c
+$(OBJECT):$(DEPEND)
 	@echo start compiling armserver...
 	(cd ./src;make)
 	(cd ./src;mv $(OBJECT) ../)
