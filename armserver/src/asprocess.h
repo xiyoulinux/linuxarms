@@ -13,7 +13,7 @@
  */
 struct asprocess_trans {
 	int num;
-	protocol_sthread state;
+	protocol_sthread protocol;
 	char info[PROCESS_INFO_LEN];
 };
 
@@ -27,7 +27,7 @@ struct asprocess_struct {
 	//char fname[WFNAME_LEN];
 	int kill;
 
-	boolean (*recv)(struct asprocess_struct *asprocess);
-	boolean (*send)(struct asprocess_struct *asprocess);
+	boolean (*recv)(int tcp, struct asprocess_struct *asprocess);
+	boolean (*send)(int tcp, struct asprocess_struct *asprocess);
 };
 #endif
