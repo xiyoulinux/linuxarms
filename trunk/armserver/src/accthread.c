@@ -12,6 +12,25 @@
 #include "error.h"
 #include "login.h"
 #include "config.h"
+
+void do_cd(char *cmd)
+{
+	char dir[512];
+	if (strlen(cmd) == 2) {
+		sprintf(dir,"%s", getenv("HOME"));
+	} else if ((strlen(cmd) == 4) && (cmd[3] =='~')) {
+		sprintf(dir,"%s", getenv("HOME"));
+	} else if ((strlen(cmd) == 4) && (cmd[3] == '-')) {
+		sprintf(dir, "%s", getenv("OLDPWD"));
+	} else if((strlen(cmd) > 4) && (cmd[3] != '/')) {
+		sprintf(dir,"%s/%s", getenv("HOME"), &cmd[3]);
+	} else if((strlen(cmd) >4) && (cmd[3] == '~')) {
+		sprintf(dir,"%s%s", getenv("HOME"), &cmd[5]);
+	} else if((strlen(cmd) >4) && (cmd[3] == '/')) {
+		sprintf(dir, "%s", cmd[3]);
+	}
+	chdir(dir);
+}
 /*
  * 初始化实时控制主数据结构
  *
@@ -60,7 +79,7 @@ boolean acthread_handle(struct acthread_struct *acthread)
 		printf("command not found\n");
 	} 
 	 if(strstr(acthread->trans.buffer, "cd"))
-		 chdir(&acthread->trans.buffer[3]);
+		 do_cd(acthread->trans.buffer);
 	return TRUE;
 }
 /*
