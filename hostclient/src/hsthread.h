@@ -2,7 +2,7 @@
 #define _HSTHREAD_H
 #include "protocol.h"
 #include "hnet.h"
-
+#include <gtk/gtk.h>
 /*
  * 定时更新的时间间隔
  */

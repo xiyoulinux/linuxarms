@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include "linuxarms.h"
 #include "login.h"
 #include "support.h"
 #include "mwindow.h"
@@ -13,9 +14,10 @@
 
 int main(int argc, char *argv[])
 {
-	//GtkWidget *window_main;
+	GtkWidget *window_main;
 	char *config_file;
-	struct main_struct hmain;
+	struct linuxarms_struct linuxarms;
+	struct mwindow_struct mwindow;
 
 	struct hsthread_struct hsthread;
 	struct hsthread_timer timer;
@@ -56,13 +58,14 @@ int main(int argc, char *argv[])
 	hfthread.hfview = &hfview;
 	hfthread.hftrans = &hftrans;
 
-	hmain.hmthread = &hmthread;
-	hmain.hsthread = &hsthread;
-	hmain.hcthread = &hcthread;
-	hmain.hfthread = &hfthread;
+	linuxarms.mwindow = &mwindow;
+	linuxarms.hmthread = &hmthread;
+	linuxarms.hsthread = &hsthread;
+	linuxarms.hcthread = &hcthread;
+	linuxarms.hfthread = &hfthread;
 	
-	window_main = create_window_main(&hmain);
-	gtk_window_main_set_sensitive(&hmain);
+	window_main = create_window_main(&linuxarms);
+	gtk_window_main_set_sensitive(&linuxarms);
 
 	//window_main = create_window_login();
 	gtk_widget_show(window_main);

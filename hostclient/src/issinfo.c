@@ -3,16 +3,18 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
-
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
 #include "sprocess.h"
 #include "mwindow.h"
 #include "support.h"
+#include "linuxarms.h"
 
-GtkWidget *create_page_ssinfo(GtkWidget *notebook_main)
+GtkWidget *create_page_ssinfo(struct linuxarms_struct *linuxarms)
 {
+	GtkWidget *notebook_main = linuxarms->mwindow->notebook;
+	GtkWidget *window_main = linuxarms->mwindow->window;
 	GtkWidget *hbox_notebook;
 	GtkWidget *image_sinfo;
 	GtkWidget *vbox_sinfo;

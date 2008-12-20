@@ -17,17 +17,19 @@
 #include "fileview.h"
 #include "htthread.h"
 #include "hmthread.h"
+#include "linuxarms.h"
+#include "hfthread.h"
 
 GtkWidget *create_menubar(GtkWidget *vbox_main,
 			  GtkTooltips *tooltips,
 			  GtkAccelGroup *accel_group,
-			  struct main_struct *hmain)
+			  struct linuxarms_struct *linuxarms)
 {
-	struct hmthread_struct *hmthread = hmain->hmthread;
-	struct hsthread_struct *hsthread = hmain->hsthread;
+	struct hmthread_struct *hmthread = linuxarms->hmthread;
+	struct hsthread_struct *hsthread = linuxarms->hsthread;
 	struct hsprocess_struct *sprocess = hsthread->sprocess;
-	struct hfview_struct *hfview = hmain->hfthread->hfview;
-	struct htthread_struct *htthread = hmain->hfthread->hftrans;
+	struct hfview_struct *hfview = linuxarms->hfthread->hfview;
+	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
 
 	GtkWidget *menubar;
 	GtkWidget *menubar_file;

@@ -10,6 +10,7 @@
 #include "fileview.h"
 #include "mwindow.h"
 #include "support.h"
+#include "linuxarms.h"
 	
 static char *file_info[] = {
 	"文件名",
@@ -18,8 +19,9 @@ static char *file_info[] = {
 	"修改时间"
 };
 
-GtkListStore  *create_page_fview(GtkWidget *notebook_main)
+GtkListStore  *create_page_fview(struct linuxarms_struct *linuxarms)
 {
+	GtkWidget *notebook_main = linuxarms->mwindow->notebook;
 	GtkWidget *vbox_fview;
 	GtkWidget *vbox_fpath;
 	GtkWidget *hbox_fpath;
@@ -147,12 +149,14 @@ GtkListStore  *create_page_fview(GtkWidget *notebook_main)
 	}
 	
 	g_signal_connect (G_OBJECT (treeview_fview), "button_press_event",
-                          G_CALLBACK (cb_fview_button_press), NULL);
+                          G_CALLBACK (cb_fview_button_press),
+			  (gpointer)linuxarms);
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview_fview));
 
   	g_signal_connect(selection, "changed", 
-		         G_CALLBACK(cb_fview_selection_changed), NULL);
+		         G_CALLBACK(cb_fview_selection_changed),
+			 (gpointer)linuxarms);
 	return list_store;
 }
 

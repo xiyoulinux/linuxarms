@@ -3,7 +3,7 @@
 #include "linuxarms.h"
 #include "protocol.h"
 #include "hnet.h"
-
+#include <gtk/gtk.h>
 #define PATH_LEN 512
 #define FNAME_LEN 256
 /*

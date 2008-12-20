@@ -70,23 +70,20 @@ void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data)
 }
 
 gboolean cb_fview_button_press(GtkWidget *widget,
-	                 GdkEventButton *event, gpointer user_data)
+		        GdkEventButton *event, gpointer user_data)
 {
-        if (event->button == BUTTON_RIGHT) {
-		GtkWidget *popup_menu = create_popup_menu_fview();
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
+	if (event->button == BUTTON_RIGHT) {
+		GtkWidget *popup_menu = create_popup_menu_fview(linuxarms);
 		gtk_menu_popup (GTK_MENU(popup_menu),
-                                NULL, NULL, NULL, NULL,
-                                event->button, event->time);
+			     NULL, NULL, NULL, NULL,
+			     event->button, event->time);
 	}
 	if (event->button == BUTTON_LEFT) {
 		printf("哦哦\n");
 		statusbar_set_text("按下鼠标左键");
 	}
-	//printf("button %d\n",event->button);
 	if (event->type == 5 && event->button == BUTTON_LEFT)
 		printf("click button %d\n",event->type);
 
-}	                 
-
-
-
+}		        

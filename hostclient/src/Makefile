@@ -35,7 +35,8 @@ isprocess.o  \
 issinfo.o    \
 istatusbar.o \
 itoolbar.o   \
-support.o   
+support.o    \
+message.o
 
 HEADER= about.h \
 config.h        \
@@ -103,6 +104,8 @@ csprocess.o :  csprocess.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
 issinfo.o :  issinfo.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
+cssinfo.o :  cssinfo.c    $(HEADER)
+	$(CC) $(CFLAGS) -c $<   -o $@  
 istatusbar.o :  istatusbar.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
 cstatusbar.o :  cstatusbar.c    $(HEADER)
@@ -113,28 +116,23 @@ ctoolbar.o :  ctoolbar.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
 error.o :  error.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
-##实时控制线程
 hccthread.o :  hccthread.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
-##文件浏览线程
 hcfthread.o :  hcfthread.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
-##主线程
 hmthread.o :  hmthread.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
-##系统信息和进程信息显示线程
 hcsthread.o :  hcsthread.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
-##文件传输线程
 hctthread.o :  hctthread.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
-##网络相关
 hnet.o :  hnet.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
-##程序入口
 main.o :  main.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
 support.o :  support.c    $(HEADER)
+	$(CC) $(CFLAGS) -c $<   -o $@  
+message.o :  message.c    $(HEADER)
 	$(CC) $(CFLAGS) -c $<   -o $@  
 
 clean:
