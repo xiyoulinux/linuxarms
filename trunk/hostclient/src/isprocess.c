@@ -11,6 +11,7 @@
 #include "mwindow.h"
 #include "support.h"
 #include "hsthread.h"
+#include "linuxarms.h"
 
 static char *column_name[]={
 		"进程名",
@@ -20,10 +21,11 @@ static char *column_name[]={
 		"内存使用",
 };
 
-GtkListStore  *create_page_sprocess(GtkWidget *notebook_main,
-				    struct hsthread_struct *hsthread)
+GtkListStore  *create_page_sprocess(struct linuxarms_struct *linuxarms)
 {
+	struct hsthread_struct *hsthread = linuxarms->hsthread;
 	struct hsprocess_struct *sprocess = hsthread->sprocess;
+	GtkWidget *notebook_main = linuxarms->mwindow->notebook;
 
 	GtkWidget *label_sprocess;
 	GtkWidget *scrolledwindow_process;

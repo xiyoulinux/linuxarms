@@ -71,7 +71,7 @@ arm.o :   arm.c    $(HEADER)
 
 clean:
 	rm -f *.o
-	@if [ -e $(object)] ; \
+	@if [ -e $(object) ] ; \
 	then \
 		echo "rm \"$(object)\" " ;\
 		rm $(object) ;\

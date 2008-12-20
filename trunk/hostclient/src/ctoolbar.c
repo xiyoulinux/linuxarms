@@ -1,15 +1,15 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <gtk/gtk.h>
 #include "debug.h"
 #include "message.h"
 #include "filetrans.h"
+#include "linuxarms.h"
+#include "mwindow.h"
+
 void cb_fview_back_clicked(GtkButton *button, gpointer user_data)
 {
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
 	debug_where();
-	gtk_show_message("没有权限执行");
+	message_box_error(linuxarms->mwindow->window,"没有权限执行");
 }
 
 

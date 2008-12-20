@@ -41,6 +41,7 @@ gboolean gtk_textview_set_text(GtkWidget *textview, const gchar *text)
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));	
 	gtk_text_buffer_insert_at_cursor(GTK_TEXT_BUFFER(buffer), 
 					 text, strlen(text));   
+	return TRUE;
 }
 
 
@@ -63,7 +64,7 @@ void cb_button_licence_clicked(GtkButton *button, gpointer user_data)
 			return;
 		}
 		while(!feof(fp_help)) {
-			fgets(tmp, 80, fp_help);
+			p = fgets(tmp, 80, fp_help);
 			len = strlen(tmp);
 			gtk_text_buffer_insert_at_cursor(GTK_TEXT_BUFFER(buffer), tmp, len);
 			memset(tmp, '\0', len);

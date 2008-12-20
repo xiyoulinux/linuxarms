@@ -67,8 +67,7 @@ struct hsprocess_struct {
 };
 boolean process_show_info(struct hsprocess_struct *process);
 boolean hsprocess_struct_init(struct hsprocess_struct *sprocess);
-GtkListStore *create_page_sprocess(GtkWidget *notebook_main,
-				   struct hsthread_struct *hsthread);
+GtkListStore *create_page_sprocess(struct linuxarms_struct *linuxarms);
 GtkWidget *create_popup_menu_process(struct hsthread_struct *hsthread);
 void cb_process_selection_changed(GtkWidget *widget, gpointer user_data); 
 

@@ -16,8 +16,9 @@
 
 GtkWidget *create_toolbar(GtkWidget *vbox_main,
 			  GtkTooltips *tooltips,
-			  struct hfthread_struct *hfthread)
+			  struct linuxarms_struct *linuxarms)
 {
+	struct hfthread_struct *hfthread = linuxarms->hfthread;
 	struct htthread_struct *hftrans = hfthread->hftrans;
 	struct hfview_struct *hfview = hfthread->hfview;
 
@@ -184,16 +185,16 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 	
 	g_signal_connect((gpointer) button_back, "clicked",
 			 G_CALLBACK(cb_fview_back_clicked),
-			 NULL);
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer) button_up, "clicked",
 			 G_CALLBACK(cb_fview_up_clicked),
-			 NULL);
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer) button_download, "clicked",
 			 G_CALLBACK(cb_download_clicked),
-			 NULL);
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer) button_upload, "clicked",
 			 G_CALLBACK(cb_upload_clicked),
-			 NULL);
+			 (gpointer)linuxarms);
 	hfview->widget.up = button_up;
 	hfview->widget.back = button_back;
 	debug_print("为控件指针赋值\n");

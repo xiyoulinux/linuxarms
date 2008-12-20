@@ -1,9 +1,11 @@
 #include <gtk/gtk.h>
+#include "linuxarms.h"
 #include "mwindow.h"
 #include "debug.h"
 #include "error.h"
 #include "hmthread.h"
 #include "hsthread.h"
+#include "hfthread.h"
 #include "sprocess.h"
 #include "fileview.h"
 #include "htthread.h"
@@ -22,11 +24,11 @@ void cb_notebook_switch_page(GtkNotebook *notebook,
 			     GtkNotebookPage *page, 
 			     guint page_num, gpointer user_data)
 {
-	struct main_struct *hmain = (struct main_struct *)user_data;
-	struct hsthread_struct *hsthread = hmain->hsthread;
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
+	struct hsthread_struct *hsthread = linuxarms->hsthread;
 	struct hsprocess_struct *sprocess = hsthread->sprocess;
-	struct hfview_struct *hfview = hmain->hfthread->hfview;
-	struct htthread_struct *htthread = hmain->hfthread->hftrans;
+	struct hfview_struct *hfview = linuxarms->hfthread->hfview;
+	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
 	
 	switch (old_num) {
 	case PSYSINFO:
@@ -86,13 +88,13 @@ void cb_notebook_switch_page(GtkNotebook *notebook,
 	}
 }
 
-boolean gtk_window_main_set_sensitive(struct main_struct *hmain)
+boolean gtk_window_main_set_sensitive(struct linuxarms_struct *linuxarms)
 {
-	struct hsthread_struct *hsthread = hmain->hsthread;
+	struct hsthread_struct *hsthread = linuxarms->hsthread;
 	struct hsprocess_struct *sprocess = hsthread->sprocess;
-	struct hfview_struct *hfview = hmain->hfthread->hfview;
-	struct htthread_struct *htthread = hmain->hfthread->hftrans;
-	struct hmthread_struct *hmthread = hmain->hmthread;
+	struct hfview_struct *hfview = linuxarms->hfthread->hfview;
+	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
+	struct hmthread_struct *hmthread = linuxarms->hmthread;
 
 	gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_kill), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_three), FALSE);

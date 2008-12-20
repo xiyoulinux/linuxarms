@@ -1,6 +1,7 @@
 #include <gtk/gtk.h>
 #include "filetrans.h"
 #include "debug.h"
+#include "linuxarms.h"
 
 void cb_fview_rename_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
@@ -20,9 +21,10 @@ void cb_fview_delete_activate(GtkMenuItem *menuitem, gpointer user_data)
 
 void cb_fview_upload_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
 	debug_where();
 	debug_print("");
-	GtkWidget *filechooserdialog = create_filechooserdialog();
+	GtkWidget *filechooserdialog = create_filechooserdialog(linuxarms);
 	GtkFileFilter *filter = gtk_file_filter_new ();
   	gtk_file_filter_set_name (filter, "All File(*)");
   	gtk_file_filter_add_pattern(filter,"*");
@@ -36,9 +38,10 @@ void cb_fview_upload_activate(GtkMenuItem *menuitem, gpointer user_data)
 
 void cb_fview_download_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
 	debug_where();
 	debug_print("");
-	GtkWidget *filechooserdialog = create_filechooserdialog();
+	GtkWidget *filechooserdialog = create_filechooserdialog(linuxarms);
 	GtkFileFilter *filter = gtk_file_filter_new ();
   	gtk_file_filter_set_name (filter, "All File(*)");
   	gtk_file_filter_add_pattern(filter,"*");

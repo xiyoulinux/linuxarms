@@ -10,8 +10,9 @@
 #include "filetrans.h"
 #include "mwindow.h"
 #include "support.h"
+#include "linuxarms.h"
 	
-GtkWidget* create_popup_menu_fview(void)
+GtkWidget* create_popup_menu_fview(struct linuxarms_struct *linuxarms)
 {
 	GtkWidget *popup_menu_fview;
 	GtkWidget *popup_separator;
@@ -94,21 +95,21 @@ GtkWidget* create_popup_menu_fview(void)
 
 	g_signal_connect((gpointer)fview_rename, "activate",
 			 G_CALLBACK(cb_fview_rename_activate),
-			 NULL);
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)fview_delete, "activate",
 			 G_CALLBACK(cb_fview_delete_activate),
-			 NULL);
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)edit_upload, "activate",
 			 G_CALLBACK(cb_fview_upload_activate),
-			 NULL);
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)edit_download, "activate",
 			 G_CALLBACK(cb_fview_download_activate),
-			 NULL);
+			 (gpointer)linuxarms);
 
 	return popup_menu_fview;
 }
 
-GtkWidget* create_filechooserdialog(void)
+GtkWidget* create_filechooserdialog(struct linuxarms_struct *linuxarms)
 {
 	GtkWidget *filechooserdialog;
 	GtkWidget *dialog_vbox;
@@ -125,7 +126,8 @@ GtkWidget* create_filechooserdialog(void)
 	GtkWidget *label8;
 
 	filechooserdialog = gtk_file_chooser_dialog_new ("Open File",
-  			GTK_WINDOW(window_main) , GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  			GTK_WINDOW(linuxarms->mwindow->window) , 
+			GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
 	gtk_container_set_border_width (GTK_CONTAINER (filechooserdialog), 5);
 	gtk_window_set_type_hint (GTK_WINDOW (filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 

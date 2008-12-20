@@ -1,10 +1,11 @@
 #ifndef _FILEVIEW_H
 #define _FILEVIEW_H
 
+#include <gtk/gtk.h>
 #include "linuxarms.h"
 #include "protocol.h"
 #include "hnet.h"
-#include <gtk/gtk.h>
+
 #define FILE_INFO_COLUMNS 4
 #define FILE_NAME_LEN 256
 enum {
@@ -69,7 +70,7 @@ struct hfview_struct {
 	boolean (*recv)(struct hfview_struct *hfview);
 	boolean (*send)(struct hfview_struct *hfview);
 };
-
+/*
 static inline boolean hfview_recv(struct hfview_struct *hfview)
 {
 	if (!hfview)
@@ -86,7 +87,8 @@ static inline boolean hfview_send(struct hfview_struct *hfview)
 			 (void *)&hfview->fsend,
 			 sizeof(struct hfview_send));
 }
-GtkListStore *create_page_fview(GtkWidget *notebook_main);
+*/
+GtkListStore *create_page_fview(struct linuxarms_struct *linuxarms);
 void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data);
 
 gboolean cb_fview_button_press(GtkWidget *widget,

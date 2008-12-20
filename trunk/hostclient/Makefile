@@ -5,7 +5,7 @@ PIXMAPS_DIR=pixmaps
 DOC_DIR=doc
 CONFIG_FILE=./config
 OBJECT=hostclient
-DEPEND=./src/*.c
+DEPEND=./src/*.c ./src/*.h
 
 $(OBJECT): $(DEPEND)
 	@echo start compiling armserver...

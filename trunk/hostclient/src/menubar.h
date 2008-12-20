@@ -1,12 +1,12 @@
 #ifndef _MENUBAR_H
 #define _MENUBAR_H
 #include <gtk/gtk.h>
-#include "mwindow.h"
+#include "linuxarms.h"
 
 GtkWidget *create_menubar(GtkWidget *vbox_main,
 			  GtkTooltips *tooltips,
 			  GtkAccelGroup *accel_group,
-			  struct main_struct *hmain);
+			  struct linuxarms_struct *linuxarms);
 void cb_login_activate(GtkMenuItem *menuitem, gpointer user_data);
 
 void cb_logout_activate(GtkMenuItem *menuitem, gpointer user_data);
