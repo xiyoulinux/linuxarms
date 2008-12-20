@@ -73,12 +73,13 @@ GtkWidget *create_ctrl_page(GtkWidget *vbox_main,
 	gtk_widget_show(label_frame);
 	gtk_frame_set_label_widget(GTK_FRAME(frame_main), label_frame);
 	gtk_label_set_use_markup(GTK_LABEL(label_frame), TRUE);
-	g_signal_connect((gpointer)entry_input, "key_press_event",
-			 G_CALLBACK(cb_ctrl_input_key_press),
-			 NULL);
+	
 	hcthread->widget.textview_ctrl = textview_ctrl;
 	hcthread->widget.entry_input   = entry_input;
 	hcthread->widget.label_path    = label_frame;
-
+	
+	g_signal_connect((gpointer)entry_input, "key_press_event",
+			 G_CALLBACK(cb_ctrl_input_key_press),
+			 (gpointer)(hcthread));
 	return NULL;
 }
