@@ -7,7 +7,7 @@
 #include "linuxarms.h"
 #include "protocol.h"
 #include "hnet.h"
-
+#include <gtk/gtk.h>
 #define TRANS_SIZE 512
 /* 界面结构体 */
 struct hcthread_widget {
