@@ -162,7 +162,7 @@ GtkWidget *create_popup_menu_process(struct hsthread_struct *hsthread)
 	gtk_tooltips_set_tip(tooltips, popup_process_kill,
 		_("\346\235\200\346\255\273\350\257\245\350\277\233\347\250\213"), NULL);
 
-	image209 = gtk_image_new_from_stock("gtk-cancel", GTK_ICON_SIZE_MENU);
+	image209 = gtk_image_new_from_stock("gtk-close", GTK_ICON_SIZE_MENU);
 	gtk_widget_show(image209);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(popup_process_kill), image209);
 
