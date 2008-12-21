@@ -16,7 +16,7 @@
 boolean hcthread_init(struct hcthread_struct *hcthread,
 		struct hcthread_widget *widget, 
 		struct hnet_struct *socket,
-		struct hcthread_trans *trans)
+		struct hcthread_trans *trans,)
 {
 	if (!hcthread || !widget || !socket || !trans) 
 		print_error(ESYSERR, "init error\n");
