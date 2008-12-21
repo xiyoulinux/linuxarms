@@ -80,3 +80,49 @@ boolean process_read_info(struct asprocess_struct *asprocess,int pid)
 boolean kill_process(struct asprocess_struct *asprocess)
 {
 }
+
+/* proc/sysinfo.c*/
+int uptime(double *restrict uptime_secs, double *restrict idle_secs) {
+    double up=0, idle=0;
+    char *restrict savelocale;
+
+    FILE_TO_BUF(UPTIME_FILE,uptime_fd);
+    savelocale = setlocale(LC_NUMERIC, NULL);
+    setlocale(LC_NUMERIC,"C");
+    if (sscanf(buf, "%lf %lf", &up, &idle) < 2) {
+        setlocale(LC_NUMERIC,savelocale);
+        fputs("bad data in " UPTIME_FILE "\n", stderr);
+            return 0;
+    }   
+    setlocale(LC_NUMERIC,savelocale);
+    SET_IF_DESIRED(uptime_secs, up);
+    SET_IF_DESIRED(idle_secs, idle);
+    return up;  /* assume never be zero seconds in practice */
+}
+
+//seconds_since_boot = /proc/uptime[第一个值]
+/* ps/output.c */
+static int pr_pcpu(char *restrict const outbuf, const proc_t *restrict const pp){																 
+	unsigned long long total_time;	 /* jiffies used by this process */
+	unsigned pcpu = 0;							 /* scaled %cpu, 999 means 99.9% */
+	unsigned long long seconds;			/* seconds of process life */
+	
+	total_time = pp->utime + pp->stime;
+	if(include_dead_children)
+		 total_time += (pp->cutime + pp->cstime);
+	seconds = seconds_since_boot - pp->start_time / Hertz;
+	if(seconds) 
+		pcpu = (total_time * 1000ULL / Hertz) / seconds;
+	if (pcpu > 999U)
+		return snprintf(outbuf, COLWID, "%u", pcpu/10U);
+	return snprintf(outbuf, COLWID, "%u.%u", pcpu/10U, pcpu%10U);
+}
+
+/* pp->vm_rss * 1000 would overflow on 32-bit systems with 64 GB memory */
+static int pr_pmem(char *restrict const outbuf, const proc_t *restrict const pp){                                 
+  unsigned long pmem = 0; 
+  pmem = pp->vm_rss * 1000ULL / kb_main_total;
+  if (pmem > 999) pmem = 999; 
+  return snprintf(outbuf, COLWID, "%2u.%u", (unsigned)(pmem/10), (unsigned)(pmem%10));
+}
+

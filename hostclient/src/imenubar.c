@@ -190,7 +190,7 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_widget_add_accelerator(process_kill, "activate", accel_group,
 			GDK_K, (GdkModifierType)GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
-	image341 = gtk_image_new_from_stock("gtk-cancel", GTK_ICON_SIZE_MENU);
+	image341 = gtk_image_new_from_stock("gtk-close", GTK_ICON_SIZE_MENU);
 	gtk_widget_show(image341);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(process_kill), image341);
 	/* 创建浏览子菜单 */
