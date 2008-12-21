@@ -35,6 +35,7 @@ struct hcthread_struct {
 	struct hcthread_widget widget;
 	struct hnet_struct socket;
 	struct hcthread_trans trans;
+	boolean competence;  /* 超级用户权限标志 */
 
 	boolean (*send)(struct hcthread_struct *hcthread);
 	boolean (*recv)(struct hcthread_struct *hcthread);
