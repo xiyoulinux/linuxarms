@@ -26,10 +26,10 @@ struct amthread_trans {
  * @socket:	TCP socket
  */ 
 struct amthread_struct {
+	linuxarms_thread_t thread_id;
 	boolean lock;
 	struct user_struct *user;
 	struct anet_struct *socket;
-	struct amthread_trans trans;
 
 	void (*down_lock)(struct amthread_struct *amthread);
 	void (*up_lock)(struct amthread_struct *amthread);

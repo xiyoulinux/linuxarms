@@ -1,6 +1,7 @@
 CONFIG_DIR=/etc/linuxarms-armserver/
 CONFIG_FILE=./config
 EXECUTE_DIR=/usr/bin
+RESOURCE_DIR=/usr/share/linuxarms-armserver/
 DRIVE_FILE=./drive
 OBJECT=armserver
 DEPEND=./src/*.c ./src/*.h
@@ -53,6 +54,12 @@ install:
 	else \
 		mkdir $(CONFIG_DIR) ; \
 	fi
+	@if [ -e $(RESOURCE_DIR) ]; \
+	then \
+		echo "WARNING:directory $(RESOURCE_DIR) exit..." ; \
+	else \
+		mkdir $(RESOURCE_DIR); \
+	fi
 	@if [ -e $(OBJECT) ]; \
 	then \
 		cp $(OBJECT) $(EXECUTE_DIR) ;\
@@ -62,7 +69,7 @@ install:
 		exit 1; \
 	fi
 	cp -r $(CONFIG_FILE) $(CONFIG_DIR)
-	cp -r $(DRIVE_FILE) $(CONFIG_DIR)
+	cp -r $(DRIVE_FILE) $(RESOURCE_DIR)
 	@echo install end.you can type \"make uninstall\" to uninstall \"$(OBJECT)\".
 uninstall:
 	@echo "uninstall \"$(OBJECT)\""
@@ -72,6 +79,13 @@ uninstall:
 		echo "rm -r $(CONFIG_DIR) " ; \
 	else \
 		echo "test directory $(CONFIG_DIR) :not exist..." ; \
+	fi
+	@if [ -e $(RESOURCE_DIR) ]; \
+	then \
+		rm -r $(RESOURCE_DIR); \
+		echo "rm -r $(RESOURCE_DIR)"; \
+	else \
+		echo "test directory $(RESOURCE_DIR) :not exist..."; \
 	fi
 	@if [ -e "$(EXECUTE_DIR)/$(OBJECT)" ] ; \
 	then \
