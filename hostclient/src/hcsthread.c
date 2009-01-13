@@ -157,7 +157,7 @@ gboolean hsthread_timer(gpointer data)
 		return FALSE;
 	}
 	//hsthread->send(hsthread);
-	debug_print("定时器在运行中\n");
+	//debug_print("定时器在运行中\n");
 	return TRUE;
 }
 /*

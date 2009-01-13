@@ -165,7 +165,7 @@ out:
  * 读取armserver端的ip地址
  * @return: 如果正确获取，则返回ip地址，否则返回NULL
  */
-char *get_host_ip()
+char *get_localhost_ip()
 {
 	int fd, interface, retn = 0;
 	struct ifreq buf[MAXINTERFACES];

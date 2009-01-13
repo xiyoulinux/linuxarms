@@ -27,8 +27,8 @@ static boolean amthread_judge_competence(struct amthread_struct *amthread);
 boolean amthread_thread(void *p)
 {
 	struct amthread_struct *amthread = (struct amthread_struct *)p;
-	anet_init(amthread->socket, get_host_ip(),get_mthread_port());
-	create_tcp_server(amthread->socket);
+	//anet_init(amthread->socket, get_host_ip(),get_mthread_port());
+	//create_tcp_server(amthread->socket);
 
 	while (TRUE) {
 		amthread->recv(amthread);
