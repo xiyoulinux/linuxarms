@@ -2,7 +2,6 @@
 #define _PROC_H
 
 #include "linuxarms.h"
-//#include "asthread.h"
 #include "protocol.h"
 
 typedef enum _State {
@@ -28,7 +27,7 @@ struct proc_struct {
 struct asthread_struct;
 boolean read_proc(struct asthread_struct *asthread);
 
-boolean init_proc(struct proc_struct *proc, 
+boolean proc_init(struct proc_struct *proc, 
 			 proc_state state, protocol_sthread ctrl);
 
 #endif 

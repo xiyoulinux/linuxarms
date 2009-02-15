@@ -11,6 +11,7 @@
 #include "protocol.h"
 #include "hnet.h"
 #include "login.h"
+#include "thread.h"
 
 #define HTTHREAD_PATH_LEN 80
 #define TRAS_SIZE 512
@@ -40,6 +41,7 @@ struct htthread_trans {
  * @savefile_size:   已经传输文件的大小
  */
 struct htthread_struct {
+	linuxarms_thread_t *thread;
 	protocol_fthread select;
 	long long file_size;
 	long long savefile_size;

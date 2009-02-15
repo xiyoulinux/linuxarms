@@ -20,22 +20,24 @@
 #include "linuxarms.h"
 #include "error.h"
 #include "debug.h"
+/*initialized in clogin.c, function: cb_login_ok_clicked*/
+char armserver_ip[IP_LEN];
 /*
  * 初始化struct hnet_struct 结构。如果参数hnet或者ip为空，则返回错误
  * @hnet:  要初始化的数据结构
  * @ip:    用户输入的armserver端的ip地址
  * @port:  建立网络连接时使用的端口
  */
-boolean hnet_init(struct hnet_struct *hnet, char *ip, int port)
+boolean hnet_init(struct hnet_struct *hnet, const char *ip, int port)
 {
-	if (!hnet || !ip) {
+	if (!hnet) {
 		debug_where();
-		print_error(ESYSERR, "hnet or ip is null");
+		print_error(ESYSERR, "hnet is null");
 		return FALSE;
 	}
-
-	strncpy(hnet->ip, ip, 15);
+	strcpy(hnet->ip, (!ip || strlen(ip) > IP_LEN) ? "0.0.0.0" : ip);
 	hnet->port = port;
+	hnet->tcp = -1;
 	return TRUE;
 }
 /*
@@ -57,7 +59,7 @@ boolean create_tcp_client(struct hnet_struct *hnet)
 	bzero(&(serv_addr.sin_zero), 8);
 	sin_size = sizeof(struct sockaddr);
 
-	if (connect(hnet->tcp, (struct sockaddr *)&serv_addr, sin_size) == -1) {
+	if ((connect(hnet->tcp, (struct sockaddr *)&serv_addr, sin_size)) == -1) {
 		close(hnet->tcp);
 		print_error(ESYSERR, "connect");
 		goto out;
@@ -81,6 +83,7 @@ boolean close_tcp_client(struct hnet_struct *hnet)
 	}
 	if (hnet->tcp != -1)
 		close(hnet->tcp);
+	hnet->tcp = -1;
 	return TRUE;
 }
 /*
@@ -92,7 +95,7 @@ boolean close_tcp_client(struct hnet_struct *hnet)
  */
 boolean hnet_send(int tcp, void *data, unsigned int len)
 {
-	if (tcp < 0 || !data) {
+	if (tcp < 0 || data == NULL) {
 		print_error(EWARNING, "发送失败，没有建立TCP连接或者"
 				"发送数据为空");
 		goto out;
@@ -106,11 +109,11 @@ boolean hnet_send(int tcp, void *data, unsigned int len)
 		goto out;
 
 	}
-	if (send(tcp, data, len, 0) == -1) {
+	if ((send(tcp, data, len, 0)) == -1) {
 		print_error(EWARNING, "发送数据失败");
+		perror("send");
 		goto out;
 	}
-
 	return TRUE;
 out:
 	return FALSE;
@@ -124,7 +127,7 @@ out:
  */
 boolean hnet_recv(int tcp, void *data, unsigned int len)
 {
-	if (tcp < 0 || !data) {
+	if (tcp < 0 || data == NULL) {
 		print_error(EWARNING, "接收失败，没有建立TCP连接");
 		goto out;
 	}
@@ -137,11 +140,17 @@ boolean hnet_recv(int tcp, void *data, unsigned int len)
 		goto out;
 
 	}
-	if (recv(tcp, data, len, 0) == -1) {
-		print_error(EWARNING, "接收数据失败");
+	if ((recv(tcp, data, len, 0)) <= 0) {
 		goto out;
 	}
 	return TRUE;
 out:
 	return FALSE;
+}
+
+const char *get_armserver_ip()
+{
+	if (strlen(armserver_ip) > 0)
+		return armserver_ip;
+	return "0.0.0.0";
 }

@@ -50,24 +50,22 @@ static boolean config_read(char *config_file)
 	FILE *fp;
 	char tmp[20];
 	int ret;
+	static char path[256];
 
 	if ((fp = fopen(config_file, "r")) == NULL) {
 		print_error(ESYSERR, "读取端口配置文件错误");
 		return FALSE;
 	}
-	ret = fscanf(fp, "%s %d\n", tmp, &config.linuxarms_port);
 	ret = fscanf(fp, "%s %d\n", tmp, &config.mthread_port);
 	ret = fscanf(fp, "%s %d\n", tmp, &config.sthread_port);
 	ret = fscanf(fp, "%s %d\n", tmp, &config.fthread_port);
 	ret = fscanf(fp, "%s %d\n", tmp, &config.tthread_port);
 	ret = fscanf(fp, "%s %d\n", tmp, &config.cthread_port);
+	ret = fscanf(fp, "%s", path);
+	config.path = path + 5;
 	fclose(fp);
 	
 	return ret == -1 ? FALSE : TRUE;
-}
-int get_linuxarms_port()
-{
-	return config.init ? config.linuxarms_port : -1;
 }
 /*
  * 获取主控连接的端口
@@ -103,4 +101,8 @@ int get_sthread_port()
 int get_tthread_port()
 {
 	return config.init ? config.tthread_port : -1;
+}
+char *get_path_env()
+{
+	return config.path ? config.path : NULL;
 }

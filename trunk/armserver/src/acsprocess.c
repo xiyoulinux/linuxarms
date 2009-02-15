@@ -1,18 +1,51 @@
 /*
- * linuxarms/armserver/src/acsprocess.c
+ * linuxarms/armserver/src/acsasprocess.c
  * 系统进程信息显示相关函数
  * Niu Tao<niutao0602@gmail.com>
  */
+//#define __DEBUG__
+
+#include "linuxarms.h"
 #include "asprocess.h"
 #include "asthread.h"
+#include "protocol.h"
 #include "proc.h"
+#include "debug.h"
+#include "error.h"
+
+#include <pwd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
 #include <sys/types.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <dirent.h>
+#include <sys/socket.h>
+
+
+static boolean asprocess_send_info(struct asprocess_struct *asprocess);
+static boolean asprocess_recv_info(struct asprocess_struct *asprocess);
+static boolean asprocess_set_protocol(struct asprocess_struct *asprocess, 
+					protocol_sthread protocol);
+static char p_cmd[PROCESS_NAME_LEN];
+static char user[PROCESS_USER_LEN];
+static char p_state;
+static int p_pid;
+static int p_ppid, p_pgrp, p_session, p_tty_num, p_tpgid;
+static unsigned long p_flags, p_min_flt, p_cmin_flt, p_maj_flt, p_cmaj_flt, p_utime, p_stime;
+static long p_cutime, p_cstime, p_priority, p_nice, p_timeout, p_alarm;
+static unsigned long p_start_time, p_vsize;
+static long p_rss;
+static unsigned long p_rss_rlim, p_start_code, p_end_code, p_start_stack;
+static char buf[800];
 
 /*
  * 进程信息显示主调模块
  */
-boolean do_show_process(struct asthread_struct *asthread)
+boolean do_show_asprocess(struct asthread_struct *asthread)
 {
 	/*
 	 * 调用其他模块完成读取进程信息，发送进程信息，
@@ -21,266 +54,196 @@ boolean do_show_process(struct asthread_struct *asthread)
 	struct asprocess_struct *asprocess = asthread->asprocess;
 	struct dirent *ent;
 	DIR *dir;
-
 	dir = opendir("/proc");
+	debug_where();
 	while ((ent = readdir(dir))) {
+		if (asthread->proc.state == STOP)
+			goto out;
 		if(*ent->d_name < '0' || *ent->d_name > '9') 
 			continue;
-		process_read_info(asprocess, atoi(ent->d_name));
-		asprocess->send(asthread->socket.tcp, asprocess);
+		if (!asprocess_read_info(asprocess, atoi(ent->d_name)))
+			continue;
+		asprocess->set_protocol(asprocess, SPROCESS);
+		asprocess->send(asprocess);
+		debug_print("%s\t%d\t%s\t%c\t%f\t%f\n", asprocess->trans.name, 
+				asprocess->trans.pid, asprocess->trans.user,
+				asprocess->trans.state, asprocess->trans.cpu,
+				asprocess->trans.mem);
 		/* 接收反馈信息，如果没有成功接收，则不再发送 */
-		/*asprocess->recv(asthread->socket.tcp, asprocess);
+		/*asprocess->recv(asprocess);
 		if (asprocess->trans.protocol != SRECVSUC)
 			break;
 		*/
-		if (asthread->proc.state == STOP) {
-			asprocess->trans.protocol = SSENDALL;
-			asprocess->send(asprocess);
-			break;
-		}
 	}
+out:
 	closedir(dir);
+	debug_where();
+	asprocess->trans.protocol = SSENDALL;
+	asprocess->send(asprocess);
+	return TRUE;
 }
 
-boolean process_init(struct asprocess_struct *asprocess)
+boolean asprocess_init(struct asprocess_struct *asprocess,
+			int *kill, struct anet_struct *socket)
 {
-	if (!asprocess)
-		return FALSE;
-	asprocess->send = process_send_info;
-	asprocess->recv = process_recv_info;
-	return FALSE;
+	LINUXARMS_POINTER(asprocess);
+	LINUXARMS_POINTER(kill);
+	LINUXARMS_POINTER(socket);
+	asprocess_trans_init(&asprocess->trans);
+	asprocess->socket = socket;
+	asprocess->set_protocol = asprocess_set_protocol;
+	asprocess->send = asprocess_send_info;
+	asprocess->recv = asprocess_recv_info;
+	asprocess->kill = kill;
+	return TRUE;
 }
 /*
  * 发送进程信息函数
  * @asthread:  
  */
-boolean process_send_info(int tcp,struct asprocess_struct *asprocess)
+static boolean asprocess_send_info(struct asprocess_struct *asprocess)
 {
-	return anet_send(rcp, &asprocess->trans,
-			sizeof(struct asprocess_struct));
+	LINUXARMS_POINTER(asprocess);
+	return anet_send(asprocess->socket->tcp, (void *)&asprocess->trans,
+			sizeof(struct asprocess_trans));
 }
 
 /*
  * 接收hostclient的反馈信息（是否成功接收完毕）
  */
-boolean process_recv_info(int tcp, struct asprocess_struct *asprocess)
+static boolean asprocess_recv_info(struct asprocess_struct *asprocess)
 {
-	return anet_recv(rcp, &asprocess->trans,
-			sizeof(struct asprocess_struct));
+	LINUXARMS_POINTER(asprocess);
+	return anet_recv(asprocess->socket->tcp, (void *)&asprocess->trans,
+			sizeof(struct asprocess_trans));
 }
 /*
  * 从proc文件系统中读取进程信息
  */
-boolean process_read_info(struct asprocess_struct *asprocess,int pid)
+boolean asprocess_read_info(struct asprocess_struct *asprocess, int pid)
 {
+	char path[32];
+	int num;
+	int fd;
+	char *tmp;
+	struct passwd *pwd;
+	struct stat sb;
+	char *p;
+	LINUXARMS_POINTER(asprocess);
+	snprintf(path, 32, "/proc/%d/stat", pid);
+	if ( (fd = open(path, O_RDONLY, 0) ) == -1 ) 
+		return FALSE;
+	num = read(fd, buf, sizeof(buf) - 1);
+	close(fd);
+	p = strrchr(path, '/');
+	*p = '\0';
+	stat(path, &sb);
+	pwd = getpwuid(sb.st_uid);
+	strncpy(user, pwd->pw_name, PROCESS_USER_LEN);
+	if(num < 80) 
+		return FALSE;
+	buf[num] = '\0';
+	tmp = strrchr(buf, ')');	 
+	*tmp = '\0';				 
+	memset(p_cmd, 0, sizeof(p_cmd));
+	sscanf(buf, "%d (%15c", &p_pid, p_cmd); 
+	num = sscanf(tmp + 2,				 
+	   "%c "
+	   "%d %d %d %d %d "
+	   "%lu %lu %lu %lu %lu %lu %lu "
+	   "%ld %ld %ld %ld %ld %ld "
+	   "%lu %lu "
+	   "%ld "
+	   "%lu %lu %lu %lu",
+	   &p_state,
+	   &p_ppid, &p_pgrp, &p_session, &p_tty_num, &p_tpgid,
+	   &p_flags, &p_min_flt, &p_cmin_flt, &p_maj_flt, &p_cmaj_flt, &p_utime, &p_stime,
+	   &p_cutime, &p_cstime, &p_priority, &p_nice, &p_timeout, &p_alarm,
+	   &p_start_time, &p_vsize,
+	   &p_rss,
+	   &p_rss_rlim, &p_start_code, &p_end_code, &p_start_stack
+	);
+	p_vsize /= 1024;
+	// p_rss *= (PAGE_SIZE/1024);
+	if(p_pid != pid) 
+		return FALSE;
+	strcpy(asprocess->trans.name, p_cmd);
+	asprocess->trans.pid = p_pid;
+	strcpy(asprocess->trans.user, user);
+	asprocess->trans.state = p_state;
+	asprocess->trans.cpu = 0.0;
+	asprocess->trans.mem = 0,0;
+	return TRUE;
 }
-/*
- * 杀死进程处理函数
- */
-boolean kill_process(struct asprocess_struct *asprocess)
+
+boolean asprocess_trans_init(struct asprocess_trans *astrans)
 {
+	LINUXARMS_POINTER(astrans);
+	astrans->protocol = SMAX;
+	memset(astrans->name, '\0', PROCESS_NAME_LEN);
+	astrans->pid = -1;
+	memset(astrans->user, '\0', PROCESS_USER_LEN);
+	astrans->state = 'S';
+	astrans->cpu = 0.0;
+	astrans->mem = 0.0;
+	return TRUE;
 }
-
-/* proc/sysinfo.c*/
-int uptime(double *restrict uptime_secs, double *restrict idle_secs) {
-    double up=0, idle=0;
-    char *restrict savelocale;
-
-    FILE_TO_BUF(UPTIME_FILE,uptime_fd);
-    savelocale = setlocale(LC_NUMERIC, NULL);
-    setlocale(LC_NUMERIC,"C");
-    if (sscanf(buf, "%lf %lf", &up, &idle) < 2) {
-        setlocale(LC_NUMERIC,savelocale);
-        fputs("bad data in " UPTIME_FILE "\n", stderr);
-            return 0;
-    }   
-    setlocale(LC_NUMERIC,savelocale);
-    SET_IF_DESIRED(uptime_secs, up);
-    SET_IF_DESIRED(idle_secs, idle);
-    return up;  /* assume never be zero seconds in practice */
-}
-
-//seconds_since_boot = /proc/uptime[第一个值]
-/* ps/output.c */
-static int pr_pcpu(char *restrict const outbuf, const proc_t *restrict const pp){																 
-	unsigned long long total_time;	 /* jiffies used by this process */
-	unsigned pcpu = 0;							 /* scaled %cpu, 999 means 99.9% */
-	unsigned long long seconds;			/* seconds of process life */
-	
-	total_time = pp->utime + pp->stime;
-	if(include_dead_children)
-		 total_time += (pp->cutime + pp->cstime);
-	seconds = seconds_since_boot - pp->start_time / Hertz;
-	if(seconds) 
-		pcpu = (total_time * 1000ULL / Hertz) / seconds;
-	if (pcpu > 999U)
-		return snprintf(outbuf, COLWID, "%u", pcpu/10U);
-	return snprintf(outbuf, COLWID, "%u.%u", pcpu/10U, pcpu%10U);
-}
-
-/* pp->vm_rss * 1000 would overflow on 32-bit systems with 64 GB memory */
-static int pr_pmem(char *restrict const outbuf, const proc_t *restrict const pp){                                 
-  unsigned long pmem = 0; 
-  pmem = pp->vm_rss * 1000ULL / kb_main_total;
-  if (pmem > 999) pmem = 999; 
-  return snprintf(outbuf, COLWID, "%2u.%u", (unsigned)(pmem/10), (unsigned)(pmem%10));
-}
-static int do_task_stat(struct seq_file *m, struct pid_namespace *ns,
-			struct pid *pid, struct task_struct *task, int whole)
+boolean asprocess_trans_set_protocol(struct asprocess_trans *astrans, 
+					protocol_sthread protocol)
 {
-	unsigned long vsize, eip, esp, wchan = ~0UL;
-	long priority, nice;
-	int tty_pgrp = -1, tty_nr = 0;
-	sigset_t sigign, sigcatch;
-	char state;
-	pid_t ppid = 0, pgid = -1, sid = -1;
-	int num_threads = 0;
-	struct mm_struct *mm;
-	unsigned long long start_time;
-	unsigned long cmin_flt = 0, cmaj_flt = 0;
-	unsigned long  min_flt = 0,  maj_flt = 0;
-	cputime_t cutime, cstime, utime, stime;
-	cputime_t cgtime, gtime;
-	unsigned long rsslim = 0;
-	char tcomm[sizeof(task->comm)];
-	unsigned long flags;
-
-	state = *get_task_state(task);
-	vsize = eip = esp = 0;
-	mm = get_task_mm(task);
-	if (mm) {
-		vsize = task_vsize(mm);
-		eip = KSTK_EIP(task);
-		esp = KSTK_ESP(task);
+	LINUXARMS_POINTER(astrans);
+	if (!PROTOCOL_IS_STHREAD(protocol)) {
+		debug_where();
+		print_error(EWARNING, "无效的协议");
+		astrans->protocol = SMAX;
+		return FALSE;
 	}
+	astrans->protocol = protocol;
+	return TRUE;
+}
+boolean asprocess_trans_set_data(struct asprocess_trans *astrans, char *name,
+				int pid, char *user, char state, float cpu, float mem)
+{
+	boolean ret = TRUE;
 
-	get_task_comm(tcomm, task);
-
-	sigemptyset(&sigign);
-	sigemptyset(&sigcatch);
-	cutime = cstime = utime = stime = cputime_zero;
-	cgtime = gtime = cputime_zero;
-
-	if (lock_task_sighand(task, &flags)) {
-		struct signal_struct *sig = task->signal;
-
-		if (sig->tty) {
-			struct pid *pgrp = tty_get_pgrp(sig->tty);
-			tty_pgrp = pid_nr_ns(pgrp, ns);
-			put_pid(pgrp);
-			tty_nr = new_encode_dev(tty_devnum(sig->tty));
-		}
-
-		num_threads = atomic_read(&sig->count);
-		collect_sigign_sigcatch(task, &sigign, &sigcatch);
-
-		cmin_flt = sig->cmin_flt;
-		cmaj_flt = sig->cmaj_flt;
-		cutime = sig->cutime;
-		cstime = sig->cstime;
-		cgtime = sig->cgtime;
-		rsslim = sig->rlim[RLIMIT_RSS].rlim_cur;
-
-		/* add up live thread stats at the group level */
-		if (whole) {
-			struct task_struct *t = task;
-			do {
-				min_flt += t->min_flt;
-				maj_flt += t->maj_flt;
-				utime = cputime_add(utime, task_utime(t));
-				stime = cputime_add(stime, task_stime(t));
-				gtime = cputime_add(gtime, task_gtime(t));
-				t = next_thread(t);
-			} while (t != task);
-
-			min_flt += sig->min_flt;
-			maj_flt += sig->maj_flt;
-			utime = cputime_add(utime, sig->utime);
-			stime = cputime_add(stime, sig->stime);
-			gtime = cputime_add(gtime, sig->gtime);
-		}
-
-		sid = task_session_nr_ns(task, ns);
-		ppid = task_tgid_nr_ns(task->real_parent, ns);
-		pgid = task_pgrp_nr_ns(task, ns);
-
-		unlock_task_sighand(task, &flags);
+	LINUXARMS_POINTER(astrans);
+	if (!name || strlen(name) == 0) {
+		strcpy(astrans->name, "noname");
+		ret = FALSE;
+	} else {
+		strcpy(astrans->name, name);
 	}
-
-	if (!whole || num_threads < 2)
-		wchan = get_wchan(task);
-	if (!whole) {
-		min_flt = task->min_flt;
-		maj_flt = task->maj_flt;
-		utime = task_utime(task);
-		stime = task_stime(task);
-		gtime = task_gtime(task);
+	if (pid < 0) {
+		astrans->pid = -1;
+		ret = FALSE;
+	} else {
+		astrans->pid = pid;
 	}
+	if (!user || strlen(user) == 0) {
+		strcpy(astrans->user, "unkown");
+		ret = FALSE;
+	} else {
+		strcpy(astrans->user, user);
+	}
+	astrans->state = state;
+	if (cpu < 0) {
+		astrans->cpu = 0;
+		ret = FALSE;
+	} else {
+		astrans->cpu = cpu;
+	}
+	if (mem < 0) {
+		astrans->mem = 0;
+		ret = FALSE;
+	} else {
+		astrans->mem = mem;
+	}
+	return ret;
+}
 
-	/* scale priority and nice values from timeslices to -20..20 */
-	/* to make it look like a "normal" Unix priority/nice value  */
-	priority = task_prio(task);
-	nice = task_nice(task);
-
-	/* Temporary variable needed for gcc-2.96 */
-	/* convert timespec -> nsec*/
-	start_time =
-		(unsigned long long)task->real_start_time.tv_sec * NSEC_PER_SEC
-				+ task->real_start_time.tv_nsec;
-	/* convert nsec -> ticks */
-	start_time = nsec_to_clock_t(start_time);
-
-	seq_printf(m, "%d (%s) %c %d %d %d %d %d %u %lu \
-%lu %lu %lu %lu %lu %ld %ld %ld %ld %d 0 %llu %lu %ld %lu %lu %lu %lu %lu \
-%lu %lu %lu %lu %lu %lu %lu %lu %d %d %u %u %llu %lu %ld\n",
-		pid_nr_ns(pid, ns),
-		tcomm,
-		state,
-		ppid,
-		pgid,
-		sid,
-		tty_nr,
-		tty_pgrp,
-		task->flags,
-		min_flt,
-		cmin_flt,
-		maj_flt,
-		cmaj_flt,
-		cputime_to_clock_t(utime),
-		cputime_to_clock_t(stime),
-		cputime_to_clock_t(cutime),
-		cputime_to_clock_t(cstime),
-		priority,
-		nice,
-		num_threads,
-		start_time,
-		vsize,
-		mm ? get_mm_rss(mm) : 0,
-		rsslim,
-		mm ? mm->start_code : 0,
-		mm ? mm->end_code : 0,
-		mm ? mm->start_stack : 0,
-		esp,
-		eip,
-		/* The signal information here is obsolete.
-		 * It must be decimal for Linux 2.0 compatibility.
-		 * Use /proc/#/status for real-time signals.
-		 */
-		task->pending.signal.sig[0] & 0x7fffffffUL,
-		task->blocked.sig[0] & 0x7fffffffUL,
-		sigign      .sig[0] & 0x7fffffffUL,
-		sigcatch    .sig[0] & 0x7fffffffUL,
-		wchan,
-		0UL,
-		0UL,
-		task->exit_signal,
-		task_cpu(task),
-		task->rt_priority,
-		task->policy,
-		(unsigned long long)delayacct_blkio_ticks(task),
-		cputime_to_clock_t(gtime),
-		cputime_to_clock_t(cgtime));
-	if (mm)
-		mmput(mm);
-	return 0;
+static boolean asprocess_set_protocol(struct asprocess_struct *asprocess, 
+					protocol_sthread protocol)
+{
+	LINUXARMS_POINTER(asprocess);
+	return asprocess_trans_set_protocol(&asprocess->trans, protocol);
 }

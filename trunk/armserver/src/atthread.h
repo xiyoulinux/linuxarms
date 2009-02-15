@@ -27,7 +27,7 @@ struct atthread_struct {
 	protocol_fthread select;
 	long long file_size;
 	long long savefile_size;
-	struct user_struct user;
+	struct user_struct *user;
 	struct anet_struct socket;
 	struct atthread_trans trans;
 	char download_path[ATTHREAD_PATH_LEN];
@@ -47,11 +47,10 @@ struct atthread_struct {
 
 /* 初始化htthread_struct结构体 */
 int atthread_init(struct atthread_struct *atthread,
-	             struct user_struct *user,
-		     struct anet_struct *socket);
+	             struct user_struct *user);
 
 /* 线程执行体 */
-gboolean atthread_thread(void *p);
+boolean atthread_thread(void *p);
 
 #endif
 

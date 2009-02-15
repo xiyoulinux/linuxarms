@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
-
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
@@ -14,7 +13,7 @@
 #include "sprocess.h"
 #include "hsthread.h"
 #include "ssinfo.h"
-#include "fileview.h"
+#include "fview.h"
 #include "htthread.h"
 #include "hmthread.h"
 #include "linuxarms.h"
@@ -27,7 +26,7 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 {
 	struct hmthread_struct *hmthread = linuxarms->hmthread;
 	struct hsthread_struct *hsthread = linuxarms->hsthread;
-	struct hsprocess_struct *sprocess = hsthread->sprocess;
+	struct hsprocess_struct *hsprocess = hsthread->hsprocess;
 	struct hfview_struct *hfview = linuxarms->hfthread->hfview;
 	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
 
@@ -299,9 +298,11 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	
 	
 	g_signal_connect((gpointer)login, "activate",
-			 G_CALLBACK(cb_login_activate), NULL);
+			 G_CALLBACK(cb_login_activate), 
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)logout, "activate",
-			 G_CALLBACK(cb_logout_activate), NULL);
+			 G_CALLBACK(cb_logout_activate), 
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)restart, "activate",
 			 G_CALLBACK(cb_restart_activate), NULL);
 	g_signal_connect((gpointer)shutdown, "activate",
@@ -309,11 +310,14 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	g_signal_connect((gpointer)quit, "activate",
 			 G_CALLBACK(cb_quit_activate), NULL);
 	g_signal_connect((gpointer)process_update_three, "activate",
-			 G_CALLBACK(cb_process_update_three_activate), (gpointer)sprocess);
+			 G_CALLBACK(cb_process_update_three_activate), 
+			 (gpointer)hsprocess);
 	g_signal_connect((gpointer)process_update_five, "activate",
-			 G_CALLBACK(cb_process_update_five_activate), (gpointer)sprocess);
+			 G_CALLBACK(cb_process_update_five_activate), 
+			 (gpointer)hsprocess);
 	g_signal_connect((gpointer)process_kill, "activate",
-			 G_CALLBACK(cb_process_kill_activate), NULL);
+			 G_CALLBACK(cb_process_kill_activate), 
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)fview_rename, "activate",
 			 G_CALLBACK(cb_fview_rename_activate), NULL);
 	g_signal_connect((gpointer)fview_delete, "activate",
@@ -332,9 +336,9 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	hmthread->widget.restart = restart;
 	hmthread->widget.shutdown = shutdown;
 
-	sprocess->widget.menu_kill = process_kill;
-	sprocess->widget.menu_three = process_update_three;
-	sprocess->widget.menu_five = process_update_five;
+	hsprocess->widget.menu_kill = process_kill;
+	hsprocess->widget.menu_three = process_update_three;
+	hsprocess->widget.menu_five = process_update_five;
 
 	hfview->widget.rename = fview_rename;
 	hfview->widget.del = fview_delete;

@@ -3,25 +3,27 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
-
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#include "fileview.h"
+#include "fview.h"
 #include "mwindow.h"
 #include "support.h"
 #include "linuxarms.h"
-	
+#include "hfthread.h"
+
 static char *file_info[] = {
 	"文件名",
 	"大小",
 	"类型",
+	"用户",
 	"修改时间"
 };
 
 GtkListStore  *create_page_fview(struct linuxarms_struct *linuxarms)
 {
 	GtkWidget *notebook_main = linuxarms->mwindow->notebook;
+	struct hfview_struct *hfview = linuxarms->hfthread->hfview;
 	GtkWidget *vbox_fview;
 	GtkWidget *vbox_fpath;
 	GtkWidget *hbox_fpath;
@@ -60,6 +62,8 @@ GtkListStore  *create_page_fview(struct linuxarms_struct *linuxarms)
 	gtk_box_pack_start(GTK_BOX(hbox_fpath), entry_fpath, TRUE, TRUE, 0);
 	gtk_entry_set_max_length(GTK_ENTRY(entry_fpath), 256);
 	gtk_entry_set_invisible_char(GTK_ENTRY(entry_fpath), 9679);
+	gtk_entry_set_editable(GTK_ENTRY(entry_fpath), FALSE);
+	gtk_entry_set_text(GTK_ENTRY(entry_fpath), "/");
 	
 	fixed6 = gtk_fixed_new ();
 	gtk_widget_show (fixed6);
@@ -80,11 +84,12 @@ GtkListStore  *create_page_fview(struct linuxarms_struct *linuxarms)
 	gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook_main), 2), label_fview);
 	GTK_WIDGET_SET_FLAGS(label_fview, GTK_CAN_FOCUS);
 	
-	list_store = gtk_list_store_new(FILE_INFO_COLUMNS+1,/* 文件信息个数+1 */
+	list_store = gtk_list_store_new(FILE_INFO_COLUMNS + 1,/* 文件信息个数+1 */
 					GDK_TYPE_PIXBUF,/* 图标         */
 					G_TYPE_STRING,  /* 文件名       */
-					G_TYPE_STRING,  /* 文件大小     */
+					G_TYPE_LONG,    /* 文件大小     */
 					G_TYPE_STRING,  /* 文件类型     */
+					G_TYPE_STRING,  /* 用户         */
 					G_TYPE_STRING   /* 文件修改时间 */
 			);
 	treeview_fview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(list_store));
@@ -115,20 +120,10 @@ GtkListStore  *create_page_fview(struct linuxarms_struct *linuxarms)
 					    "text", COL_FNAME, NULL);
 
 		
-	for (i = COL_FSIZE; i <= FILE_INFO_COLUMNS; i++){
+	for (i = COL_FNAME + 1; i <= FILE_INFO_COLUMNS; i++){
 		column = gtk_tree_view_column_new();
-		/* 设置每一列的名字，并使其可以排序 */
-		switch (i){
-		case COL_FSIZE:
-		case COL_FTYPE:
-		case COL_FMTIME:
-			gtk_tree_view_column_set_title(column, file_info[i - 1]);
-			gtk_tree_view_column_set_sort_column_id(column, i);
-			break;
-		default:
-			break;
-		}
-	
+		gtk_tree_view_column_set_title(column, file_info[i - 1]);
+		gtk_tree_view_column_set_sort_column_id(column, i);
 		gtk_tree_view_column_set_resizable(column, TRUE);
 		gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
 		gtk_tree_view_column_set_fixed_width(column, 80);
@@ -136,16 +131,8 @@ GtkListStore  *create_page_fview(struct linuxarms_struct *linuxarms)
 	
 		cell_renderer = gtk_cell_renderer_text_new();
 		gtk_tree_view_column_pack_start(column, cell_renderer, TRUE);
-
-		switch (i){
-		case COL_FSIZE:
-		case COL_FTYPE:
-		case COL_FMTIME:
-			gtk_tree_view_column_set_attributes(column,cell_renderer,"text", i,NULL);
-			break;
-		default:
-			break;
-		}
+		gtk_tree_view_column_set_attributes(column,cell_renderer,
+				i == COL_FSIZE ? "long" : "text", i,NULL);
 	}
 	
 	g_signal_connect (G_OBJECT (treeview_fview), "button_press_event",
@@ -157,6 +144,8 @@ GtkListStore  *create_page_fview(struct linuxarms_struct *linuxarms)
   	g_signal_connect(selection, "changed", 
 		         G_CALLBACK(cb_fview_selection_changed),
 			 (gpointer)linuxarms);
+	hfview->widget.path = entry_fpath;
+	hfview->widget.treeview = treeview_fview;
 	return list_store;
 }
 

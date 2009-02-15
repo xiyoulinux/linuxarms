@@ -3,9 +3,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
-
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
+
 #include "statusbar.h"
 #include "mwindow.h"
 

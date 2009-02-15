@@ -1,22 +1,62 @@
+//#define __DEBUG__
+
+#include <sys/types.h>
+#include <sys/param.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <net/if.h>
+#include <netinet/in.h>
+#include <net/if_arp.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/mman.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "linuxarms.h"
 #include "amthread.h"
+#include "afthread.h"
+#include "asthread.h"
+#include "acthread.h"
+#include "atthread.h"
 #include "login.h"
 #include "support.h"
 #include "config.h"
 #include "debug.h"
 #include "error.h"
-#include <sys/mman.h>
-int *user_process;
-int *have_user;
+#include "anet.h"
+#include "thread.h"
+#define _DEBUG_
+#ifdef GTK_THREAD
+#include <glib.h>
+#endif
+
+//int *have_user;
+char *login_user;
 
 int main(int args, char *argv[])
 {
+	int user_process;
 	int size;
 	int socket_fd;
 	int tcp_fd;
 	struct sockaddr_in serv_addr,client_addr;
 	char *config_file;
+	
+#ifdef GTK_THREAD
+	if (!g_thread_supported())
+		g_thread_init(NULL);
+#endif
+	/*
 	have_user = (int *)mmap(NULL,sizeof(int),
 			PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS,-1,0);
+	*have_user = 0;
+	*/
+	 login_user = (char *)mmap(NULL,sizeof(char) * USER_NAME_LEN,
+			PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS,-1,0);
+	 memset(login_user, '\0', USER_NAME_LEN);
+
 	add_file_directory("/etc/linuxarms-armserver/config");
 	add_file_directory("/usr/share/linuxarms-armserver/drive/beep");
 	add_file_directory("/usr/share/linuxarms-armserver/drive/led");
@@ -38,10 +78,10 @@ int main(int args, char *argv[])
 		print_error(ESYSERR,"socket");
 		goto err;
 	}
-	debug_print("create main tcp server to accept tcp request\n");
 	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons(get_linuxarms_port());
-	serv_addr.sin_addr.s_addr = inet_addr(get_localhost_ip());
+	serv_addr.sin_port = htons(get_mthread_port());
+	//serv_addr.sin_addr.s_addr = inet_addr(get_localhost_ip());
+	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	bzero(&(serv_addr.sin_zero), 8);
 	size = sizeof(struct sockaddr);
 
@@ -54,21 +94,62 @@ int main(int args, char *argv[])
 		goto err;
 	}
 	while (TRUE) {
-		if (tcp_fd = accept(socket_fd, (struct sockaddr *)&client_addr, &size)) {
+		linuxarms_print("create main tcp server to accept tcp request...\n");
+		if ((tcp_fd = accept(socket_fd, (struct sockaddr *)&client_addr, 
+						(socklen_t *)&size)) == -1) {
 			print_error(ESYSERR, "accept");
 			goto err;
 		}
+		debug_where();
 		user_process = fork();
 		if (user_process == 0) {
-			/*struct amthread_struct amthread
-			linuxarms_thread_create();*/
+			linuxarms_print("one client request,we create "
+					"process %d to handle it...\n", getpid());
+			strcpy(hostclient_ip, inet_ntoa(client_addr.sin_addr));
+		        struct login_struct login;
+			struct amthread_struct amthread;
+			struct acthread_struct acthread;
+			struct linuxarms_struct linuxarms;
+
+			/* 初始化afthread结构体 */
+			struct afview_struct afview;
+			struct atthread_struct atthread;
+			struct afthread_struct afthread;
+			/* afview->path = afthread->trans.path */
+			afview_init(&afview, afthread.trans.path, &afthread.socket);			
+			atthread_init(&atthread, &login.user);
+			afthread_init(&afthread, &afview, &atthread);
+			
+			/* 初始化asthread结构体 */			
+			struct assinfo_struct assinfo;
+			struct asprocess_struct asprocess;
+			struct asthread_struct asthread;			
+			/* asprocess.kill = &asthread->trans.kill */
+			asprocess_init(&asprocess, &asthread.trans.kill, &asthread.socket);
+			assinfo_init(&assinfo);
+			asthread_init(&asthread, &assinfo, &asprocess);
+			
+			/* 初始化amthread结构体 */
+			login_init(&login, &amthread.socket);
+			user_struct_init(&login.user);
+			amthread_init(&amthread, &login.user);
+			anet_init(&amthread.socket, get_localhost_ip(), get_mthread_port());
+			amthread.socket.tcp = tcp_fd;
+
+			linuxarms.login = &login;
+			linuxarms.amthread = &amthread;
+			linuxarms.afthread = &afthread;
+			linuxarms.asthread = &asthread;
+			linuxarms.acthread = &acthread;
+			debug_where();
+			amthread_thread(&linuxarms);
 		} else {
+			debug_print("main: close tcp\n");
 			close(tcp_fd);
 		}
 	}
-	
 err:
+	linuxarms_print("close armserver...\n");
 	delete_file_directory();
 	return 0;
-
 }

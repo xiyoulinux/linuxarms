@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
-
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
@@ -11,7 +10,7 @@
 #include "support.h"
 #include "mwindow.h"
 #include "hfthread.h"
-#include "fileview.h"
+#include "fview.h"
 #include "htthread.h"
 
 GtkWidget *create_toolbar(GtkWidget *vbox_main,
@@ -197,9 +196,10 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 			 (gpointer)linuxarms);
 	hfview->widget.up = button_up;
 	hfview->widget.back = button_back;
-	debug_print("为控件指针赋值\n");
 	hftrans->widget.toolbar_upload = button_upload;
 	hftrans->widget.toolbar_download = button_download;
-
+	list_head_new(BACK_NUM);
+	gtk_widget_set_sensitive(button_up, FALSE);
+	gtk_widget_set_sensitive(button_back, FALSE);
 	return toolbar;
 }

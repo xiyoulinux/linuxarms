@@ -1,3 +1,4 @@
+#define __DEBUG__
 #include <gtk/gtk.h>
 #include "linuxarms.h"
 #include "mwindow.h"
@@ -6,9 +7,12 @@
 #include "hmthread.h"
 #include "hsthread.h"
 #include "hfthread.h"
+#include "hcthread.h"
 #include "sprocess.h"
-#include "fileview.h"
+#include "fview.h"
 #include "htthread.h"
+#include "toolbar.h"
+#include "thread.h"
 
 typedef enum _Page_num {
 	PSYSINFO,
@@ -25,29 +29,32 @@ void cb_notebook_switch_page(GtkNotebook *notebook,
 			     guint page_num, gpointer user_data)
 {
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
+	struct hmthread_struct *hmthread = linuxarms->hmthread;
 	struct hsthread_struct *hsthread = linuxarms->hsthread;
-	struct hsprocess_struct *sprocess = hsthread->sprocess;
+	struct hsprocess_struct *hsprocess = hsthread->hsprocess;
 	struct hfview_struct *hfview = linuxarms->hfthread->hfview;
-	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
+	struct hfthread_struct *hfthread = linuxarms->hfthread;
+	struct htthread_struct *htthread = hfthread->hftrans;
 	
 	switch (old_num) {
 	case PSYSINFO:
+		hmthread->set_protocol(hmthread, CSTHREAD);
+		hmthread->send(hmthread);
 		break;
 	case PPROCESS:
-		gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_kill), FALSE);
-		gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_three), FALSE);
-		gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_five), FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_kill), FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_three), FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_five), FALSE);
+		hmthread->set_protocol(hmthread, CSTHREAD);
+		hmthread->send(hmthread);
 		break;
 	case PFILEVIEW:
-		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.back), FALSE);
-		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.up), FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(linuxarms->mwindow->toolbar), FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.rename), FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.del), FALSE);
 		debug_print("前一个面板为文件浏览\n");
 		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_upload), FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_download), FALSE);
-		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.toolbar_upload), FALSE);
-		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.toolbar_download), FALSE);
 		break;
 	}
 	debug_print("当前页面的页面号为 = %d\n",page_num);
@@ -63,54 +70,73 @@ void cb_notebook_switch_page(GtkNotebook *notebook,
 	if (page_num != PFILEVIEW) {
 		if (page_num == PSYSINFO) {
 			hsthread_set_timer_time(hsthread, TM_THREE);
-			hsthread_set_trans(hsthread, SYSINFO, -1);
+			hsthread->set_protocol(hsthread, SSYSINFO);
 			old_num = PSYSINFO;
 		} else {
-			hsthread_set_timer_time(hsthread, sprocess->clock);
-			hsthread_set_trans(hsthread, SPROCESS, -1);
-			gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_kill), TRUE);
-			gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_three), TRUE);
-			gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_five), TRUE);
+			hsthread_set_timer_time(hsthread, hsprocess->clock);
+			hsthread->set_protocol(hsthread, SPROCESS);
+			//gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_kill), TRUE);
+			gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_three), TRUE);
+			gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_five), TRUE);
 			old_num = PPROCESS;
 		}
 		hsthread_create_timer(hsthread);
+		hsthread->send(hsthread);
 		debug_print("启动定时器\n");
 	} else {
-		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.back), TRUE);
-		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.up), TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(linuxarms->mwindow->toolbar), TRUE);
 		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.rename), TRUE);
 		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.del), TRUE);
 		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_upload), TRUE);
 		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_download), TRUE);
-		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.toolbar_upload), TRUE);
-		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.toolbar_download), TRUE);
 		old_num = PFILEVIEW;
+		hfthread_trans_set_path(&hfthread->trans, hfview_get_path(hfview));
+		hfthread->set_protocol(hfthread, FVIEW);
+		hfthread->send(hfthread);
 	}
 }
 
 boolean gtk_window_main_set_sensitive(struct linuxarms_struct *linuxarms)
 {
 	struct hsthread_struct *hsthread = linuxarms->hsthread;
-	struct hsprocess_struct *sprocess = hsthread->sprocess;
+	struct hsprocess_struct *hsprocess = hsthread->hsprocess;
 	struct hfview_struct *hfview = linuxarms->hfthread->hfview;
 	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
 	struct hmthread_struct *hmthread = linuxarms->hmthread;
 
-	gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_kill), FALSE);
-	gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_three), FALSE);
-	gtk_widget_set_sensitive(GTK_WIDGET(sprocess->widget.menu_five), FALSE);
-	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.back), FALSE);
-	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.up), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_kill), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_three), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_five), FALSE);
+	
+	gtk_widget_set_sensitive(GTK_WIDGET(linuxarms->mwindow->toolbar), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.rename), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.del), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_upload), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_download), FALSE);
-	gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.toolbar_upload), FALSE);
-	gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.toolbar_download), FALSE);
 
 	gtk_widget_set_sensitive(GTK_WIDGET(hmthread->widget.login), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hmthread->widget.logout), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hmthread->widget.restart), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hmthread->widget.shutdown), FALSE);
 	return TRUE;
+}
+
+void cb_linuxarms_window_main_close(GtkObject *object, gpointer user_data)
+{
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
+	struct hmthread_struct *hmthread = linuxarms->hmthread;
+	struct hsthread_struct *hsthread = linuxarms->hsthread;
+	
+	debug_where();
+	if (hsthread->timer.timer != -1) {
+		hsthread_close_timer(hsthread);
+		debug_where();
+		debug_print("删除定时器\n");
+	}
+	debug_where();
+	hmthread->set_protocol(hmthread, CLOSECLIENT);
+	hmthread->send(hmthread);
+	hostclient_close_all_thread(linuxarms);
+	list_head_free();
+	gtk_main_quit();
 }

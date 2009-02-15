@@ -9,17 +9,21 @@
 #include "login.h"
 #include "config.h"
 #include "sctrl.h"
+
 /*
  * 初始化实时控制主数据结构
  *
  */
-boolean hcthread_init(struct hcthread_struct *hcthread,
-		struct hcthread_widget *widget, 
-		struct hnet_struct *socket,
-		struct hcthread_trans *trans,)
+boolean hcthread_init(struct hcthread_struct *hcthread)
 {
-	if (!hcthread || !widget || !socket || !trans) 
-		print_error(ESYSERR, "init error\n");
+	LINUXARMS_POINTER(hcthread);
+	hcthread->thread = NULL;
+	
+	hcthread->send = hcthread_send;
+	hcthread->recv = hcthread_recv;
+
+	hcthread->showinfo = showinfo;
+	hcthread->competence = FALSE;
 	return TRUE;
 }
 /*
@@ -27,16 +31,16 @@ boolean hcthread_init(struct hcthread_struct *hcthread,
  */
 boolean hcthread_send(struct hcthread_struct *hcthread)
 {
-	hnet_send(hcthread->socket.tcp, &hcthread->trans, sizeof(hcthread->trans));
-	return TRUE;
+	return hnet_send(hcthread->socket.tcp, 
+			&hcthread->trans, sizeof(struct hcthread_trans));
 }
 /*
  *接受一个数据从armserver
  */
 boolean hcthread_recv(struct hcthread_struct *hcthread)
 {
-	hnet_recv(hcthread->socket.tcp, &hcthread->trans, sizeof(hcthread->trans));
-	return TRUE;
+	return hnet_recv(hcthread->socket.tcp, 
+			&hcthread->trans, sizeof(struct hcthread_trans));
 }
 
 boolean showinfo(struct hcthread_struct *hcthread)
@@ -63,10 +67,14 @@ boolean showinfo(struct hcthread_struct *hcthread)
 gboolean hcthread_thread(void *p)
 {
 	struct hcthread_struct *hcthread = (struct hcthread_struct *)p;
+	linuxarms_print("create hcthread thread...\n");
+	hcthread->thread = linuxarms_thread_self();
 	/* 建立网络连接 */
 	hnet_init(&hcthread->socket, get_armserver_ip(), get_cthread_port());
 	create_tcp_client(&hcthread->socket);
-	while (TRUE) {
+	debug_print("hcthread socket ip : %s tcp: %d port: %d\n", hcthread->socket.ip,
+				hcthread->socket.tcp, hcthread->socket.port);	
+	while (hcthread->thread) {
 		do {
 			hcthread_recv(hcthread);        /* 接收从arm端输出过来的数据 */  
 			if(hcthread->trans.protocol == CSEND) {

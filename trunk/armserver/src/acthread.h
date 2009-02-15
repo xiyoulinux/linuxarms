@@ -7,6 +7,7 @@
 #include "linuxarms.h"
 #include "protocol.h"
 #include "anet.h"
+#include "thread.h"
 
 #define TRANS_SIZE 512
 #define TEMP_FILE "/tmp/result.txt"
@@ -19,12 +20,17 @@ struct acthread_trans {
 	protocol_cthread protocol;
 	char buffer[TRANS_SIZE];
 };
+
+boolean acthread_trans_init(struct acthread_trans *trans);
+boolean acthread_trans_set_protocol(struct acthread_trans *trans,protocol_cthread protocol);
+boolean acthread_trans_set_buf(struct acthread_trans *trans, const char *buf);
 /*  
  *acthread_strucnt 实时控制线程主数据结构 
  *@socket:   建立的网络连接 
  *@trans:    传输数据
   */
 struct acthread_struct {
+	linuxarms_thread_t *thread;
 	struct anet_struct socket;
 	struct acthread_trans trans;
 
@@ -35,8 +41,6 @@ struct acthread_struct {
 boolean acthread_send(struct acthread_struct *acthread);
 boolean acthread_recv(struct acthread_struct *acthread);
 boolean acthread_handle(struct acthread_struct *acthread);
-boolean acthread_init(struct acthread_struct *acthread,
-		      struct acthread_trans *trans,
-		      struct anet_struct *socket);
+boolean acthread_init(struct acthread_struct *acthread);
 boolean acthread_thread(void *p);
 #endif

@@ -9,6 +9,7 @@
 #include "acthread.h"
 #include "linuxarms.h"
 #include "anet.h"
+#include "debug.h"
 #include "error.h"
 #include "login.h"
 #include "config.h"
@@ -27,22 +28,23 @@ void do_cd(char *cmd)
 	} else if((strlen(cmd) >4) && (cmd[3] == '~')) {
 		sprintf(dir,"%s%s", getenv("HOME"), &cmd[5]);
 	} else if((strlen(cmd) >4) && (cmd[3] == '/')) {
-		sprintf(dir, "%s", cmd[3]);
+		sprintf(dir, "%s", &cmd[3]);
 	}
-	chdir(dir);
+	if (chdir(dir) == -1) {
+		debug_where();
+		print_error(EWARNING, "chdir: error");
+	}
 }
 /*
  * 初始化实时控制主数据结构
  *
  */
-boolean acthread_init(struct acthread_struct *acthread,
-		struct acthread_trans *trans,
-		struct anet_struct *socket)
+boolean acthread_init(struct acthread_struct *acthread)
 {
-	if (!acthread || !trans || !socket )
-		print_error(ENOINIT, "init error\n");
-	acthread->trans = *trans;
-	acthread->socket = *socket;
+	LINUXARMS_POINTER(acthread);
+	acthread->thread = NULL;
+	anet_init(&acthread->socket, get_localhost_ip(), get_cthread_port());
+	acthread_trans_init(&acthread->trans);
 	return TRUE;
 }
 /*
@@ -50,16 +52,16 @@ boolean acthread_init(struct acthread_struct *acthread,
  */
 boolean acthread_send(struct acthread_struct *acthread)
 {
-	anet_send(acthread->socket.tcp, &acthread->trans, sizeof(struct acthread_trans));
-	return TRUE;
+	return anet_send(acthread->socket.tcp, &acthread->trans, 
+			sizeof(struct acthread_trans));
 }
 /*
  *接受一个数据从hostclient
  */
 boolean acthread_recv(struct acthread_struct *acthread)
 {
-	anet_recv(acthread->socket.tcp, &acthread->trans, sizeof(struct acthread_trans));
-	return TRUE;
+	return anet_recv(acthread->socket.tcp, &acthread->trans, 
+			sizeof(struct acthread_trans));
 }
 boolean acthread_handle(struct acthread_struct *acthread)
 {
@@ -90,11 +92,18 @@ boolean acthread_thread(void *p)
 {
 	struct acthread_struct *acthread = (struct acthread_struct *)p;
 	int fd;
+	linuxarms_print("create acthread thread...\n");
+	acthread->thread = linuxarms_thread_self();
 	/* 建立网络连接 */
-	anet_init(&acthread->socket, get_host_ip(), get_cthread_port());
+	anet_init(&acthread->socket, get_localhost_ip(), get_cthread_port());
 	create_tcp_server(&acthread->socket);
-	while (TRUE) {
-		acthread_recv(acthread);   /* 接收数据 */
+	debug_print("acthread socket ip : %s tcp: %d port: %d\n", acthread->socket.ip,
+				acthread->socket.tcp, acthread->socket.port);	
+	while (acthread->thread) {
+		if (!acthread_recv(acthread)) {   /* 接收数据 */
+			linuxarms_print("acthread recv data error,exit....\n");
+			exit(1);
+		}
 		if (acthread->trans.protocol == CSEND) {
 			acthread_handle(acthread); /* 处理数据 */
 		}
@@ -112,5 +121,37 @@ boolean acthread_thread(void *p)
 		close(fd);
 		remove(TEMP_FILE);
 	}
+	return TRUE;
+}
+boolean acthread_trans_init(struct acthread_trans *trans)
+{
+	LINUXARMS_POINTER(trans);
+	trans->protocol = CMAX;
+	memset(trans->buffer, '\0',TRANS_SIZE);
+	return TRUE;
+}
+boolean acthread_trans_set_protocol(struct acthread_trans *trans,protocol_cthread protocol)
+{
+	LINUXARMS_POINTER(trans);
+	if (!PROTOCOL_IS_CTHREAD(protocol)) {
+		debug_where();
+		print_error(EWARNING, "无效的协议");
+		trans->protocol = CMAX;
+		return FALSE;
+	};
+	trans->protocol = protocol;
+	return TRUE;
+}
+boolean acthread_trans_set_buf(struct acthread_trans *trans, const char *buf)
+{
+	LINUXARMS_POINTER(trans);
+	LINUXARMS_CHAR(buf);
+	if (strlen(buf) >= TRANS_SIZE) {
+		debug_where();
+		print_error(EWARNING, "缓冲区溢出");
+		strncpy(trans->buffer, buf, TRANS_SIZE);
+		return FALSE;
+	}
+	strcpy(trans->buffer, buf);
 	return TRUE;
 }

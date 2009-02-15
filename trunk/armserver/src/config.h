@@ -4,27 +4,25 @@
 #include "linuxarms.h"
 /*
  * config_struct 配置文件读取相关的数据结构
- * linuxarms_port: armserver服务器监听端口
  * @mthread_port:  主控连接的端口
  * @fthread_port:  文件浏览连接的端口
  * @cthread_port:  实时控制连接的端口
  * @sthread_port:  系统信息和进程信息显示连接的端口
  * @tthread_port:  文件传输连接的端口
+ * @path:          普通用户的环境变量
  * @init:          本数据结构是否已经初始化
  */
 struct config_struct {
-	int linuxarms_port;
 	int mthread_port;
 	int fthread_port;
 	int cthread_port;
 	int sthread_port;
 	int tthread_port;
+	char *path;
 	boolean init;
 };
 /* 初始化配置文件 */
 boolean config_init();
-/* 获取服务器监听端口 */
-int get_linuxarms_port();
 /* 读取主线程TCP端口 */
 int get_mthread_port();
 /* 读取文件浏览线程TCP端口 */
@@ -35,4 +33,5 @@ int get_cthread_port();
 int get_sthread_port();
 /* 读取文件传输线程TCP端口 */
 int get_tthread_port();
+char *get_path_env();
 #endif

@@ -1,11 +1,13 @@
+//#define __DEBUG__
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
-
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
+
 #include "linuxarms.h"
 #include "mwindow.h"
 #include "support.h"
@@ -14,7 +16,7 @@
 #include "toolbar.h"
 #include "ssinfo.h"
 #include "sprocess.h"
-#include "fileview.h"
+#include "fview.h"
 #include "sctrl.h"
 #include "statusbar.h"
 #include "hmthread.h"
@@ -25,19 +27,17 @@
 /*
  * 创建主窗口
  */
-GtkWidget *create_window_main(struct linuxarms_struct *linuxarms)
+void create_window_main(struct linuxarms_struct *linuxarms)
 {
-	struct hsthread_struct *hsthread = linuxarms->hsthread;
 	struct hcthread_struct *hcthread = linuxarms->hcthread;
-	struct hfthread_struct *hfthread = linuxarms->hfthread;
-	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
+	struct mwindow_struct *mwindow = linuxarms->mwindow;
 
 	GtkWidget *window_main;
 	GtkWidget *vbox_main;
 	GtkWidget *menubar;
 	GtkWidget *toolbar;
+	GtkWidget *frame_main;
 	GtkWidget *notebook_main;
-	GtkWidget *sprocess;
 	GtkAccelGroup *accel_group;
 	GtkTooltips *tooltips;
 	
@@ -64,6 +64,8 @@ GtkWidget *create_window_main(struct linuxarms_struct *linuxarms)
 	menubar = (GtkWidget *)create_menubar(vbox_main, tooltips,accel_group,linuxarms);
 	toolbar = (GtkWidget *)create_toolbar(vbox_main,tooltips, linuxarms);
 
+	mwindow->toolbar = toolbar;
+
 	notebook_main = gtk_notebook_new();
 	gtk_widget_show(notebook_main);
 	gtk_box_pack_start(GTK_BOX(vbox_main), notebook_main, TRUE, TRUE, 0);
@@ -79,21 +81,29 @@ GtkWidget *create_window_main(struct linuxarms_struct *linuxarms)
 	/* 创建文件浏览界面 */
 	list_store_fview = (GtkListStore *)create_page_fview(linuxarms);
 	debug_where();
+	frame_main = gtk_frame_new(NULL);
+	gtk_widget_show(frame_main);
+	gtk_box_pack_start(GTK_BOX(vbox_main), frame_main, TRUE, TRUE, 0);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame_main), GTK_SHADOW_NONE);
 	/* 创建实时控制界面 */
-	create_ctrl_page(vbox_main, tooltips, hcthread);
+	create_ctrl_page(vbox_main, tooltips,frame_main,  hcthread);
+
+	debug_where();
+	mwindow->frame = frame_main;
 	debug_where();
 	create_statusbar(vbox_main);
 	debug_where();
 
 	g_signal_connect((gpointer)window_main, "destroy", 
-			 G_CALLBACK(gtk_main_quit), 
-			 NULL);
+			 G_CALLBACK(cb_linuxarms_window_main_close), 
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)notebook_main, "switch_page", 
 			 G_CALLBACK(cb_notebook_switch_page), 
 			 (gpointer)linuxarms);
 	
 	gtk_widget_grab_focus(notebook_main);
 	gtk_window_add_accel_group(GTK_WINDOW(window_main), accel_group); 
-	
-	return (GtkWidget *)window_main;
+
+	gtk_widget_show(window_main);
+	//gtk_widget_set_sensitive(window_main, FALSE);
 }
