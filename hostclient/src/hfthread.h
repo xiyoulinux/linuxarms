@@ -3,13 +3,21 @@
 #include "linuxarms.h"
 #include "protocol.h"
 #include "hnet.h"
+#include "thread.h"
+#include "debug.h"
+#include "error.h"
 #include <gtk/gtk.h>
 #define PATH_LEN 512
 #define FNAME_LEN 256
+enum {
+	OLDNAME,
+	NEWNAME
+};
 /*
  * hfthread_trans 文件浏览和文件传输中传送的数据
  * @trans:   控制协议
  * @path:    文件路径
+ * @rename:  重命名文件名(rename[0]-旧文件名/rename[1]-新文件名)
  */
 struct hfthread_trans {
 	protocol_fthread protocol;
@@ -17,6 +25,17 @@ struct hfthread_trans {
 	char rename[2][FNAME_LEN];
 };
 
+boolean hfthread_trans_init(struct hfthread_trans *hftrans);
+boolean hfthread_trans_set_protocol(struct hfthread_trans *hftrans, protocol_fthread protocol);
+boolean hfthread_trans_set_path(struct hfthread_trans *hftrans, const char *path);
+const char *hfthread_trans_get_path(struct hfthread_trans *hftrans);
+boolean hfthread_trans_set_rename(struct hfthread_trans *hftrans, char *oldname, char *newname);
+
+struct hfthread_widget {
+	GtkWidget *window;
+	GtkWidget *oldname;
+	GtkWidget *newname;
+};
 struct htthread_struct;
 struct hfviw_struct;
 struct hnet_struct;
@@ -28,25 +47,29 @@ struct hnet_struct;
  * @socket:  建立的网络连接
  */
 struct hfthread_struct {
+	linuxarms_thread_t *thread;
+	boolean lock;
 	struct hfview_struct *hfview;
 	struct htthread_struct *hftrans;
 	struct hfthread_trans trans;
 	struct hnet_struct socket;
-
+	struct hfthread_widget widget;
+	
+	void (*down_lock)(struct hfthread_struct *hfthread);
+	void (*up_lock)(struct hfthread_struct *hfthread);
+	boolean (*set_protocol)(struct hfthread_struct *hfthread, 
+			protocol_fthread protocol);
 	boolean (*send)(struct hfthread_struct *hfthread);
 	boolean (*recv)(struct hfthread_struct *hfthread);
 };
 
-
 boolean hfthread_init(struct hfthread_struct *hfthread, 
 		      struct hfview_struct *hfview,
-		      struct htthread_struct *hftrans,
-		      struct hfthread_trans *trans,
-		      struct hnet_struct *socket);
+		      struct htthread_struct *hftrans);
 boolean hfthread_set_trans(struct hfthread_struct *hfthread, 
 			   protocol_fthread protocol,
 			   char *path, char *oldname, char *newname);
-boolean hfthread_send(struct hfthread_struct *hfthread);
-boolean hfthread_recv(struct hfthread_struct *hfthread);
 gboolean hfthread_thread(void *p);
+boolean hfthread_rename_success(struct hfthread_struct *hfthread);
+boolean hfthread_delete_success(struct hfthread_struct *hfthread);
 #endif

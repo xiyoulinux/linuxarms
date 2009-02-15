@@ -1,15 +1,17 @@
 #ifndef _LINUXARMS_H
 #define _LINUXARMS_H
+#include "debug.h"
+#include "error.h"
 
-#if (TRUE == 1) && (FALSE == 0)
-#include <gtk/gtk.h>
-typedef gboolean boolean;
+#ifndef __GTK_H__
+	#define FALSE (0)
+	#define TRUE !(FALSE)
+	typedef int boolean;
 #else
-typedef enum _boolean {
-	FALSE = 0,
-	TRUE
-}boolean;
+	typedef gboolean boolean;
 #endif
+
+struct login_struct;
 struct mwindow_struct;
 struct hmthread_struct;
 struct hfthread_struct;
@@ -17,6 +19,7 @@ struct hsthread_struct;
 struct hcthread_struct;
 
 struct linuxarms_struct {
+	struct login_struct *login;
 	struct mwindow_struct  *mwindow;
 	struct hmthread_struct *hmthread;
 	struct hfthread_struct *hfthread;
@@ -24,39 +27,20 @@ struct linuxarms_struct {
 	struct hcthread_struct *hcthread;
 };
 
-typedef void *(*THREADFUNC)(void *);
+#define LINUXARMS_CHAR(p) do{ \
+	if (!p) { \
+		debug_where(); \
+		print_error(EWARNING, "无效的字符指针"); \
+		return FALSE; \
+	} \
+}while(0)
 
-#define GTK_THREAD
+#define LINUXARMS_POINTER(p) do{ \
+	if (!p) { \
+		debug_where(); \
+		print_error(EWARNING, "%s : 无效的指针", #p); \
+		return FALSE; \
+	} \
+}while(0)
 
-#ifdef GTK_THREAD
-#include <gtk/gtk.h>
-#define linuxarms_thread_t GThread
-static linuxarms_thread_t *linuxarms_thread_create(THREADFUNC func, void *arg)
-{
-	return g_thread_create(func, arg, TRUE, NULL);
-}
-
-static boolean linuxarms_thread_exit(linuxarms_thread_t *thread)
-{
-	g_thread_exit((gpointer)thread);
-	return TRUE;
-}
-#else
-#include <pthread.h>
-#define linuxarms_thread_t pthread_t
-static void *pthread_ret;
-static linuxarms_thread_t *linuxarms_thread_create(THREADFUNC func, void *arg)
-{
-	static linuxarms_thread_t pthread;
-	if (pthread_create(&pthread, NULL, func, arg) == -1) {
-		return NULL;
-	}
-	return &pthread;
-}
-static boolean linuxarms_thread_exit(linuxarms_thread_t *thread)
-{
-	pthread_exit(pthread_ret);
-	return TRUE;
-}
-#endif
 #endif

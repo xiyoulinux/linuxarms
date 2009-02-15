@@ -7,6 +7,7 @@
 #include "linuxarms.h"
 #include "protocol.h"
 #include "hnet.h"
+#include "thread.h"
 #include <gtk/gtk.h>
 #define TRANS_SIZE 512
 /* 界面结构体 */
@@ -32,6 +33,7 @@ struct hcthread_trans {
  *@trans:    传输数据
   */
 struct hcthread_struct {
+	linuxarms_thread_t *thread;
 	struct hcthread_widget widget;
 	struct hnet_struct socket;
 	struct hcthread_trans trans;
@@ -44,9 +46,6 @@ struct hcthread_struct {
 boolean hcthread_send(struct hcthread_struct *hcthread);
 boolean hcthread_recv(struct hcthread_struct *hcthread);
 boolean showinfo(struct hcthread_struct *hcthread);
-boolean hcthread_init(struct hcthread_struct *hcthread,
-		      struct hcthread_widget *widget,
-		      struct hnet_struct *socket,
-		      struct hcthread_trans *trans);
+boolean hcthread_init(struct hcthread_struct *hcthread);
 gboolean hcthread_thread(void *p);
 #endif

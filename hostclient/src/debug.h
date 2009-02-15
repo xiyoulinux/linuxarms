@@ -10,16 +10,25 @@
  * function and do not want output debug information any all, you
  * can udefine _DEBUG_.
  */ 
-#define _DEBUG_
+//#define __DEBUG__
 
 #include <stdio.h>
 #include <stdarg.h>
 
 static inline void debug_print(const char *format, ...) 
 			__attribute__ ((format(printf, 1, 2)));
+static inline void linuxarms_print(const char *format, ...) 
+			__attribute__ ((format(printf, 1, 2)));
 
-#ifdef _DEBUG_
-
+static inline void linuxarms_print(const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	printf("linuxarms-hostclient: ");
+	vprintf(format, args);
+	va_end(args);
+}
+#ifdef __DEBUG__
 #define debug_where() \
 	printf("\n###FILE: %s ###LINE: %d ###FUC: %s\n", \
 					__FILE__, __LINE__, __FUNCTION__);
@@ -31,7 +40,6 @@ static inline void debug_print(const char *format, ...)
 	va_end(args);
 }
 #else
-
 #define debug_where() 
 static inline void debug_print(const char *format, ...)
 {

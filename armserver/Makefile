@@ -1,25 +1,22 @@
-CONFIG_DIR=/etc/linuxarms-armserver/
-CONFIG_FILE=./config
-EXECUTE_DIR=/usr/bin
-RESOURCE_DIR=/usr/share/linuxarms-armserver/
-DRIVE_FILE=./drive
-OBJECT=armserver
-DEPEND=./src/*.c ./src/*.h
-$(OBJECT):$(DEPEND)
+CONFIG_DIR = /etc/linuxarms-armserver/
+CONFIG_FILE = ./config
+EXECUTE_DIR = /usr/bin
+RESOURCE_DIR = /usr/share/linuxarms-armserver/
+DRIVE_FILE = ./drive
+srcdir = ./src
+object = armserver
+DEPEND = $(srcdir)/*.c $(srcdir)/*.h
+$(object):$(DEPEND)
 	@echo start compiling armserver...
 	(cd ./src;make)
-	(cd ./src;mv $(OBJECT) ../)
-	@echo compiling end,now you can type \"./$(OBJECT)\" to run $(OBJECT)
+	(cd ./src;mv $(object) ../)
+	@echo compiling end,now you can type \"./$(object)\" to run $(object)
 clean:
-	@echo rm .o file...
-	@if [ -e $(OBJECT) ]; \
-	then \
-		rm $(OBJECT) ; \
-	fi 
+	@echo "clean all binary file..."
+	-rm -f $(object)
 	(cd ./src;make clean)
-	@echo rm end.
 install:
-	@echo install \"$(OBJECT)\"...
+	@echo install \"$(object)\"...
 	@if [ -e $(CONFIG_FILE) ]; \
 	then \
 		echo "test \"$(CONFIG_FILE)\" directory :exist..." ;\
@@ -60,19 +57,19 @@ install:
 	else \
 		mkdir $(RESOURCE_DIR); \
 	fi
-	@if [ -e $(OBJECT) ]; \
+	@if [ -e $(object) ]; \
 	then \
-		cp $(OBJECT) $(EXECUTE_DIR) ;\
+		cp $(object) $(EXECUTE_DIR) ;\
 	else \
-		echo "execute file \"$(OBJECT)\" not exist..." ;\
+		echo "execute file \"$(object)\" not exist..." ;\
 		(make uninstall); \
 		exit 1; \
 	fi
 	cp -r $(CONFIG_FILE) $(CONFIG_DIR)
 	cp -r $(DRIVE_FILE) $(RESOURCE_DIR)
-	@echo install end.you can type \"make uninstall\" to uninstall \"$(OBJECT)\".
+	@echo install end.you can type \"make uninstall\" to uninstall \"$(object)\".
 uninstall:
-	@echo "uninstall \"$(OBJECT)\""
+	@echo "uninstall \"$(object)\""
 	@if [ -e $(CONFIG_DIR) ]; \
 	then \
 		rm  -r $(CONFIG_DIR) ; \
@@ -87,10 +84,10 @@ uninstall:
 	else \
 		echo "test directory $(RESOURCE_DIR) :not exist..."; \
 	fi
-	@if [ -e "$(EXECUTE_DIR)/$(OBJECT)" ] ; \
+	@if [ -e "$(EXECUTE_DIR)/$(object)" ] ; \
 	then \
-		rm  $(EXECUTE_DIR)/$(OBJECT) ;\
-		echo "rm  $(EXECUTE_DIR)/$(OBJECT) ";\
+		rm  $(EXECUTE_DIR)/$(object) ;\
+		echo "rm  $(EXECUTE_DIR)/$(object) ";\
 	else \
-		echo "test exectue file $(EXECUTE_DIR)/$(OBJECT) :not exist..." ; \
+		echo "test exectue file $(EXECUTE_DIR)/$(object) :not exist..." ; \
 	fi

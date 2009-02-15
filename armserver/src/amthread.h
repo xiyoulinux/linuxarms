@@ -2,12 +2,15 @@
 #define _AMTHREAD_H
 /*
  * linuxarms/armserver/src/amthread.h
- * Niu Tao:niutao0602@gmail.com
+ * Niu Tao:<niutao0602@gmail.com>
  */
 #include "linuxarms.h"
 #include "login.h"
 #include "anet.h"
 #include "protocol.h"
+#include "thread.h"
+
+#define LOGIN_CHECK_TIMEOUT 3
 /*
  * amthread_trans  the packet which send or receive
  * @user:          user information
@@ -17,19 +20,23 @@ struct amthread_trans {
         struct user_struct user;
         protocol_mthread protocol;
 };
+boolean amthread_trans_init(struct amthread_trans *amtrans);
+boolean amthread_trans_set_protocol(struct amthread_trans *amtrans, 
+					protocol_mthread protocol);
 
 /*
- * amthread_struct	main structure
+ * main structure
  * @lock:	is there a data sending or receiving?
  * @user:	the user who use hostclient
  * @trans:	the packet which send or receive
  * @socket:	TCP socket
  */ 
 struct amthread_struct {
-	linuxarms_thread_t thread_id;
 	boolean lock;
+	linuxarms_thread_t *thread;
 	struct user_struct *user;
-	struct anet_struct *socket;
+	struct amthread_trans trans;
+	struct anet_struct socket;
 
 	void (*down_lock)(struct amthread_struct *amthread);
 	void (*up_lock)(struct amthread_struct *amthread);
@@ -37,12 +44,15 @@ struct amthread_struct {
 				protocol_mthread protocol);
 	boolean (*send)(struct amthread_struct *amthread);
 	boolean (*recv)(struct amthread_struct *amthread);
-	boolean (*judge_competence)(struct amthread_struct *amthread);
+	boolean (*competence)(struct amthread_struct *amthread);
 
 };
-
-int amthread_init(struct amthread_struct *amthread,
-                 struct user_struct *user,
-                 struct anet_struct *socket);
+//extern int *have_user;
+extern char *login_user;
+boolean amthread_init(struct amthread_struct *amthread, struct user_struct *user);
 boolean amthread_thread(void *p);
+boolean armserver_create_all_thread(struct linuxarms_struct *linuxarms);
+void armserver_close_all_thread(struct linuxarms_struct *linuxarms);
+protocol_mthread armserver_do_login(struct linuxarms_struct *linuxarms);
+void armserver_login_result(struct linuxarms_struct *linuxarms, protocol_mthread protocol);
 #endif

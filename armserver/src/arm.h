@@ -5,6 +5,8 @@
 
 #ifndef _EPC_ARM_H
 #define _EPC_ARM_H
+#include "beepdrv.h"
+#include "leddrv.h"
 /*
  * if the armserver run in EPC-8000(which is developed by
  * ZLG http://www.zlgmcu.com/),you can use the led or beep 

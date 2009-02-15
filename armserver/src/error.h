@@ -12,5 +12,6 @@ enum error {
 	EWARNING  /* 警告 */
 };
 
-void print_error(int error, const char *text);
+void print_error(int error, const char *format, ...)
+		__attribute__ ((format(printf, 2, 3)));
 #endif

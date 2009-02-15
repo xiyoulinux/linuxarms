@@ -1,40 +1,44 @@
+#define __DEBUG__
 #include "proc.h"
 #include "linuxarms.h"
 #include "error.h"
 #include "debug.h"
 #include "asthread.h"
+#include "assinfo.h"
+#include "asprocess.h"
 
 static boolean proc_set_ctrl(struct proc_struct *proc, protocol_sthread ctrl);
 static boolean proc_set_state(struct proc_struct *proc, proc_state state);
 
-boolean init_proc(struct proc_struct *proc, 
+boolean proc_init(struct proc_struct *proc, 
 			 proc_state state, protocol_sthread ctrl)
 {
-	if (!proc)
-		goto out;
-	if (state != STOP || state != CONTINUE) {
+	boolean ret = TRUE;
+
+	LINUXARMS_POINTER(proc);
+	if (state != STOP && state != CONTINUE) {
 		proc->state = STOP;
-		goto out;
-	} else
+		ret = FALSE;
+	} else {
 		proc->state = state;
-	if (ctrl < 0 || ctrl >SMAX) {
+	}
+	if (ctrl < 0 || ctrl > SMAX) {
 		proc->ctrl = SMAX;
-		goto out;
-	} else
+		ret = FALSE;
+	} else {
 		proc->ctrl = ctrl;
+	}
 
 	proc->set_state = proc_set_state;
-	proc->set_ctrl = proc_set_ctrl;
+	proc->set_ctrl  = proc_set_ctrl;
 
-	return TRUE;
-	
-out:	
-	return FALSE;
+	return ret;
 }
 
 static boolean proc_set_state(struct proc_struct *proc, proc_state state)
 {
-	if (state != CONTINUE || state != STOP) {
+	LINUXARMS_POINTER(proc);
+	if (state != CONTINUE && state != STOP) {
 		debug_where();
 		print_error(EWARNING, "无效的参数");
 		proc->state =STOP;
@@ -42,11 +46,10 @@ static boolean proc_set_state(struct proc_struct *proc, proc_state state)
 		proc->state = state;
 	}
 	return TRUE;
-	
-
 }
 static boolean proc_set_ctrl(struct proc_struct *proc, protocol_sthread ctrl)
 {
+	LINUXARMS_POINTER(proc);
 	if (!PROTOCOL_IS_STHREAD(ctrl)) {
 		debug_where();
 		print_error(EWARNING, "无效的参数");
@@ -59,23 +62,22 @@ static boolean proc_set_ctrl(struct proc_struct *proc, protocol_sthread ctrl)
 
 boolean read_proc(struct asthread_struct *asthread)
 {
-	struct proc_struct *proc = &asthread->proc;
+	struct proc_struct *proc;
 	
-	if (!proc)
-		goto out;
+	LINUXARMS_POINTER(asthread);
+	proc = &asthread->proc;
 	switch (proc->ctrl) {
-	case SYSINFO:
-		//read_sysinfo(proc);
+	case SSYSINFO:
+		//read_sysinfo(asthread);
 		break;
 	case SPROCESS:
-		//do_show_process(proc);
+		debug_where();
+		do_show_asprocess(asthread);
 		break;
-	
 	default:
 		goto out;
 	}
 	return TRUE;
-	
 out:
 	return FALSE;
 }

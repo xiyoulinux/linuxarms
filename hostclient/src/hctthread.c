@@ -49,6 +49,7 @@ int htthread_init(struct htthread_struct *htthread,
 		ret = ENOSOCKET;
 		goto out;
 	}
+	htthread->thread = NULL;
 	htthread->select = FMAX;
 	htthread->socket = *socket;
 	htthread->widget = *widget;

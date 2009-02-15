@@ -3,6 +3,8 @@
 #include <time.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
 
 #include "linuxarms.h"
 #include "error.h"
@@ -47,7 +49,7 @@ boolean armserver_init_log(char *usename)
 	if ((fd = open(use_dir, O_RDONLY)) == -1) { 
 		/* 不存在用户日志目录，创建 */
 		mkdir(use_dir,0700);
-	} else if {
+	} else {
 		fstat(fd, &buf);
 		if (buf.st_mode != S_IFDIR)
 			print_error(ENOINIT, "It is a file\n");
@@ -57,7 +59,7 @@ boolean armserver_init_log(char *usename)
 	strcpy(temp_dir, use_dir);
 
 	/* 创建用户日志配置文件 */
-	log_conf_dir = strcat(usename, log_conf_dir);
+	strcat( log_conf_dir, usename);
 	temp_dir[strlen(temp_dir)] = '/';
 	strcpy(temp_dir, log_conf_dir);
 	if ((fd = open(temp_dir, O_RDONLY)) == -1) {
@@ -65,9 +67,9 @@ boolean armserver_init_log(char *usename)
 		fp = fopen(temp_dir, "w");
 		fprintf(fp,"%s%d", conf_sentence, log.file_size);
 		fclose(fp);
-	} else if {
+	} else {
 		lseek(fd, strlen(conf_sentence), SEEK_SET);
-		read(fd, log.file_size, sizeof(log.file_size));
+		read(fd, log.file, sizeof(log.file_size));
 		close(fd);
 	}
 	/* 创建用户日志文件 */
@@ -78,14 +80,16 @@ boolean armserver_init_log(char *usename)
 	if (fd = open(temp_dir, O_RDONLY) == -1) {
 		fp = fopen(temp_dir, "w+");
 		log.fp=fp;
-	} else if {
+	} else {
 		fstat(fd, &buf);
 		if (buf.st_size >= log.file_size*1024) {
 			fp = fopen(temp_dir, "w+");			
 		}
 		log.fp = fp; 
+	}
+	return TRUE;
 }
-boolean write_log(char *log_data);
+boolean write_log(char *log_data)
 {
 	/* 写入信息 */
 	time_t timep;

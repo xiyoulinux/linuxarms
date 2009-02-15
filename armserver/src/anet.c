@@ -15,29 +15,30 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <unistd.h>
 #include "anet.h"
 #include "linuxarms.h"
 #include "error.h"
 #include "debug.h"
-
 #define ERROR "读取本机ip出错"
 #define MAXINTERFACES 16
-static char armserver_ip[16];
+static char armserver_ip[IP_LEN];
+/* initialized in main.c */
+char hostclient_ip[IP_LEN];
 /*
  * 初始化struct anet_struct 结构。如果参数anet或者ip为空，则返回错误
  * @anet:  要初始化的数据结构
  * @ip:    hostcleint端的ip地址
  * @port:  建立网络连接时使用的端口
  */
-boolean anet_init(struct anet_struct *anet, char *ip, int port)
+boolean anet_init(struct anet_struct *anet, const char *ip, int port)
 {
-	if (!anet || !ip) {
+	if (!anet) {
 		debug_where();
-		print_error(ESYSERR,"anet or ip is null");
+		print_error(ESYSERR, "anet is null");
 		return FALSE;
 	}
-
-	strncpy(anet->ip, ip, 15);
+	strcpy(anet->ip, (!ip || strlen(ip) > IP_LEN) ? "0.0.0.0" : ip);
 	anet->port = port;
 	return TRUE;
 }
@@ -46,7 +47,7 @@ boolean anet_init(struct anet_struct *anet, char *ip, int port)
  */
 boolean create_tcp_server(struct anet_struct *anet)
 {
-	int size;
+	socklen_t size;
 	int socket_fd;
 	struct sockaddr_in serv_addr,client_addr;
 	
@@ -61,20 +62,20 @@ boolean create_tcp_server(struct anet_struct *anet)
 	bzero(&(serv_addr.sin_zero), 8);
 	size = sizeof(struct sockaddr);
 
-	if (bind(socket_fd, (struct sockaddr *)&serv_addr, size) == -1) {
+	if ((bind(socket_fd, (struct sockaddr *)&serv_addr, size)) == -1) {
 		print_error(ESYSERR, "bind");
 		goto label;
 	}
-	if (listen(socket_fd, 1) == -1) {
+	if ((listen(socket_fd, 1)) == -1) {
 		print_error(ESYSERR, "listen");
 		goto label;
 	}
 
-	if (anet->tcp = accept(socket_fd, (struct sockaddr *)&client_addr, &size)) {
+	if ((anet->tcp = accept(socket_fd, (struct sockaddr *)&client_addr, &size)) == -1) {
 		print_error(ESYSERR, "accept");
 		goto label;
 	}
-	debug_print("create tcp client success\n");
+	debug_print("create tcp server success\n");
 
 	return TRUE;
 label:
@@ -120,11 +121,10 @@ boolean anet_send(int tcp, void *data, unsigned int len)
 		goto out;
 
 	}
-	if (send(tcp, data, len, 0) == -1) {
+	if ((send(tcp, data, len, 0)) == -1) {
 		print_error(EWARNING, "发送数据失败");
 		goto out;
 	}
-
 	return TRUE;
 out:
 	return FALSE;
@@ -152,8 +152,7 @@ boolean anet_recv(int tcp, void *data,unsigned int len)
 		goto out;
 
 	}
-	if (recv(tcp, data, len, 0) == -1) {
-		print_error(EWARNING, "接收数据失败");
+	if ((recv(tcp, data, len, 0)) <= 0) {
 		goto out;
 	}
 	return TRUE;
@@ -165,13 +164,14 @@ out:
  * 读取armserver端的ip地址
  * @return: 如果正确获取，则返回ip地址，否则返回NULL
  */
-char *get_localhost_ip()
+const char *get_localhost_ip()
 {
-	int fd, interface, retn = 0;
+	int fd, interface;
 	struct ifreq buf[MAXINTERFACES];
-	struct arpreq arp;
 	struct ifconf ifc;
 
+	if (strlen(armserver_ip) > 0)
+		return armserver_ip;
 	if ((fd = socket (AF_INET, SOCK_DGRAM, 0)) == -1) {
 		print_error(ESYSERR, ERROR);
 		return NULL;
@@ -184,33 +184,33 @@ char *get_localhost_ip()
 	}
 	/* 获取接口信息 */
 	interface = ifc.ifc_len / sizeof(struct ifreq);
-	printf("interface num is interface=%d\n",interface);
+	//printf("interface num is interface=%d\n",interface);
 	/* 根据借口信息循环获取设备IP和MAC地址 */
 	while (interface-- > 0) {
 		/* 获取设备名称 */
 		if (strcmp(buf[interface].ifr_name, "eth0") ||
 		    strcmp(buf[interface].ifr_name, "eth1")) {
-			debug_print("net device %s\n", buf[interface].ifr_name);
+			//debug_print("net device %s\n", buf[interface].ifr_name);
 			/* 判断网卡类型 */
 			if ((ioctl (fd, SIOCGIFFLAGS, (char *)&buf[interface])) == -1) {
 				print_error(ESYSERR, ERROR);
 				goto out;
 			}
 			if (buf[interface].ifr_flags & IFF_PROMISC) {
-				debug_print("the interface is PROMISC\n");
+				//debug_print("the interface is PROMISC\n");
 			} else {
-				debug_print("cpm: ioctl device %s\n", buf[interface].ifr_name);
+				//debug_print("cpm: ioctl device %s\n", buf[interface].ifr_name);
 	 		}
 			/* 判断网卡状态 */
 			if (buf[interface].ifr_flags & IFF_UP) {
-				debug_print("the interface status is UP\n");
+				//debug_print("the interface status is UP\n");
 			} else {
-				debug_print("the interface status is DOWN\n");
+				//debug_print("the interface status is DOWN\n");
 			}
 			/* 获取当前网卡的IP地址 */
 			if (!(ioctl (fd, SIOCGIFADDR, (char *)&buf[interface]))) {
-				debug_print ("print IP address is:",
-				inet_ntoa(((struct sockaddr_in*)(&buf[interface].ifr_addr))->sin_addr));
+				//debug_print ("print IP address is: %s",
+				//inet_ntoa(((struct sockaddr_in*)(&buf[interface].ifr_addr))->sin_addr));
 				strncpy(armserver_ip, 
 				inet_ntoa(((struct sockaddr_in*)(&buf[interface].ifr_addr))->sin_addr),
 				16);
@@ -224,10 +224,9 @@ out:
 	return NULL;
 }
 
-int main()
+const char *get_hostclient_ip()
 {
-	char *ip;
-	ip = get_host_ip();
-	printf("ip = %s\n",ip);
-	return 0;
+	if (strlen(hostclient_ip) > 0)
+		return hostclient_ip;
+	return "0.0.0.0";
 }

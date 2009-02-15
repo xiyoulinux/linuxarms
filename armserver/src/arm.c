@@ -1,7 +1,16 @@
 #include "arm.h"
 #include "linuxarms.h"
 #include "support.h"
+#include "debug.h"
+#include "error.h"
 #include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+
 
 #define DEV_LED "/dev/led"
 #define DEV_BEEP "/dev/beep"
@@ -18,8 +27,7 @@ static struct epc8000_struct epc8000;
 
 static boolean load_drive()
 {
-	char *drv_led,drv_beep;
-	int ret;
+	char *drv_led, *drv_beep;
 	char buf[256];
 
 	drv_led = find_file("leddrv.ko");
@@ -47,7 +55,7 @@ void init_led_beep()
 {
 	if (!load_drive()) {
 		debug_where();
-		print_eror(EWARNING, "无法使用led灯和蜂鸣器");
+		print_error(EWARNING, "无法使用led灯和蜂鸣器");
 		return;
 	}
 	if ((epc8000.led = open(DEV_LED, O_RDWR)) == -1) {
@@ -78,7 +86,10 @@ void close_led_beep()
 void led_clew_open()
 {
 	if (epc8000.inited && epc8000.led != -1) {
-		write(epc8000.led, "3", 1);
+		if (write(epc8000.led, "3", 1) == -1) {
+			debug_where();
+			print_error(EWARNING, "write: error");
+		}
 	}
 }
 /*
@@ -87,7 +98,10 @@ void led_clew_open()
 void led_clew_close()
 {
 	if (epc8000.inited && epc8000.led != -1) {
-		write(epc8000.led, "0", 1);
+		if (write(epc8000.led, "0", 1) == -1) {
+			debug_where();
+			print_error(EWARNING, "write: error");
+		}
 	}
 }
 /*
@@ -95,8 +109,8 @@ void led_clew_close()
  */
 void beep_ring()
 {
-	if (ecp8000.inited && epc8000.beep != -1) {
-		ioctl(fd, BEEP_CTRL, 1);
+	if (epc8000.inited && epc8000.beep != -1) {
+		ioctl(epc8000.beep, BEEP_CTRL, 1);
 	}
 }
 /*
@@ -104,8 +118,8 @@ void beep_ring()
  */
 void beep_close()
 {
-	if (ecp8000.inited && epc8000.beep != -1) {
-		ioctl(fd, BEEP_CTRL, 0);
+	if (epc8000.inited && epc8000.beep != -1) {
+		ioctl(epc8000.beep, BEEP_CTRL, 0);
 	}
 }
 #else

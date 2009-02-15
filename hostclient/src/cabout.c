@@ -49,7 +49,7 @@ void cb_button_licence_clicked(GtkButton *button, gpointer user_data)
 {
 	GtkWidget *textview;
 	GtkTextBuffer *buffer;
-	gint i, len;
+	gint len;
 	gchar tmp[80], *p = NULL;
 	FILE *fp_help;
 	textview = (GtkWidget *)create_window_licence();

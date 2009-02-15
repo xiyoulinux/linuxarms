@@ -7,12 +7,12 @@
 #include "atthread.h"
 #include "error.h"
 
- static boolean atthread_get_download_file(struct atthread_struct *atthread, char *path);
- static boolean atthread_get_upload_file(struct atthread_struct *atthread, char *path);
- static boolean atthread_upload(struct atthread_struct *atthread, struct atthread_trans *trans);
- static boolean atthread_download(struct atthread_struct *atthread, struct atthread_trans *trans);
- static boolean atthread_send(struct atthread_struct *atthread);
- static boolean atthread_recv(struct atthread_struct *atthread);
+static boolean atthread_get_download_file(struct atthread_struct *atthread, char *path);
+static boolean atthread_get_upload_file(struct atthread_struct *atthread, char *path);
+static boolean atthread_upload(struct atthread_struct *atthread, struct atthread_trans *trans);
+static boolean atthread_download(struct atthread_struct *atthread, struct atthread_trans *trans);
+static boolean atthread_send(struct atthread_struct *atthread);
+static boolean atthread_recv(struct atthread_struct *atthread);
  
  /*
  * init_atthread	initialize atthread_struct structure. 
@@ -21,8 +21,7 @@
  * @scoket:		tcp socket structure
  */
 int atthread_init(struct atthread_struct *atthread,
-		     struct user_struct *user,
-		     struct anet_struct *socket,)
+		     struct user_struct *user)
 {
 	int ret = 0;
 	if (!atthread) {
@@ -33,13 +32,8 @@ int atthread_init(struct atthread_struct *atthread,
 		ret = ENOINIT;
 		goto out;
 	}
-	if (!socket) {
-		ret = ENOSOCKET;
-		goto out;
-	}
 	atthread->select = FMAX;
-	atthread->socket = *socket;
-	atthread->user = *user;
+	atthread->user = user;
 	atthread->trans.protocol = FMAX;
 
 	atthread->get_download_file = atthread_get_download_file;
@@ -84,14 +78,14 @@ static boolean atthread_upload(struct atthread_struct *atthread,
 	return create_tcp_server(&atthread->socket);		
 }
 
-static boolean htthread_download(struct atthread_struct *atthread, 
+static boolean atthread_download(struct atthread_struct *atthread, 
 					struct atthread_trans *trans) {
 	if (!atthread || !trans)
 		return FALSE;
 	return create_tcp_server(&atthread->socket);
 }
 
-static boolean htthread_send(struct atthread_struct *atthread) {
+static boolean atthread_send(struct atthread_struct *atthread) {
 	if (!atthread)
 		return FALSE;
 	return anet_send(atthread->socket.tcp, &atthread->trans, 
@@ -99,7 +93,7 @@ static boolean htthread_send(struct atthread_struct *atthread) {
 
 }
 
-static boolean htthread_recv(struct atthread_struct *atthread)
+static boolean atthread_recv(struct atthread_struct *atthread)
 {
 	if (!atthread)
 		return FALSE;
@@ -108,7 +102,7 @@ static boolean htthread_recv(struct atthread_struct *atthread)
 
 }
 
-gboolean atthread_thread(void *p)
+boolean atthread_thread(void *p)
 {
 	struct atthread_struct *atthread = (struct atthread_struct *)p;
 	if (!create_tcp_server(&atthread->socket)) {
