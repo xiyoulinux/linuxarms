@@ -1,3 +1,4 @@
+#define __DEBUG__
 #include <gtk/gtk.h>
 #include <sys/types.h>
 #include <time.h>
@@ -94,34 +95,48 @@ boolean do_file_view(struct hfview_struct *hfview)
 	 */
 	struct hfview_widget *widget;
 	struct hfview_recv *frecv;
-	GtkTreeModel *list_store;
+	char *stime;
+	GtkTreeModel *model;
+	GtkListStore *list_store;
+
 	GtkTreeIter iter;
 	GdkPixbuf *directory;
 	GdkPixbuf *file;
 
+		debug_where();
 	LINUXARMS_POINTER(hfview);
 	widget = &hfview->widget;
 	frecv = &hfview->frecv;
 	gtk_widget_set_sensitive(widget->treeview, FALSE);
-	list_store = gtk_tree_view_get_model(GTK_TREE_VIEW(widget->treeview));
-	gtk_list_store_clear(GTK_LIST_STORE(list_store));
+	debug_where();
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(widget->treeview));
+	list_store = GTK_LIST_STORE(model);
+/*
+	if (gtk_tree_model_get_iter_first(model, &iter)) {
+		gtk_list_store_clear(list_store);
+		debug_where();
+	}*/
 	
-	directory = gdk_pixbuf_new_from_file(find_file("gtk-directory.png"), NULL);
-	file = gdk_pixbuf_new_from_file(find_file("gtk-file.png"), NULL);
+	debug_where();
+	directory = gdk_pixbuf_new_from_file_at_size(find_file("gtk-directory.png"), 16, 16, NULL);
+	file = gdk_pixbuf_new_from_file_at_size(find_file("gtk-file.png"), 16, 16, NULL);
+	debug_where();
 	while (TRUE) {
 		hfview->recv(hfview);
 		switch (frecv->protocol) {
 		case FSENDALL:
 			goto out;
 		case FVIEW:
-			gtk_list_store_append(GTK_LIST_STORE(list_store), &iter);
-			gtk_list_store_set(GTK_LIST_STORE(list_store), &iter, 
+			stime = ctime(&frecv->mtime);
+			stime[strlen(stime) - 1] = '\0';
+			gtk_list_store_append(list_store, &iter);
+			gtk_list_store_set(list_store, &iter, 
 			COL_FPIXBUF, frecv->type == TYPE_DIR ? directory : file,
 			COL_FNAME, frecv->name,
 			COL_FSIZE, frecv->size,
 			COL_FTYPE, frecv->type == TYPE_DIR ? "文件夹" : "文件",
 			COL_FUSER, frecv->user,
-			COL_FMTIME,ctime(&frecv->mtime),
+			COL_FMTIME,stime,
 			-1);
 			break;
 		default:
@@ -144,7 +159,9 @@ gboolean cb_fview_button_press(GtkWidget *widget,
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
 	struct hfthread_struct *hfthread = linuxarms->hfthread;
 	struct hfview_struct *hfview = hfthread->hfview;
-	
+	//if (event->type == GDK_BUTTON_RELEASE)
+	//	return FALSE;
+	debug_print("文件浏览界面鼠标按下\n");
 	if (event->button == BUTTON_RIGHT) {
 		GtkWidget *popup_menu = create_popup_menu_fview(linuxarms);
 		gtk_menu_popup (GTK_MENU(popup_menu),
@@ -157,16 +174,18 @@ gboolean cb_fview_button_press(GtkWidget *widget,
 		statusbar_set_text("按下鼠标左键");
 		return TRUE;
 	}*/
-	if (event->type == 5 && event->button == BUTTON_LEFT) {
+	if (event->type == GDK_2BUTTON_PRESS && event->button == BUTTON_LEFT) {
+		debug_print("双击鼠标左键\n");
 		boolean select;
-		GtkTreeModel *list_store;
+		GtkTreeModel *model;
+		GtkListStore *list_store;
 		GtkTreeIter iter;
 		GtkTreeSelection *selection;
 		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(hfview->widget.treeview));
-		select = gtk_tree_selection_get_selected(selection, &list_store, &iter);
+		select = gtk_tree_selection_get_selected(selection, &model, &iter);
 		if (select) {
 			char *type,*name;
-			gtk_tree_model_get(list_store, &iter,
+			gtk_tree_model_get(model, &iter,
 					COL_FNAME, &name,
 					COL_FTYPE, &type,
 					-1);
@@ -187,22 +206,41 @@ gboolean cb_fview_button_press(GtkWidget *widget,
 				goto RETURN_FALSE;
 			}
 			list_head_set_path(path);
+			debug_print("path = %s\n", path);
 			p = path + len;
-			sprintf(p, "/%s", name);
+			if (*(p - 1) == '/')
+				sprintf(p, "%s", name);
+			else
+				sprintf(p, "/%s", name);
+
+			debug_print("path = %s\n", path);
 			hfview_set_path(hfview, path);
 			hfthread_trans_set_path(&hfthread->trans, path);
-			hfthread->set_protocol(hfthread, FVIEW);
-			hfthread->send(hfthread);
 			gtk_widget_set_sensitive(hfview->widget.up, TRUE);
 			gtk_widget_set_sensitive(hfview->widget.back, TRUE);
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(hfview->widget.treeview));
+	list_store = GTK_LIST_STORE(model);
+
+	if (gtk_tree_model_get_iter_first(model, &iter)) {
+		 g_signal_handler_block(hfview->widget.treeview,button_pressed_signal_id);
+		gtk_list_store_clear(list_store);
+		 g_signal_handler_unblock(hfview->widget.treeview,button_pressed_signal_id);
+
+		debug_where();
+	}
 RETURN_TRUE:
 			g_free(name);
 			g_free(type);
+		debug_where();
+			hfthread->set_protocol(hfthread, FVIEW);
+			hfthread->send(hfthread);
+		debug_where();
 			return TRUE;
 RETURN_FALSE:
 			g_free(name);
 			g_free(type);
-			return FALSE;
+			return TRUE;
 		} 
 		return FALSE;
 	}

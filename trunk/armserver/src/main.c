@@ -53,9 +53,13 @@ int main(int args, char *argv[])
 			PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS,-1,0);
 	*have_user = 0;
 	*/
-	 login_user = (char *)mmap(NULL,sizeof(char) * USER_NAME_LEN,
+	if (getuid() != 0) {
+		linuxarms_print("Sorry, we must start armserver with root...\n");
+		return 1;
+	}
+	login_user = (char *)mmap(NULL,sizeof(char) * USER_NAME_LEN,
 			PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS,-1,0);
-	 memset(login_user, '\0', USER_NAME_LEN);
+	memset(login_user, '\0', USER_NAME_LEN);
 
 	add_file_directory("/etc/linuxarms-armserver/config");
 	add_file_directory("/usr/share/linuxarms-armserver/drive/beep");

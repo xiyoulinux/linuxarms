@@ -245,3 +245,4 @@ boolean login_add_default_data(struct login_struct *login)
 	}
 	return TRUE;
 }
+

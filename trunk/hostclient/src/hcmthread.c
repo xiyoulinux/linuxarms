@@ -47,14 +47,16 @@ boolean create_window_main_timeout(gpointer user_data)
 			linuxarms_print("user login success, user name is %s\n", hmthread->user->name);
 			debug_print("protocol->hmthread :用户登录成功....\n");
 			login_config_write(login);
+			debug_where();
 			login_config_free(login->config);
+			debug_where();
 			gtk_widget_destroy(login->widget.window_login);
 			create_window_main(linuxarms);
 			gtk_window_main_set_sensitive(linuxarms);
 			debug_where();
-			linuxarms_thread_create(hsthread_thread, hsthread);
+			//linuxarms_thread_create(hsthread_thread, hsthread);
 			debug_where();
-			//linuxarms_thread_create(hfthread_thread, hfthread);
+			linuxarms_thread_create(hfthread_thread, hfthread);
 			//linuxarms_thread_create(hcthread_thread, hcthread);
 			char buf[40];
 			snprintf(buf, 40, "Linux ARMS[登录用户：%s]", hmthread->user->name);
@@ -89,6 +91,10 @@ LOGOUT_RESTART_SHUTDOWN:
 			create_window_dialog("登录失败：可能的原因是创建\n"
 					"服务线程失败");
 			break;
+		case CHECKMULT:
+			debug_print("protocol->hmthread：尝试登录次数过多...\n");
+			checkmult = TRUE;
+			create_window_dialog("尝试登录次数过多...\n");
 		case MERROR:
 			debug_print("protocol->hmthread :执行命令失败\n");
 			statusbar_set_text("执行命令失败");

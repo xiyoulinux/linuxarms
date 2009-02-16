@@ -175,7 +175,9 @@ boolean do_show_process(struct hsprocess_struct *hsprocess)
 	list_store = gtk_tree_view_get_model(GTK_TREE_VIEW(hsprocess->widget.treeview));
 	debug_where();
 	gtk_list_store_clear(GTK_LIST_STORE(list_store));
+	debug_where();
 	list_store = gtk_tree_view_get_model(GTK_TREE_VIEW(hsprocess->widget.treeview));
+	debug_where();
 	exec = gdk_pixbuf_new_from_file(find_file("gtk-exec.png"), NULL);
 	debug_where();
 	while (TRUE) {

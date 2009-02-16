@@ -11,7 +11,7 @@
 #include "support.h"
 #include "linuxarms.h"
 #include "hfthread.h"
-
+gulong button_pressed_signal_id;
 static char *file_info[] = {
 	"文件名",
 	"大小",
@@ -103,8 +103,7 @@ GtkListStore  *create_page_fview(struct linuxarms_struct *linuxarms)
 	gtk_tree_view_column_set_title(column, file_info[0]);
 	gtk_tree_view_column_set_sort_column_id(column, COL_FNAME);
 	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-	gtk_tree_view_column_set_fixed_width(column, 80);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_fview), column);
 	
 	/* 文件图标 */
@@ -125,25 +124,24 @@ GtkListStore  *create_page_fview(struct linuxarms_struct *linuxarms)
 		gtk_tree_view_column_set_title(column, file_info[i - 1]);
 		gtk_tree_view_column_set_sort_column_id(column, i);
 		gtk_tree_view_column_set_resizable(column, TRUE);
-		gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-		gtk_tree_view_column_set_fixed_width(column, 80);
+		gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 		gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_fview), column);
 	
 		cell_renderer = gtk_cell_renderer_text_new();
 		gtk_tree_view_column_pack_start(column, cell_renderer, TRUE);
 		gtk_tree_view_column_set_attributes(column,cell_renderer,
-				i == COL_FSIZE ? "long" : "text", i,NULL);
+						"text", i,NULL);
 	}
 	
-	g_signal_connect (G_OBJECT (treeview_fview), "button_press_event",
+	button_pressed_signal_id = g_signal_connect (G_OBJECT (treeview_fview), "button_press_event",
                           G_CALLBACK (cb_fview_button_press),
 			  (gpointer)linuxarms);
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview_fview));
-
+/*
   	g_signal_connect(selection, "changed", 
 		         G_CALLBACK(cb_fview_selection_changed),
-			 (gpointer)linuxarms);
+			 (gpointer)linuxarms);*/
 	hfview->widget.path = entry_fpath;
 	hfview->widget.treeview = treeview_fview;
 	return list_store;

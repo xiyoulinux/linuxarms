@@ -21,7 +21,7 @@ GLIBFLAGS = -I$(ARMGTK)/usr/include/glib-2.0 \
 	    -I$(ARMGTK)/usr/lib/glib-2.0/include
 IINCLUDE =  -I$(ARMGTK)/usr/include
 CFLAGS = -Wall -O2 $(GTKFLAGS) $(GLIBFLAGS) $(IINCLUDE)
-LINK =  $(THREAD_LINK) -lglib-2.0 -lgmodule-2.0
+LINK =  $(THREAD_LINK) -lglib-2.0 -lgmodule-2.0 -lcrypt
 object = armserver
 
 OBJS = main.o error.o acmthread.o accthread.o acfthread.o acsthread.o \
