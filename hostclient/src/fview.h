@@ -94,4 +94,5 @@ boolean hfview_delete(struct hfthread_struct *hfthread);
 boolean do_file_view(struct hfview_struct *hfview);
 boolean hfview_set_path(struct hfview_struct *hfview, const char *path);
 const char *hfview_get_path(struct hfview_struct *hfview);
+extern gulong button_pressed_signal_id;
 #endif

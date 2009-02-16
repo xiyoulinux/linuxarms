@@ -80,7 +80,7 @@ void cb_fview_back_clicked(GtkButton *button, gpointer user_data)
 	struct hfthread_struct *hfthread = linuxarms->hfthread;
 	const char *path;
 	debug_where();
-	message_box_error(linuxarms->mwindow->window,"没有权限执行");
+	//message_box_error(linuxarms->mwindow->window,"没有权限执行");
 	if ((path = list_head_get_path()) == NULL) {
 		gtk_widget_set_sensitive(GTK_WIDGET(button), FALSE);
 		return;

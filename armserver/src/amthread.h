@@ -55,4 +55,5 @@ boolean armserver_create_all_thread(struct linuxarms_struct *linuxarms);
 void armserver_close_all_thread(struct linuxarms_struct *linuxarms);
 protocol_mthread armserver_do_login(struct linuxarms_struct *linuxarms);
 void armserver_login_result(struct linuxarms_struct *linuxarms, protocol_mthread protocol);
+void armserver_do_logout(struct linuxarms_struct *linuxarms);
 #endif

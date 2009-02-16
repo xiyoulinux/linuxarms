@@ -7,7 +7,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
- 
+#include <shadow.h>
+
 #include "login.h"
 #include "debug.h"
 #include "error.h"
@@ -58,18 +59,32 @@ boolean login_check_user(struct login_struct *login)
 {
 	struct user_struct *user;
 	struct passwd *pwd;
-	if (!login) {
-		print_error(ENOINIT, "linuxarms_check_user");
-		return FALSE;
-	}
+	struct spwd *spwd;
+	char *current, *encrypted, *unencrypted;
+	
+	LINUXARMS_POINTER(login);
 	user = &login->user;
+	unencrypted = login->user.passwd;
 	if (strcmp(user->name, "root") == 0)
 		user->competence = TRUE;
-	if ((pwd = getpwnam(user->name)) == NULL) {
+	else
+		user->competence = FALSE;			
+	/*pwd = getpwnam(user->name);
+	if (!(pwd && pwd->pw_name && pwd->pw_name[0] && pwd->pw_dir && pwd->pw_dir[0] 
+				           && pwd->pw_passwd)){
+		print_error(EWARNING, "the user is not found");
+		return FALSE;
+	}*/
+	spwd = getspnam(user->name);
+	if (!spwd) {
 		print_error(EWARNING, "the user is not found");
 		return FALSE;
 	}
-
+	endspent ();
+	current = spwd->sp_pwdp;
+	encrypted = crypt(unencrypted, current);
+	if (strcmp(encrypted, current) != 0)
+		return FALSE;
 	return TRUE;
 }
 /*
@@ -80,10 +95,7 @@ boolean login_set_env(struct login_struct *login)
 	struct user_struct *user;
 	struct passwd *pwd;
 	
-	if (!login) {
-		print_error(ENOINIT, "linuxarms_set_env");
-		return FALSE;
-	}
+	LINUXARMS_POINTER(login);
 	user = &login->user;
 	if (user->competence == TRUE)
 		return TRUE;

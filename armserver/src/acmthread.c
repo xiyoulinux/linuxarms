@@ -54,6 +54,7 @@ boolean amthread_thread(void *p)
 	while (amthread->thread) {
 		if (!amthread->recv(amthread)) {
 			linuxarms_print("amthread recv data error,exit....\n");
+			armserver_do_logout(linuxarms);
 			exit(1);
 		}
 		switch (amthread->trans.protocol) {
@@ -81,7 +82,7 @@ boolean amthread_thread(void *p)
 			debug_print("protocol->amthread: 用户注销\n");
 			amthread->set_protocol(amthread, LOGOUT);
 			amthread->send(amthread);
-			armserver_close_all_thread(linuxarms);
+			armserver_do_logout(linuxarms);
 			exit(0);
 			break;
 		case RESTART:
@@ -94,7 +95,7 @@ boolean amthread_thread(void *p)
 				amthread->send(amthread);
 				break;
 			}
-			armserver_close_all_thread(linuxarms);
+			armserver_do_logout(linuxarms);
 			if (system("shutdown -r 0") == -1)
 				print_error(EWARNING, "syatem: 执行错误");
 			break;
@@ -108,7 +109,7 @@ boolean amthread_thread(void *p)
 				amthread->send(amthread);
 				break;
 			}
-			armserver_close_all_thread(linuxarms);
+			armserver_do_logout(linuxarms);
 			if (system("shutdown -h 0") == -1)
 				print_error(EWARNING, "syatem: 执行错误");
 			break;
@@ -124,8 +125,7 @@ boolean amthread_thread(void *p)
 			break;
 		case CLOSECLIENT:
 			print_error(EWARNING,"客户端关闭...\n");
-			armserver_close_all_thread(linuxarms);
-			memset(login_user, '\0', USER_NAME_LEN);
+			armserver_do_logout(linuxarms);
 			exit(0);
 		default:
 			break;
@@ -237,20 +237,20 @@ boolean armserver_create_all_thread(struct linuxarms_struct *linuxarms)
 	struct afthread_struct *afthread = linuxarms->afthread;
 	struct asthread_struct *asthread = linuxarms->asthread;
 	struct acthread_struct *acthread = linuxarms->acthread;
-	
+	/*
 	debug_where();
 	asthread->thread = linuxarms_thread_create(asthread_thread, asthread);
 	debug_where();
 	if (asthread->thread == NULL) {
 		print_error(ESYSERR,"create asthread error");
 		goto out;
-	}
-	/*debug_where();
+	}*/
+	debug_where();
 	afthread->thread = linuxarms_thread_create(afthread_thread, afthread);
 	if (afthread->thread == NULL) {
 		print_error(ESYSERR,"create afthread error");
 		goto out;
-	}*/
+	}
 	/*
 	debug_where();
 	acthread->thread = linuxarms_thread_create(acthread_thread, acthread);
@@ -335,11 +335,13 @@ void armserver_login_result(struct linuxarms_struct *linuxarms, protocol_mthread
 		break;
 	case CHECKERR:
 		linuxarms_print("check user information error,wait for next check...\n,");
+		memset(login_user, '\0', USER_NAME_LEN);
 		check_count++;
 		break;
 	case CHECKMULT:
 		linuxarms_print("try to login count == %d, end login session...\n",
 				LOGIN_CHECK_TIMEOUT);
+		memset(login_user, '\0', USER_NAME_LEN);
 		exit(1);
 		break;
 	case LOGIN:
@@ -348,4 +350,10 @@ void armserver_login_result(struct linuxarms_struct *linuxarms, protocol_mthread
 	default:
 		break;
 	}
+}
+
+void armserver_do_logout(struct linuxarms_struct *linuxarms)
+{
+	memset(login_user, '\0', USER_NAME_LEN);
+	armserver_close_all_thread(linuxarms);
 }

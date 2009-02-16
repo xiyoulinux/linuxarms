@@ -1,5 +1,7 @@
 #include <gtk/gtk.h>
 #include "support.h"
+#include "linuxarms.h"
+#include "message.h"
 void message_box_warning(GtkWidget *window, char *msg)
 {
 	GtkWidget *dialog;
@@ -106,13 +108,14 @@ void create_window_dialog(const char *message)
 			(gpointer)window_dialog);
 
 	gtk_widget_show(window_dialog);
-	
 }
-
+boolean checkmult = FALSE;
 gboolean cb_window_dialog_delete_event(GtkWidget *widget, 
 			GdkEvent *event, gpointer user_data)
 {
 	gtk_widget_destroy(widget);
+	if (checkmult)
+		gtk_main_quit();
 	return FALSE;
 }
 
@@ -120,4 +123,6 @@ gboolean cb_window_dialog_delete_event(GtkWidget *widget,
 void cb_button_exit_clicked(GtkButton *button, gpointer user_data)
 {
 	gtk_widget_destroy(GTK_WIDGET(user_data));
+	if (checkmult)
+		gtk_main_quit();
 }

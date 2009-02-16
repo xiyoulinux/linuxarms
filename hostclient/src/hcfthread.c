@@ -1,6 +1,7 @@
 /*
  * linuxarms/hostclient/
  */
+#define __DEBUG__
 #include <string.h>
 #include <unistd.h>
 #include "hfthread.h"
