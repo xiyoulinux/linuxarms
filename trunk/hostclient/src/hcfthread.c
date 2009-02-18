@@ -151,7 +151,7 @@ static boolean hfthread_send(struct hfthread_struct *hfthread)
 {
 	LINUXARMS_POINTER(hfthread);
 	return hnet_send(hfthread->socket.tcp, (void *)&hfthread->trans,
-			 sizeof(struct hfthread_struct));
+			 sizeof(struct hfthread_trans));
 }
 /*
  * 接收armserver发送过来的数据
@@ -160,7 +160,7 @@ static boolean hfthread_recv(struct hfthread_struct *hfthread)
 {
 	LINUXARMS_POINTER(hfthread);
 	return hnet_recv(hfthread->socket.tcp, (void *)&hfthread->trans,
-			 sizeof(struct hfthread_struct));
+			 sizeof(struct hfthread_trans));
 }
 
 static boolean hfthread_set_protocol(struct hfthread_struct *hfthread, protocol_fthread protocol)

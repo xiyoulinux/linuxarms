@@ -93,6 +93,7 @@ void cb_notebook_switch_page(GtkNotebook *notebook,
 		hfthread_trans_set_path(&hfthread->trans, hfview_get_path(hfview));
 		hfthread->set_protocol(hfthread, FVIEW);
 		hfthread->send(hfthread);
+		//do_file_view(hfthread->hfview);
 	}
 }
 

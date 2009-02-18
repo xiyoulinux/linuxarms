@@ -21,7 +21,7 @@
 #include "debug.h"
 #include "error.h"
 #include "hnet.h"
-
+static int prev_process_nums = 0;
 static const char *task_state_array[] = {
         "Running",          /*  0  */
         "Sleeping",         /*  1  */
@@ -92,7 +92,6 @@ gboolean cb_process_button_press(GtkWidget *widget,
 	
 	if (event->type != GDK_BUTTON_PRESS)
 		return TRUE;
-	return TRUE;
 	if (event->button == BUTTON_RIGHT) {
 		GtkWidget *popup_menu = create_popup_menu_process(linuxarms);
 		gtk_menu_popup (GTK_MENU(popup_menu),
@@ -117,7 +116,7 @@ void cb_process_kill_activate(GtkMenuItem *menuitem,gpointer user_data)
 	GtkWidget *treeview = hsprocess->widget.treeview;
 	GtkTreeModel *list_store;
 	GtkTreeIter iter;
-	int pid;
+	char *pid;
 	boolean select;
 
 	select = gtk_tree_selection_get_selected(
@@ -125,13 +124,14 @@ void cb_process_kill_activate(GtkMenuItem *menuitem,gpointer user_data)
 		 &list_store, &iter);
 	if (select) {
 		gtk_tree_model_get(list_store, &iter, COL_SID, &pid,-1);
-		*hsprocess->kill = pid;
+		*hsprocess->kill = atoi(pid);
 		if (hsthread->timer.timer != -1)
 			hsthread_close_timer(hsthread);
 		hmthread->set_protocol(hmthread, CSTHREAD);
 		hmthread->send(hmthread);
-		hsthread_set_trans(hsthread, SKILL, pid);
+		hsthread_set_trans(hsthread, SKILL, atoi(pid));
 		hsthread->send(hsthread);
+		g_free(pid);
 	}
 	debug_print("选中要杀死的进程的进程号为 %d\n",*hsprocess->kill);
 }
@@ -163,48 +163,51 @@ static inline const char *get_task_state(char state)
 boolean do_show_process(struct hsprocess_struct *hsprocess)
 {
 	/* 循环接收进程信息 */
-	GtkTreeModel *list_store;
+	GtkListStore *list_store;
 	GtkTreeIter iter;
 	GdkPixbuf *exec;
 	struct hsprocess_trans *hstrans;
-	char cpu[10], mem[10];
+	char pid[10], cpu[10], mem[10];
 	int pid_old = 0;
+	int process_nums = 0;
 	LINUXARMS_POINTER(hsprocess);
 	hstrans = &hsprocess->trans;
 	debug_where();
-	list_store = gtk_tree_view_get_model(GTK_TREE_VIEW(hsprocess->widget.treeview));
-	debug_where();
-	gtk_list_store_clear(GTK_LIST_STORE(list_store));
-	debug_where();
-	list_store = gtk_tree_view_get_model(GTK_TREE_VIEW(hsprocess->widget.treeview));
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(hsprocess->widget.treeview)));
 	debug_where();
 	exec = gdk_pixbuf_new_from_file(find_file("gtk-exec.png"), NULL);
 	debug_where();
+	boolean valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list_store), &iter);
 	while (TRUE) {
 		if (!hsprocess->recv(hsprocess)) {
 			print_error(EWARNING, "接收进程信息失败\n");
-			goto lab_false;
+			goto out;
 		}
 		switch (hstrans->protocol) {
 		case SSENDALL:
-			goto lab_true;
+			goto out;
 		case SPROCESS:
 			//debug_where();
-			if (pid_old == hstrans->pid)
-				break;
+			//if (pid_old == hstrans->pid)
+			//	break;
+			if (!valid)
+				gtk_list_store_append(list_store, &iter);
 			pid_old = hstrans->pid;
 			snprintf(cpu, 10, "%2d%s", (int)hstrans->cpu * 100, "%");
 			snprintf(mem, 10, "%.1fKB", hstrans->mem);
-			gtk_list_store_append(GTK_LIST_STORE(list_store), &iter);
+			snprintf(pid, 10, "%d", hstrans->pid);
 			gtk_list_store_set(GTK_LIST_STORE(list_store), &iter, 
-			COL_SPIXBUF, exec,
-			COL_SNAME,   hstrans->name,
-			COL_SID,     hstrans->pid,
-			COL_SUSER,   hstrans->user,
-			COL_SSTATE,  get_task_state(hstrans->state),
-			COL_SCPU,    cpu,
-			COL_SMEM,    mem,
-			-1);
+				COL_SPIXBUF, exec,
+				COL_SNAME,   hstrans->name,
+				COL_SID,     pid,
+				COL_SUSER,   hstrans->user,
+				COL_SSTATE,  get_task_state(hstrans->state),
+				COL_SCPU,    cpu,
+				COL_SMEM,    mem,
+				-1);
+			process_nums++;
+			if (valid)
+				valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter);
 			break;
 		default:
 			debug_print("sprocess default\n");
@@ -212,18 +215,30 @@ boolean do_show_process(struct hsprocess_struct *hsprocess)
 		}
 		//hstrans->protocol = SMAX;
 	}
-lab_true:
+out:
 	debug_where();
 	hstrans->protocol = SMAX;
+	if (process_nums < prev_process_nums) {
+		int i = prev_process_nums - process_nums;
+		while (i--) {
+			gtk_list_store_set(GTK_LIST_STORE(list_store), &iter, 
+				COL_SPIXBUF, NULL,
+				COL_SNAME,   "",
+				COL_SID,     "",
+				COL_SUSER,   "",
+				COL_SSTATE,  "",
+				COL_SCPU,    "",
+				COL_SMEM,    "",
+				-1);
+			gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter);
+		}
+	}
+	prev_process_nums = process_nums;
 	/*
 	hsprocess->trans.protocol = SPROCESS;
 	hsprocess->send(hsprocess);
 	*/
 	return TRUE;
-lab_false:
-	debug_where();
-	hstrans->protocol = SMAX;
-	return FALSE;
 }
 
 /*

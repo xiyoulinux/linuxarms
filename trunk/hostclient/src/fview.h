@@ -10,6 +10,7 @@
 #define FILE_INFO_COLUMNS 5
 #define FILE_NAME_LEN 256
 #define FILE_USER_LEN 20
+#define MAX_FILE_NUMS 500 /* 一次最多能显示的文件 */
 enum {
 	TYPE_DIR = 4,
 	TYPE_FILE = 8
@@ -17,8 +18,8 @@ enum {
 enum {
 	COL_FPIXBUF,
 	COL_FNAME,
-	COL_FSIZE,
 	COL_FTYPE,
+	COL_FSIZE,	
 	COL_FUSER,
 	COL_FMTIME
 };
@@ -85,6 +86,10 @@ GtkListStore *create_page_fview(struct linuxarms_struct *linuxarms);
 void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data);
 gboolean cb_fview_button_press(GtkWidget *widget,
 	                 GdkEventButton *event, gpointer user_data);
+void cb_treeview_fview_columns_changed(GtkTreeView *treeview,
+                                gpointer user_data);
+void cb_treeview_fview_row_activated(GtkTreeView *treeview,
+		GtkTreePath *path, GtkTreeViewColumn *col, gpointer user_data);
 
 boolean hfview_init(struct hfview_struct *hfview,char *path,
 		    struct hnet_struct *socket);

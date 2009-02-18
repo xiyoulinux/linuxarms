@@ -1,3 +1,4 @@
+#define __DEBUG__
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,6 +11,13 @@
 #include "toolbar.h"
 #include "fview.h"
 
+struct list_head {
+	struct list_head *prev;
+	char path[PATH_LEN];
+	boolean flag;
+	struct list_head *next;
+};
+
 static struct list_head *list;
 
 boolean list_head_new(int num)
@@ -19,11 +27,13 @@ boolean list_head_new(int num)
 	if (num <= 2)
 		return FALSE;
 	head = (struct list_head *)malloc(sizeof(struct list_head));
+	strcpy(head->path, "/");
 	head->flag = FALSE;
 	p = head;
 	for (i = 1; i < num; i++) {
 		r= (struct list_head *)malloc(sizeof(struct list_head));
 		r->flag = FALSE;
+		strcpy(r->path, "/");
 		p->next = r;
 		r->prev = p;
 		p = r;
@@ -80,11 +90,11 @@ void cb_fview_back_clicked(GtkButton *button, gpointer user_data)
 	struct hfthread_struct *hfthread = linuxarms->hfthread;
 	const char *path;
 	debug_where();
-	//message_box_error(linuxarms->mwindow->window,"没有权限执行");
 	if ((path = list_head_get_path()) == NULL) {
 		gtk_widget_set_sensitive(GTK_WIDGET(button), FALSE);
 		return;
 	}
+	debug_print("back path = %s\n", path);
 	hfview_set_path(hfthread->hfview, path);
 	hfthread_trans_set_path(&hfthread->trans, path);
 	hfthread->set_protocol(hfthread, FVIEW);

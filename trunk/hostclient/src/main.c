@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include <locale.h>
 #include "linuxarms.h"
 #include "login.h"
 #include "support.h"
@@ -45,8 +46,10 @@ int main(int argc, char *argv[])
 #ifdef GTK_THREAD
 	if (!g_thread_supported())
 		g_thread_init(NULL);
+
 	//gdk_threads_init();
 #endif
+	setlocale (LC_ALL, "");
 	gtk_set_locale();
 	gtk_init(&argc, &argv);
 	add_file_directory("/usr/share/linuxarms-hostclient/pixmaps");
