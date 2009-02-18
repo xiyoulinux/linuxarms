@@ -25,7 +25,7 @@
 struct process_info columns[ ] = {
 	{G_TYPE_STRING , "", ""},
 	{G_TYPE_STRING,  "text", "进程名"},
-	{G_TYPE_LONG,  "text", "进程号"},
+	{G_TYPE_STRING,  "text", "进程号"},
 	{G_TYPE_STRING,  "text", "用户"},
 	{G_TYPE_STRING,  "text", "进程状态"},
 	{G_TYPE_STRING,  "text", "CPU使用率"},
@@ -73,7 +73,7 @@ GtkListStore  *create_page_sprocess(struct linuxarms_struct *linuxarms)
 	/* 创建进程名列 */
 	column = gtk_tree_view_column_new();
 	gtk_tree_view_column_set_title(column, columns[COL_SNAME].name);
-	gtk_tree_view_column_set_sort_column_id(column, COL_SNAME);
+	//gtk_tree_view_column_set_sort_column_id(column, COL_SNAME);
 	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	//gtk_tree_view_column_set_fixed_width(column, 80);
@@ -95,7 +95,7 @@ GtkListStore  *create_page_sprocess(struct linuxarms_struct *linuxarms)
 	for(i = COL_SNAME + 1; i <= PROCESS_COLUMNS; i++) {
 		column = gtk_tree_view_column_new();
 		gtk_tree_view_column_set_title(column, columns[i].name);
-		gtk_tree_view_column_set_sort_column_id(column, i);
+	//	gtk_tree_view_column_set_sort_column_id(column, i);
 		gtk_tree_view_column_set_resizable(column, TRUE);
 		gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 		//gtk_tree_view_column_set_fixed_width(column, 80);

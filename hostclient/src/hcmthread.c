@@ -54,7 +54,7 @@ boolean create_window_main_timeout(gpointer user_data)
 			create_window_main(linuxarms);
 			gtk_window_main_set_sensitive(linuxarms);
 			debug_where();
-			//linuxarms_thread_create(hsthread_thread, hsthread);
+			linuxarms_thread_create(hsthread_thread, hsthread);
 			debug_where();
 			linuxarms_thread_create(hfthread_thread, hfthread);
 			//linuxarms_thread_create(hcthread_thread, hcthread);

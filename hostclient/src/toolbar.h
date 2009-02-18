@@ -5,12 +5,7 @@
 #include "linuxarms.h"
 #include "hfthread.h"
 #define BACK_NUM 3
-struct list_head {
-	struct list_head *prev;
-	char path[PATH_LEN];
-	boolean flag;
-	struct list_head *next;
-};
+
 
 GtkWidget *create_toolbar(GtkWidget *vbox_main,
                           GtkTooltips *tooltips,

@@ -149,7 +149,7 @@ boolean do_file_view(struct afview_struct *afview)
 	LINUXARMS_POINTER(afview);
 
 	dir = opendir(afview->path);
-	while((dent = readdir(dir)) != NULL){
+	while ((dent = readdir(dir)) != NULL) {
 		/*if (strcmp(dent->d_name, ".") == 0 ||
 		    strcmp(dent->d_name, "..") == 0)
 			continue;*/
