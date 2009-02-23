@@ -31,14 +31,13 @@ void cb_login_activate(GtkMenuItem *menuitem, gpointer user_data)
 	debug_print("cb_login_activate\n");
 	
 	/***************init_login*****************************/
-	user_struct_init(login->user);
 	login_config_init(login->config);
 	login_config_read(login->config);
 	hnet_init(login->socket, NULL, get_mthread_port());
-	login_init(login, login->user, login->config, login->socket);
+	login_init(login, login->config, login->socket);
 
 	/***************init_hmthread**************************/
-	hmthread_init(hmthread, login->user);
+	hmthread_init(hmthread, &login->user);
 	/***************init hsthread**************************/
 	hsthread->timer.time = TM_THREE * 1000;
 	hsthread->timer.timer = -1;
@@ -73,7 +72,7 @@ void cb_restart_activate(GtkMenuItem *menuitem, gpointer user_data)
 	struct hmthread_struct *hmthread = linuxarms->hmthread;
 	debug_where();
 
-	if (!hmthread->competence(hmthread)) {
+	if (!hmthread->competence) {
 		message_box_error(linuxarms->mwindow->window, 
 				"非root用户，没有权限执行重启arm系统，"
 				"如果要执行，请以root身份登录");
@@ -91,7 +90,7 @@ void cb_shutdown_activate(GtkMenuItem *menuitem, gpointer user_data)
 	struct hmthread_struct *hmthread = linuxarms->hmthread;
 	debug_where();
 
-	if (!hmthread->competence(hmthread)) {
+	if (!hmthread->competence) {
 		message_box_error(linuxarms->mwindow->window, 
 				"非root用户，没有权限执行关闭arm系统，"
 				"如果要执行，请以root身份登录");

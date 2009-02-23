@@ -75,9 +75,12 @@ GtkListStore  *create_page_sprocess(struct linuxarms_struct *linuxarms)
 	gtk_tree_view_column_set_title(column, columns[COL_SNAME].name);
 	//gtk_tree_view_column_set_sort_column_id(column, COL_SNAME);
 	gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-	//gtk_tree_view_column_set_fixed_width(column, 80);
+        gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width(column, 150);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_process), column);
+	gtk_tree_view_set_expander_column(GTK_TREE_VIEW (treeview_process), column);
+	//gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+	//gtk_tree_view_column_set_fixed_width(column, 80);
 	
 	/* 进程图标 */
 	cell_renderer = gtk_cell_renderer_pixbuf_new();
@@ -97,9 +100,10 @@ GtkListStore  *create_page_sprocess(struct linuxarms_struct *linuxarms)
 		gtk_tree_view_column_set_title(column, columns[i].name);
 	//	gtk_tree_view_column_set_sort_column_id(column, i);
 		gtk_tree_view_column_set_resizable(column, TRUE);
-		gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-		//gtk_tree_view_column_set_fixed_width(column, 80);
+		gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+		gtk_tree_view_column_set_min_width(column, 80);
 		gtk_tree_view_append_column(GTK_TREE_VIEW(treeview_process), column);
+		//gtk_tree_view_set_expander_column(GTK_TREE_VIEW (treeview_process), column);
 	
 		cell_renderer = gtk_cell_renderer_text_new();
 		gtk_tree_view_column_pack_start(column, cell_renderer, TRUE);
@@ -121,12 +125,15 @@ GtkListStore  *create_page_sprocess(struct linuxarms_struct *linuxarms)
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview_process));
   	g_signal_connect(selection, "changed", 
-		         G_CALLBACK(cb_process_selection_changed), (gpointer)linuxarms);
+		         G_CALLBACK(cb_process_selection_changed),
+			 (gpointer)linuxarms);
 	return list_store;
 }
 
 GtkWidget *create_popup_menu_process(struct linuxarms_struct *linuxarms)
 {
+	struct hsthread_struct *hsthread = linuxarms->hsthread;
+	struct hsprocess_widget *widget = &hsthread->hsprocess->widget;
 	GtkWidget *popup_menu_process;
 	GtkWidget *spopup_eparator;
 	GtkWidget *popup_process_kill;
@@ -153,11 +160,10 @@ GtkWidget *create_popup_menu_process(struct linuxarms_struct *linuxarms)
 	gtk_widget_show(image209);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(popup_process_kill), image209);
 
-	linuxarms->hsthread->hsprocess->widget.popup_kill = popup_process_kill;
-	linuxarms->hsthread->hsprocess->widget.popup_menu = TRUE;
+	widget->popup_kill = popup_process_kill;
 	g_signal_connect((gpointer) popup_process_kill, "activate",
 			 G_CALLBACK(cb_process_kill_activate), 
 			 (gpointer)linuxarms);
-
+	
 	return popup_menu_process;
 }

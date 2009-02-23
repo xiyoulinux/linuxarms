@@ -33,7 +33,7 @@ struct hcthread_trans {
  *@trans:    传输数据
   */
 struct hcthread_struct {
-	linuxarms_thread_t *thread;
+	struct linuxarms_thread thread;
 	struct hcthread_widget widget;
 	struct hnet_struct socket;
 	struct hcthread_trans trans;

@@ -13,6 +13,7 @@
 #include "error.h"
 #include "login.h"
 #include "config.h"
+#include "thread.h"
 
 void do_cd(char *cmd)
 {
@@ -42,7 +43,8 @@ void do_cd(char *cmd)
 boolean acthread_init(struct acthread_struct *acthread)
 {
 	LINUXARMS_POINTER(acthread);
-	acthread->thread = NULL;
+	linuxarms_thread_init(&acthread->thread);
+	acthread->competence = FALSE;
 	anet_init(&acthread->socket, get_localhost_ip(), get_cthread_port());
 	acthread_trans_init(&acthread->trans);
 	return TRUE;
@@ -93,13 +95,13 @@ boolean acthread_thread(void *p)
 	struct acthread_struct *acthread = (struct acthread_struct *)p;
 	int fd;
 	linuxarms_print("create acthread thread...\n");
-	acthread->thread = linuxarms_thread_self();
+	acthread->thread.id = linuxarms_thread_self();
 	/* 建立网络连接 */
 	anet_init(&acthread->socket, get_localhost_ip(), get_cthread_port());
 	create_tcp_server(&acthread->socket);
 	debug_print("acthread socket ip : %s tcp: %d port: %d\n", acthread->socket.ip,
 				acthread->socket.tcp, acthread->socket.port);	
-	while (acthread->thread) {
+	while (acthread->thread.id) {
 		if (!acthread_recv(acthread)) {   /* 接收数据 */
 			linuxarms_print("acthread recv data error,exit....\n");
 			exit(1);

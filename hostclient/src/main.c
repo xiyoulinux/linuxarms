@@ -28,7 +28,6 @@ int main(int argc, char *argv[])
 	struct mwindow_struct mwindow;
 	/*************login_struct********************************/
 	struct login_struct login;
-	struct user_struct user;
 	struct login_config_struct login_config;
 	/***************hsthread_struct***************************/
 	struct hsthread_struct hsthread;
@@ -55,6 +54,7 @@ int main(int argc, char *argv[])
 	add_file_directory("/usr/share/linuxarms-hostclient/pixmaps");
 	add_file_directory("/usr/share/linuxarms-hostclient/doc");
 	add_file_directory("/etc/linuxarms-hostclient/config");
+	//add_file_directory("/usr/share/icons/gnome/16x16/apps");
 #ifdef _DEBUG_
 	add_file_directory("./pixmaps");
 	add_file_directory("../pixmaps");
@@ -68,13 +68,12 @@ int main(int argc, char *argv[])
 	if (!config_init(config_file))
 		return 1;
 	/***************init_login*****************************/
-	user_struct_init(&user);
 	login_config_init(&login_config);
 	login_config_read(&login_config);
-	login_init(&login, &user, &login_config, &hmthread.socket);
+	login_init(&login, &login_config, &hmthread.socket);
 
 	/***************init_hmthread**************************/
-	hmthread_init(&hmthread, &user);
+	hmthread_init(&hmthread, &login.user);
 	/***************init hsthread**************************/
 	hsprocess_init(&hsprocess, &hsthread.trans.kill, &hsthread.socket);
 	/*对系统信息显示部分进行初始化*/

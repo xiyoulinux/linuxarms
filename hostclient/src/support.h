@@ -25,12 +25,7 @@
 #endif
 
 void add_file_directory(const gchar *directory);
-
 GtkWidget* create_pixmap(GtkWidget *widget, const gchar *filename);
-
 GdkPixbuf* create_pixbuf(const gchar *filename);
-
-void glade_set_atk_action_description(AtkAction *action,
-			const gchar *action_name,
-			const gchar *description);
 gchar *find_file(const gchar *filename);
+const char *get_default_icon_name(const char *cmd);

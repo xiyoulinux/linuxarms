@@ -14,7 +14,7 @@
 
 static void set_button_ok_state(struct login_struct *login)
 {
-	struct user_struct *user = login->user;
+	struct user_struct *user = &login->user;
 	if(strlen(user->ip)     > 0 && 
 	   strlen(user->name)   > 0 &&
 	   strlen(user->passwd) > 0)
@@ -88,7 +88,7 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 	struct linuxarms_struct *linuxarms =(struct linuxarms_struct *)user_data;
 	struct hmthread_struct *hmthread = linuxarms->hmthread;
 	struct login_struct *login = linuxarms->login;
-	struct user_struct *user = login->user;
+	struct user_struct *user = &login->user;
 	struct hnet_struct *socket = login->socket;
 	char buf[80];
 
@@ -108,8 +108,12 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 		return;
 	}
 	strcpy(armserver_ip, user->ip);
+	if (strcmp("root", user->name) == 0)
+		login->competence = TRUE;
+	else
+		login->competence = FALSE;
 	debug_where();
-	if (hmthread->thread == NULL)
+	if (hmthread->thread.id == NULL)
 		linuxarms_thread_create(hmthread_thread, linuxarms);
 	debug_where();
 }
@@ -124,7 +128,7 @@ gboolean cb_server_ip_changed(GtkWidget *widget, gpointer user_data)
 		message_box_error(login->widget.window_login, "输入的ip地址过长");
 		return FALSE;
 	}
-	strncpy(login->user->ip, user_ip, IP_LEN);
+	strncpy(login->user.ip, user_ip, IP_LEN);
 	set_button_ok_state(login);
 	return TRUE;
 }
@@ -141,10 +145,10 @@ gboolean cb_user_name_changed(GtkWidget *widget, gpointer user_data)
 		message_box_error(login->widget.window_login, "输入的用户名过长");
 		return FALSE;
 	}
-	strncpy(login->user->name, user_name, USER_NAME_LEN);
+	strncpy(login->user.name, user_name, USER_NAME_LEN);
 	user = login->config->user_list.next;
 	for(i = 0; i < login->config->user_num; i++) {
-		if(strcmp(user->user_name,login->user->name) == 0) {
+		if(strcmp(user->user_name,login->user.name) == 0) {
 			if(user->remember) {
 				gtk_entry_set_text(GTK_ENTRY(login->widget.passwd), user->passwd);
 				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(login->widget.remember),TRUE);
@@ -175,20 +179,25 @@ gboolean cb_entry_passwd_changed(GtkWidget *widget, gpointer user_data)
 		message_box_error(login->widget.window_login, "输入用户密码过长");
 		return FALSE;
 	}
-	strncpy(login->user->passwd, passwd, PASSWD_LEN);
+	strncpy(login->user.passwd, passwd, PASSWD_LEN);
 	set_button_ok_state(login);
 	return FALSE;
 
 }
 boolean login_init(struct login_struct *login, 
-		   struct user_struct *user,
 		   struct login_config_struct *config,
 		   struct hnet_struct *socket)
 {
-	login->user = user;
+
+	LINUXARMS_POINTER(login);
+	LINUXARMS_POINTER(config);
+	LINUXARMS_POINTER(socket);
+
+	user_struct_init(&login->user);
 	login->config = config;
 	login->socket = socket;
 	login->remember = FALSE;
+	login->competence = FALSE;
 	return TRUE;
 }
 
@@ -199,13 +208,12 @@ boolean user_struct_init(struct user_struct *user)
 	memset(user->ip, '\0', IP_LEN);
 	memset(user->name, '\0', USER_NAME_LEN);
 	memset(user->passwd, '\0', PASSWD_LEN);
-	user->competence = FALSE;
 	return TRUE;
 }
-boolean user_competece(struct user_struct *user)
+boolean login_user_competence(struct login_struct *login)
 {
-	LINUXARMS_POINTER(user);
-	return user->competence;
+	LINUXARMS_POINTER(login);
+	return login->competence;
 }
 boolean user_struct_set(struct user_struct *user, char *ip, char *name, char *passwd)
 {
@@ -213,10 +221,6 @@ boolean user_struct_set(struct user_struct *user, char *ip, char *name, char *pa
 	strncpy(user->ip, !ip ? "" : ip, IP_LEN);
 	strncpy(user->name, !name ? "" : name, USER_NAME_LEN);
 	strncpy(user->passwd, !passwd ? "" : passwd, PASSWD_LEN);
-	if (strcmp(user->name, "root") == 0)
-		user->competence = TRUE;
-	else
-		user->competence = FALSE;
 	return TRUE;
 }
 

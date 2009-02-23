@@ -36,9 +36,10 @@ boolean hsthread_init(struct hsthread_struct *hsthread,
 		print_error(ESYSERR, "初始化数据为空");
 		return FALSE;
 	}
-	hsthread->thread = NULL;
+	linuxarms_thread_init(&hsthread->thread);
 	hsthread->hssinfo   = hssinfo;
 	hsthread->hsprocess = hsprocess;
+	hsthread->competence = FALSE;
 	
 	hsthread_trans_init(&hsthread->trans);
 	//hnet_init(&hsthread->socket, get_armserver_ip(), get_sthread_port());
@@ -62,7 +63,7 @@ boolean hsthread_thread(void *p)
 	struct hsthread_struct *hsthread = (struct hsthread_struct *)p;
 	
 	linuxarms_print("create hsthread thread...\n");
-	hsthread->thread = linuxarms_thread_self();
+	hsthread->thread.id = linuxarms_thread_self();
 	hnet_init(&hsthread->socket, get_armserver_ip(), get_sthread_port());
 	if (!create_tcp_client(&hsthread->socket)) {
 		print_error(ESYSERR,"create tcp error");
@@ -74,7 +75,7 @@ boolean hsthread_thread(void *p)
 	hsthread->set_protocol(hsthread, SSYSINFO);
 	//hsthread->send(hsthread);
 	hsthread_create_timer(hsthread); 
-	while (hsthread->thread) {
+	while (hsthread->thread.id) {
 		if (!hsthread->recv(hsthread)) {
 			linuxarms_print("hsthread recive data error\n");
 			break;
@@ -144,15 +145,13 @@ static void hsthread_down_lock(struct hsthread_struct *hsthread)
 {
 	if (!hsthread)
 		return ;
-	while (hsthread->lock)
-		sleep(1);
-	hsthread->lock = TRUE;
+	linuxarms_thread_lock(&hsthread->thread);
 }
 static void hsthread_up_lock(struct hsthread_struct *hsthread)
 {
 	if (!hsthread)
 		return;
-	hsthread->lock = FALSE;
+	linuxarms_thread_unlock(&hsthread->thread);
 }
 
 /* 
@@ -162,7 +161,7 @@ static void hsthread_up_lock(struct hsthread_struct *hsthread)
 static boolean hsthread_send(struct hsthread_struct *hsthread)
 {
 	LINUXARMS_POINTER(hsthread);
-	if (hsthread->lock)
+	if (linuxarms_thread_trylock(&hsthread->thread))
 		return FALSE;
 	return hnet_send(hsthread->socket.tcp, (void *)&hsthread->trans, 
 			 sizeof(struct hsthread_trans));
@@ -185,11 +184,11 @@ static boolean hsthread_recv(struct hsthread_struct *hsthread)
 gboolean hsthread_timer(gpointer data)
 {
 	struct hsthread_struct *hsthread = (struct hsthread_struct *)data;
-	if (!hsthread->lock) {
-		hsthread->send(hsthread);
-		debug_print("hsthread send data to armserver...\n");
-	}
-	debug_print("定时器在运行中 %d\n", hsthread->timer.timer);
+	if (linuxarms_thread_trylock(&hsthread->thread))
+		return TRUE;
+	hsthread->send(hsthread);
+	debug_print("hsthread send data to armserver...\n");
+	debug_print("timer time = %d\n", hsthread->timer.time);
 	return TRUE;
 }
 
@@ -201,14 +200,14 @@ boolean hsthread_timer_init(struct hsthread_timer *hstimer)
 	return TRUE;
 }
 /*
- * 设置定时器定时时间，如果给出的定时时间错误，则设置为默认值(3秒)
+ * 设置定时器定时时间，如果给出的定时时间错误，则设置为默认值(5秒)
  */
 boolean hsthread_set_timer_time(struct hsthread_struct *hsthread, timer_time time)
 {
 	LINUXARMS_POINTER(hsthread);
 	if (!(HSTHREAD_IS_TIMER_TIME(time))) {
 		print_error(EWARNING, "定时器时间错误");
-		hsthread->timer.time = TM_THREE * 1000;
+		hsthread->timer.time = TM_FIVE * 1000;
 	} else {
 		hsthread->timer.time = time * 1000;
 	}
@@ -262,18 +261,11 @@ boolean hsthread_trans_set_protocol(struct hsthread_trans *hstrans,
 boolean hsthread_kill_success(struct hsthread_struct *hsthread)
 {
 	LINUXARMS_POINTER(hsthread);
-	boolean select;
-	GtkTreeModel *list_store;
-	GtkTreeIter iter;
-	GtkTreeSelection *selection;
+	struct hsprocess_widget *widget = &hsthread->hsprocess->widget;
+	GtkListStore *list_store;
 	
 	debug_where();
-	selection = gtk_tree_view_get_selection(
-		GTK_TREE_VIEW(hsthread->hsprocess->widget.treeview));
-	select = gtk_tree_selection_get_selected(selection, &list_store, &iter);
-	if (select) {
-		gtk_list_store_remove(GTK_LIST_STORE(list_store),&iter);
-		return TRUE;
-	}
-	return FALSE;
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(
+				    GTK_TREE_VIEW(widget->treeview)));
+	return gtk_list_store_remove(GTK_LIST_STORE(list_store),&widget->selection);
 }

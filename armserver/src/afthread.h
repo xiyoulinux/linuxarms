@@ -16,11 +16,13 @@ enum {
  * @trans:   控制协议
  * @path:    文件路径
  * @rename:  重命名文件名(rename[0]-旧文件名/rename[1]-新文件名)
+ * @hide:    是否显示隐藏文件
  */
 struct afthread_trans {
 	protocol_fthread protocol;
 	char path[PATH_LEN];
 	char rename[2][FILE_NAME_LEN];
+	boolean hide;
 };
 boolean afthread_trans_init(struct afthread_trans *aftrans);
 boolean afthread_trans_set_protocol(struct afthread_trans *aftrans, protocol_fthread protocol);
@@ -36,11 +38,12 @@ boolean afthread_trans_set_reanme(struct afthread_trans *aftrans, char *oldname,
  * @socket:  建立的网络连接
  */
 struct afthread_struct {
-	linuxarms_thread_t *thread;
+	struct linuxarms_thread thread;
 	struct afview_struct *afview;
 	struct atthread_struct *atthread;
 	struct afthread_trans trans;
 	struct anet_struct socket;
+	boolean competence;
 
 	boolean (*set_protocol)(struct afthread_struct *afthread, 
 				protocol_fthread protocol);

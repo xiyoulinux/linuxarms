@@ -23,6 +23,7 @@ boolean login_init(struct login_struct *login,
 		return FALSE;
 	}
 	login->socket = socket;
+	login->competence = FALSE;
 	return TRUE;
 }
 
@@ -32,13 +33,12 @@ boolean user_struct_init(struct user_struct *user)
 	memset(user->ip, '\0', IP_LEN);
 	memset(user->name, '\0', USER_NAME_LEN);
 	memset(user->passwd, '\0', PASSWD_LEN);
-	user->competence = FALSE;
 	return TRUE;
 }
-boolean user_competece(struct user_struct *user)
+boolean login_user_competence(struct login_struct *login)
 {
-	LINUXARMS_POINTER(user);
-	return user->competence;
+	LINUXARMS_POINTER(login);
+	return login->competence;
 }
 boolean user_struct_set(struct user_struct *user, char *ip, char *name, char *passwd)
 {
@@ -46,10 +46,6 @@ boolean user_struct_set(struct user_struct *user, char *ip, char *name, char *pa
 	strncpy(user->ip, !ip ? "" : ip, IP_LEN);
 	strncpy(user->name, !name ? "" : name, USER_NAME_LEN);
 	strncpy(user->passwd, !passwd ? "" : passwd, PASSWD_LEN);
-	if (strcmp(user->name, "root") == 0)
-		user->competence = TRUE;
-	else
-		user->competence = FALSE;
 	return TRUE;
 }
 /*
@@ -58,7 +54,6 @@ boolean user_struct_set(struct user_struct *user, char *ip, char *name, char *pa
 boolean login_check_user(struct login_struct *login)
 {
 	struct user_struct *user;
-	struct passwd *pwd;
 	struct spwd *spwd;
 	char *current, *encrypted, *unencrypted;
 	
@@ -66,15 +61,9 @@ boolean login_check_user(struct login_struct *login)
 	user = &login->user;
 	unencrypted = login->user.passwd;
 	if (strcmp(user->name, "root") == 0)
-		user->competence = TRUE;
+		login->competence = TRUE;
 	else
-		user->competence = FALSE;			
-	/*pwd = getpwnam(user->name);
-	if (!(pwd && pwd->pw_name && pwd->pw_name[0] && pwd->pw_dir && pwd->pw_dir[0] 
-				           && pwd->pw_passwd)){
-		print_error(EWARNING, "the user is not found");
-		return FALSE;
-	}*/
+		login->competence = FALSE;			
 	spwd = getspnam(user->name);
 	if (!spwd) {
 		print_error(EWARNING, "the user is not found");
@@ -82,7 +71,7 @@ boolean login_check_user(struct login_struct *login)
 	}
 	endspent ();
 	current = spwd->sp_pwdp;
-	encrypted = crypt(unencrypted, current);
+	encrypted = (char *)crypt(unencrypted, current);
 	if (strcmp(encrypted, current) != 0)
 		return FALSE;
 	return TRUE;
@@ -97,7 +86,7 @@ boolean login_set_env(struct login_struct *login)
 	
 	LINUXARMS_POINTER(login);
 	user = &login->user;
-	if (user->competence == TRUE)
+	if (login->competence)
 		return TRUE;
 	pwd = getpwnam(user->name);
 	setenv("USER", user->name, 1);

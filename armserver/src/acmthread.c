@@ -33,7 +33,6 @@ static boolean amthread_set_protocol(struct amthread_struct *amthread,
                         protocol_mthread protocol);
 static boolean amthread_send(struct amthread_struct *amthread);
 static boolean amthread_recv(struct amthread_struct *amthread);
-static boolean amthread_judge_competence(struct amthread_struct *amthread); 
 
 static int check_count = 0;
 /*
@@ -44,14 +43,15 @@ boolean amthread_thread(void *p)
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)p;
 	struct amthread_struct *amthread = linuxarms->amthread;
 	struct asthread_struct *asthread = linuxarms->asthread;
+	//struct login_struct *login = linuxarms->login;
 	protocol_mthread  protocol;
 	boolean request = TRUE;
 
 	linuxarms_print("create amthread thread...\n");
-	amthread->thread = linuxarms_thread_self();
+	amthread->thread.id = linuxarms_thread_self();
 	debug_print("hmthread socket ip : %s tcp: %d port: %d\n", amthread->socket.ip,
 				amthread->socket.tcp, amthread->socket.port);
-	while (amthread->thread) {
+	while (amthread->thread.id) {
 		if (!amthread->recv(amthread)) {
 			linuxarms_print("amthread recv data error,exit....\n");
 			armserver_do_logout(linuxarms);
@@ -90,14 +90,14 @@ boolean amthread_thread(void *p)
 			 * 错误信息，否则执行重启。
 			 */
 			debug_print("protocol->amthread: 重启arm系统\n");
-			if (!amthread->competence(amthread)) {
+			if (!amthread->competence) {
 				amthread->set_protocol(amthread, NOCOMPETENCE);
 				amthread->send(amthread);
 				break;
 			}
 			armserver_do_logout(linuxarms);
 			if (system("shutdown -r 0") == -1)
-				print_error(EWARNING, "syatem: 执行错误");
+				print_error(EWARNING, "Can;t restart arm system\n");
 			break;
 		case SHUTDOWN:
 			/* 判断用户权限，如果没有权限，则发送没有权限(NOCOMPETENCE)
@@ -111,7 +111,7 @@ boolean amthread_thread(void *p)
 			}
 			armserver_do_logout(linuxarms);
 			if (system("shutdown -h 0") == -1)
-				print_error(EWARNING, "syatem: 执行错误");
+				print_error(EWARNING, "Can't close arm system\n");
 			break;
 		case CSTHREAD:
 			debug_print("protocol->amthread: 控制系统信息显示线程\n");
@@ -148,7 +148,7 @@ boolean amthread_init(struct amthread_struct *amthread, struct user_struct *user
 	LINUXARMS_POINTER(amthread);
 	LINUXARMS_POINTER(user);
 
-	amthread->thread = NULL;
+	linuxarms_thread_init(&amthread->thread);
 	amthread->user = user;
 	amthread_trans_init(&amthread->trans);
 	amthread->down_lock = amthread_down_lock;
@@ -156,7 +156,7 @@ boolean amthread_init(struct amthread_struct *amthread, struct user_struct *user
 	amthread->set_protocol = amthread_set_protocol;
 	amthread->send = amthread_send;
 	amthread->recv = amthread_recv;
-	amthread->competence = amthread_judge_competence;
+	amthread->competence = FALSE;
 
 	amthread->up_lock(amthread);
 	return TRUE;
@@ -166,15 +166,13 @@ static void amthread_down_lock(struct amthread_struct *amthread)
 {
 	if (!amthread)
 		return ;
-	while (!amthread->lock)
-		sleep(1);
-	amthread->lock = FALSE;
+	linuxarms_thread_lock(&amthread->thread);
 }
 static void amthread_up_lock(struct amthread_struct *amthread)
 {
 	if (!amthread)
 		return;
-	amthread->lock = TRUE;
+	linuxarms_thread_unlock(&amthread->thread);
 }
 
 /*
@@ -195,25 +193,16 @@ static boolean amthread_send(struct amthread_struct *amthread)
 {
 	LINUXARMS_POINTER(amthread);
 	return anet_send(amthread->socket.tcp, (void *)&amthread->trans,
-			 sizeof(amthread->trans));
+			 sizeof(struct amthread_trans));
 }
 
 static boolean amthread_recv(struct amthread_struct *amthread)
 {
 	LINUXARMS_POINTER(amthread);
 	return anet_recv(amthread->socket.tcp, (void *)&amthread->trans,
-			 sizeof(amthread->trans));
+			 sizeof(struct amthread_trans));
 
 }
-static boolean amthread_judge_competence(struct amthread_struct *amthread)
-{
-	LINUXARMS_POINTER(amthread);
-	LINUXARMS_POINTER(amthread->user);
-	if (amthread->user->competence)
-		return TRUE;
-	return FALSE;
-}
-
 boolean amthread_trans_init(struct amthread_trans *amtrans)
 {
 	LINUXARMS_POINTER(amtrans);
@@ -236,25 +225,25 @@ boolean armserver_create_all_thread(struct linuxarms_struct *linuxarms)
 {
 	struct afthread_struct *afthread = linuxarms->afthread;
 	struct asthread_struct *asthread = linuxarms->asthread;
-	struct acthread_struct *acthread = linuxarms->acthread;
+	//struct acthread_struct *acthread = linuxarms->acthread;
 	
 	debug_where();
-	asthread->thread = linuxarms_thread_create(asthread_thread, asthread);
+	asthread->thread.id = linuxarms_thread_create(asthread_thread, asthread);
 	debug_where();
-	if (asthread->thread == NULL) {
+	if (asthread->thread.id == NULL) {
 		print_error(ESYSERR,"create asthread error");
 		goto out;
 	}
 	debug_where();
-	afthread->thread = linuxarms_thread_create(afthread_thread, afthread);
-	if (afthread->thread == NULL) {
+	afthread->thread.id = linuxarms_thread_create(afthread_thread, afthread);
+	if (afthread->thread.id == NULL) {
 		print_error(ESYSERR,"create afthread error");
 		goto out;
 	}
 	/*
 	debug_where();
-	acthread->thread = linuxarms_thread_create(acthread_thread, acthread);
-	if (acthread->thread == NULL) {
+	acthread->thread.id = linuxarms_thread_create(acthread_thread, acthread);
+	if (acthread->thread.id == NULL) {
 		print_error(ESYSERR,"create afthread error");
 		goto out;
 	}
@@ -269,20 +258,20 @@ void armserver_close_all_thread(struct linuxarms_struct *linuxarms)
 	struct afthread_struct *afthread = linuxarms->afthread;
 	struct asthread_struct *asthread = linuxarms->asthread;
 	struct acthread_struct *acthread = linuxarms->acthread;
-	if (asthread->thread) {
-		linuxarms_thread_exit(&asthread->thread);
+	if (asthread->thread.id) {
+		linuxarms_thread_exit(&asthread->thread.id);
 		close_tcp_server(&asthread->socket);
 	}
-	if (afthread->thread) {
-		linuxarms_thread_exit(&afthread->thread);
+	if (afthread->thread.id) {
+		linuxarms_thread_exit(&afthread->thread.id);
 		close_tcp_server(&afthread->socket);
 	}
-	if (acthread->thread) {
-		linuxarms_thread_exit(&acthread->thread);
+	if (acthread->thread.id) {
+		linuxarms_thread_exit(&acthread->thread.id);
 		close_tcp_server(&acthread->socket);
 	}
-	if (amthread->thread) {
-		linuxarms_thread_exit(&amthread->thread);
+	if (amthread->thread.id) {
+		linuxarms_thread_exit(&amthread->thread.id);
 		close_tcp_server(&amthread->socket);
 	}
 }
@@ -290,6 +279,9 @@ protocol_mthread armserver_do_login(struct linuxarms_struct *linuxarms)
 {
 	struct login_struct *login = linuxarms->login;
 	struct amthread_struct *amthread = linuxarms->amthread;
+	struct asthread_struct *asthread = linuxarms->asthread;
+	struct afthread_struct *afthread = linuxarms->afthread;
+	struct acthread_struct *acthread = linuxarms->acthread;
 	protocol_mthread protocol = LOGIN;
 
 	if (strlen(login_user) > 0) {
@@ -308,6 +300,11 @@ protocol_mthread armserver_do_login(struct linuxarms_struct *linuxarms)
 		protocol = CHECKERR;
 		goto out;
 	}
+	
+	amthread->competence = login_user_competence(login);
+	asthread->competence = login_user_competence(login);
+	afthread->competence = login_user_competence(login);
+	acthread->competence = login_user_competence(login);
 	debug_where();
 	if (!login_set_env(login)) {
 		protocol = CHECKERR;

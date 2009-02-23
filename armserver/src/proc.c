@@ -1,4 +1,4 @@
-#define __DEBUG__
+//#define __DEBUG__
 #include "proc.h"
 #include "linuxarms.h"
 #include "error.h"

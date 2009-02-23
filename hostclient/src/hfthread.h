@@ -18,11 +18,13 @@ enum {
  * @trans:   控制协议
  * @path:    文件路径
  * @rename:  重命名文件名(rename[0]-旧文件名/rename[1]-新文件名)
+ * @hide:    是否显示隐藏文件(TRUE-不显示，FALSE-显示。默认不显示)
  */
 struct hfthread_trans {
 	protocol_fthread protocol;
 	char path[PATH_LEN];
 	char rename[2][FNAME_LEN];
+	boolean hide;
 };
 
 boolean hfthread_trans_init(struct hfthread_trans *hftrans);
@@ -47,13 +49,13 @@ struct hnet_struct;
  * @socket:  建立的网络连接
  */
 struct hfthread_struct {
-	linuxarms_thread_t *thread;
-	boolean lock;
+	struct linuxarms_thread thread;
 	struct hfview_struct *hfview;
 	struct htthread_struct *hftrans;
 	struct hfthread_trans trans;
 	struct hnet_struct socket;
 	struct hfthread_widget widget;
+	boolean competence;
 	
 	void (*down_lock)(struct hfthread_struct *hfthread);
 	void (*up_lock)(struct hfthread_struct *hfthread);
@@ -70,6 +72,4 @@ boolean hfthread_set_trans(struct hfthread_struct *hfthread,
 			   protocol_fthread protocol,
 			   char *path, char *oldname, char *newname);
 gboolean hfthread_thread(void *p);
-boolean hfthread_rename_success(struct hfthread_struct *hfthread);
-boolean hfthread_delete_success(struct hfthread_struct *hfthread);
 #endif

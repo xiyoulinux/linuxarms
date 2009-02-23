@@ -3,9 +3,10 @@
 #include <sys/types.h>
 #include <time.h>
 #include <string.h>
+#include "linuxarms.h"
 #include "fview.h"
 #include "hfthread.h"
-#include "linuxarms.h"
+#include "htthread.h"
 #include "debug.h"
 #include "error.h"
 #include "filetrans.h"
@@ -17,9 +18,17 @@
 #include "mwindow.h"
 
 #define FSIZE_KB (1024)
+#define _fsize_kb(kb) ((kb) / FSIZE_KB)
+#define __fsize_kb(kb) ((kb) % FSIZE_KB / (int)(FSIZE_KB / 10))
+
 #define FSIZE_MB (FSIZE_KB * 1024)
+#define _fsize_mb(mb) ((mb) / FSIZE_MB)
+#define __fsize_mb(mb) ((mb) % FSIZE_MB / (int)(FSIZE_MB / 10))
+
 #define FSIZE_GB (FSIZE_MB * 1024)
-#define FSIZE_TB (FSIZE_GB * 1024)
+
+#define VALID_ITER(iter, list_store) ((iter)!= NULL && (iter)->user_data != NULL)
+//&& list_store->stamp == (iter)-  >stamp && !g_sequence_iter_is_end ((iter)->user_data) && g_sequence_iter_get_sequence ((iter)->user_data) ==      list_store->seq)
 
 static int prev_file_nums = 0;
 static boolean hfview_send_info(struct hfview_struct *hfview);
@@ -41,6 +50,7 @@ boolean hfview_init(struct hfview_struct *hfview,char *path,
 	hfview->socket = socket;
 	hfview->send = hfview_send_info;
 	hfview->recv = hfview_recv_info;
+	hfview->widget.popup = FALSE;
 	
 	hfview_recv_init(&hfview->frecv);
 	hfview_send_init(&hfview->fsend);
@@ -52,14 +62,9 @@ boolean hfview_init(struct hfview_struct *hfview,char *path,
  */
 static boolean hfview_recv_info(struct hfview_struct *hfview)
 {
-	
-	if (!hfview || hfview->socket->tcp == -1) {
-		debug_where();
-		print_error(EWARNING, "无效的参数");
-		return FALSE;
-	}
-	return hnet_recv(hfview->socket->tcp, 
-			(void *)&hfview->frecv, sizeof(struct hfview_recv));
+	LINUXARMS_POINTER(hfview);
+	return hnet_recv(hfview->socket->tcp, (void *)&hfview->frecv,
+			 sizeof(struct hfview_recv));
 }
 
 /*
@@ -67,13 +72,9 @@ static boolean hfview_recv_info(struct hfview_struct *hfview)
  */
 static boolean hfview_send_info(struct hfview_struct *hfview)
 {
-	if (!hfview || hfview->socket->tcp == -1) {
-		debug_where();
-		print_error(EWARNING, "无效的参数");
-		return FALSE;
-	}
-	return hnet_send(hfview->socket->tcp, 
-			(void *)&hfview->fsend, sizeof(struct hfview_send));
+	LINUXARMS_POINTER(hfview);
+	return hnet_send(hfview->socket->tcp, (void *)&hfview->fsend,
+			 sizeof(struct hfview_send));
 }
 
 boolean hfview_recv_init(struct hfview_recv *frecv)
@@ -92,13 +93,6 @@ boolean hfview_send_init(struct hfview_send *fsend)
 	fsend->protocol = FMAX;
 	return TRUE;
 }
-void cb_treeview_fview_columns_changed(GtkTreeView *treeview,
-		                                gpointer user_data)
-{
-	//GtkListStore *list_store = (GtkListStore *)user_data;
-	//gtk_list_store_clear(list_store);
-
-}
 
 char *get_file_size(off_t size)
 {
@@ -106,13 +100,11 @@ char *get_file_size(off_t size)
 	if (size < FSIZE_KB)
 		snprintf(fsize, 30, "%ld B", size);
 	else if (size < FSIZE_MB)
-		snprintf(fsize, 30, "%ld.%2ld KB", size / FSIZE_KB, size % FSIZE_KB);
+		snprintf(fsize, 30, "%ld.%2ld KB", _fsize_kb(size), __fsize_kb(size));
 	else if (size < FSIZE_GB)
-		snprintf(fsize, 30, "%ld.%2ld MB", size / FSIZE_MB, size % FSIZE_MB);
-	else if (size < FSIZE_TB)
-		snprintf(fsize, 30, "%ld.%2ld GB", size / FSIZE_GB, size % FSIZE_GB);
+		snprintf(fsize, 30, "%ld.%2ld MB", _fsize_mb(size), __fsize_mb(size));
 	else
-		snprintf(fsize, 30, "%s", "大于1TB");
+		snprintf(fsize, 30, "%s", "大于1GB");
 	return fsize;
 }
 /*
@@ -127,26 +119,19 @@ boolean do_file_view(struct hfview_struct *hfview)
 	struct hfview_recv *frecv;
 	char *stime;
 	GtkListStore *list_store;
-	//GtkTreeModel *list_store;
-
 	GtkTreeIter iter;
 	GdkPixbuf *directory;
 	GdkPixbuf *file;
+	int file_nums = 0;
 
 	debug_where();
 	LINUXARMS_POINTER(hfview);
-	debug_where();
 	widget = &hfview->widget;
-	debug_where();
 	frecv = &hfview->frecv;
-	//gtk_widget_set_sensitive(widget->treeview, FALSE);
-	debug_where();
 	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(widget->treeview)));
-	debug_where();
 	directory = gdk_pixbuf_new_from_file_at_size(find_file("gtk-directory.png"), 16, 16, NULL);
 	file = gdk_pixbuf_new_from_file_at_size(find_file("gtk-file.png"), 16, 16, NULL);
 	debug_where();
-	int file_nums = 0;
 
 	boolean valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list_store), &iter);
 	while (TRUE) {
@@ -162,12 +147,10 @@ boolean do_file_view(struct hfview_struct *hfview)
 		case FVIEW:
 			if (!valid) {
 				gtk_list_store_append(list_store, &iter);
-				debug_print("新建 %d\n", file_nums);
 			}
 			file_nums++;
 			stime = ctime(&frecv->mtime);
 			stime[strlen(stime) - 1] = '\0';
-			//gtk_tree_store_append(GTK_TREE_STORE(list_store), &tree_iter, NULL);
 			gtk_list_store_set(GTK_LIST_STORE(list_store), &iter, 
 				COL_FPIXBUF, frecv->type == TYPE_DIR ? directory : file,
 				COL_FNAME, frecv->name,
@@ -185,7 +168,6 @@ boolean do_file_view(struct hfview_struct *hfview)
 	}
 	debug_where();
 out:
-	//gtk_widget_set_sensitive(widget->treeview, TRUE);
 	if (file_nums < prev_file_nums) {
 		int i = prev_file_nums - file_nums;
 		while (i--) {
@@ -211,12 +193,72 @@ out:
 		}*/
 	}
 	prev_file_nums = file_nums;
+	gtk_adjustment_set_value(GTK_ADJUSTMENT(widget->vadjustment), 0);
 	return TRUE;
 }
 void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data)
 {
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
+	struct hfthread_struct *hfthread = linuxarms->hfthread;
+	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
+	struct hfview_struct *hfview = hfthread->hfview;
+	boolean select;
+	GtkTreeModel *list_store;
+	GtkTreeIter iter;
+	GtkTreeSelection *selection;
+	boolean rename, delete, upload, download;
+	
+	rename = delete = upload = download = FALSE;
 	debug_where();
-	debug_print("fview selection");
+	
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(hfview->widget.treeview));
+	select = gtk_tree_selection_get_selected(selection, &list_store, &iter);
+	if (select) {
+		char *type, *user, *name;
+		char home[PATH_LEN];
+		const char *path;
+		gtk_tree_model_get(list_store, &iter,
+				COL_FNAME, &name,
+				COL_FTYPE, &type,
+				COL_FUSER, &user,
+				-1);
+		if (strcmp(type, "文件夹") == 0) {
+			upload = FALSE;
+			delete = TRUE; 
+		} else {
+			upload = TRUE;
+		}
+		if (strcmp(linuxarms->login->user.name, user) == 0) {
+			rename = TRUE;
+			delete = delete ? FALSE : TRUE;
+
+		} else
+			delete = FALSE;
+		if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0) {
+			rename = FALSE;
+		}
+		path = hfview_get_path(hfview);
+		snprintf(home, PATH_LEN, "/home/%s",linuxarms->login->user.name);
+		if (strstr(path, home)) {
+			download = TRUE;
+		}
+		hfview->widget.selection = iter;
+		g_free(name);
+		g_free(type);
+		g_free(user);
+	}
+	if (hfview->widget.popup) {
+		gtk_widget_set_sensitive(hfview->widget.popup_rename, rename);
+		gtk_widget_set_sensitive(hfview->widget.popup_del, delete);
+		gtk_widget_set_sensitive(hfview->widget.popup_upload, upload);
+		gtk_widget_set_sensitive(hfview->widget.popup_download, download);
+	}
+	gtk_widget_set_sensitive(hfview->widget.rename, rename);
+	gtk_widget_set_sensitive(hfview->widget.del, delete);
+	gtk_widget_set_sensitive(htthread->widget.menubar_upload, upload);
+	gtk_widget_set_sensitive(htthread->widget.menubar_download, download);
+	gtk_widget_set_sensitive(htthread->widget.toolbar_upload, upload);
+	gtk_widget_set_sensitive(htthread->widget.toolbar_download, download);
 }
 
 gboolean cb_fview_button_press(GtkWidget *widget,
@@ -224,26 +266,21 @@ gboolean cb_fview_button_press(GtkWidget *widget,
 {
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
 	struct hfthread_struct *hfthread = linuxarms->hfthread;
-	struct hfview_struct *hfview = hfthread->hfview;
-	boolean select;
-	GtkTreeSelection *selection;
 	//selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(hfview->widget.treeview));
 //	select = gtk_tree_selection_get_selected(selection, &model, &iter);
 //	if (event->type != GDK_BUTTON_PRESS && event->type != GDK_2BUTTON_PRESS)
 //		return FALSE;
 	debug_print("文件浏览界面鼠标按下\n");
+	if (hfthread->hfview->widget.popup)
+		hfthread->hfview->widget.popup = FALSE;
 	if (event->type == GDK_BUTTON_PRESS && event->button == BUTTON_RIGHT) {
 		GtkWidget *popup_menu = create_popup_menu_fview(linuxarms);
 		gtk_menu_popup (GTK_MENU(popup_menu),
 			     NULL, NULL, NULL, NULL,
 			     event->button, event->time);
-		return FALSE;
+		hfthread->hfview->widget.popup = TRUE;
+		cb_fview_selection_changed(NULL, linuxarms);
 	}
-	/*if (event->button == BUTTON_LEFT) {
-		printf("哦哦\n");
-		statusbar_set_text("按下鼠标左键");
-		return TRUE;
-	}*/
 	return FALSE;
 }
 
@@ -266,12 +303,11 @@ void cb_treeview_fview_row_activated(GtkTreeView *treeview,
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
 	struct hfthread_struct *hfthread = linuxarms->hfthread;
 	struct hfview_struct *hfview = hfthread->hfview;
-	debug_print("选中一行\n");
 	boolean select;
 	GtkTreeModel *model;
-	//GtkListStore *list_store;
 	GtkTreeIter iter;
 	GtkTreeSelection *selection;
+
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(hfview->widget.treeview));
 	select = gtk_tree_selection_get_selected(selection, &model, &iter);
 	if (select) {
@@ -297,30 +333,187 @@ void cb_treeview_fview_row_activated(GtkTreeView *treeview,
 			goto RETURN_FALSE;
 		}
 		list_head_set_path(path);
-		debug_print("path = %s\n", path);
 		p = path + len;
 		if (*(p - 1) == '/')
 			sprintf(p, "%s", name);
 		else
 			sprintf(p, "/%s", name);
-		debug_where();
-		debug_print("path = %s\n", path);
 		hfview_set_path(hfview, path);
-		debug_where();
 		hfthread_trans_set_path(&hfthread->trans, path);
-		debug_where();
 		gtk_widget_set_sensitive(hfview->widget.up, TRUE);
-		debug_where();
 		gtk_widget_set_sensitive(hfview->widget.back, TRUE);
-		debug_where();
-
 RETURN_TRUE:
 		hfthread->set_protocol(hfthread, FVIEW);
 		hfthread->send(hfthread);
-		debug_where();
 RETURN_FALSE:
 		debug_where();
 		g_free(name);
 		g_free(type);
 	} 
+}
+
+void cb_fview_rename_activate(GtkMenuItem *menuitem, gpointer user_data)
+{
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
+	struct hfthread_struct *hfthread = linuxarms->hfthread;
+	struct hfview_widget *widget = &hfthread->hfview->widget;
+	GtkTreeModel *list_store;
+	GtkTreeIter *iter = &widget->selection;
+	boolean select;
+	
+	debug_where();
+	list_store = gtk_tree_view_get_model(GTK_TREE_VIEW(widget->treeview));
+	select = VALID_ITER(iter, list_store);
+	if (select) {
+		char *name, *user;
+		gtk_tree_model_get(list_store, iter,
+				COL_FNAME, &name,
+				COL_FUSER, &user,
+				-1);
+		if (!hfthread->competence && strcmp(user, "root") == 0) {
+			message_box_error(linuxarms->mwindow->window, "没有权限重命名文件");
+			return;
+		}
+		create_window_rename(linuxarms);
+		gtk_entry_set_text(GTK_ENTRY(hfthread->widget.oldname), name);
+		g_free(name);
+		g_free(user);
+	}
+}
+boolean hfview_rename_success(struct hfview_struct *hfview, const char *newname)
+{
+	boolean select;
+	GtkListStore *list_store;
+	GtkTreeIter *iter = &hfview->widget.selection;
+	
+	debug_where();
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(hfview->widget.treeview)));
+	select = VALID_ITER(iter, list_store);
+	if (select) {
+		gtk_list_store_set(GTK_LIST_STORE(list_store), iter,
+				COL_FNAME, newname,
+				-1);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void cb_fview_delete_activate(GtkMenuItem *menuitem, gpointer user_data)
+{
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
+	struct hfthread_struct *hfthread = linuxarms->hfthread;
+	struct hfview_struct *hfview = hfthread->hfview;
+	//struct hmthread_struct *hmthread = linuxarms->hmthread;
+	boolean select;
+	GtkTreeModel *list_store;
+	GtkTreeIter *iter = &hfview->widget.selection;
+	
+	debug_where();
+	list_store = gtk_tree_view_get_model(GTK_TREE_VIEW(hfview->widget.treeview));
+	select = VALID_ITER(iter, list_store);
+	if (select) {
+		char *name, *user, *type;
+		int sure;
+		char msg[300];
+		GtkWidget *dialog;
+		gtk_tree_model_get(list_store, iter,
+				COL_FTYPE, &type,
+				COL_FNAME, &name,
+				COL_FUSER, &user,
+				-1);
+		if (strcmp(type, "文件夹") == 0) {
+			message_box_error(linuxarms->mwindow->window, "不能删除文件夹");
+			return;
+		}
+		if (!hfthread->competence && strcmp(user, linuxarms->login->user.name) != 0) {
+			message_box_error(linuxarms->mwindow->window, "没有权限删除文件");
+			return;
+		}
+		snprintf(msg, 300, "确定删除文件 %s ?", name);
+		dialog = gtk_message_dialog_new(GTK_WINDOW(linuxarms->mwindow->window), 0,
+			         GTK_MESSAGE_INFO, GTK_BUTTONS_OK_CANCEL, msg, -1);
+		sure = gtk_dialog_run(GTK_DIALOG(dialog));
+		gtk_widget_destroy(dialog);
+		if (sure == GTK_RESPONSE_CANCEL)
+			return;
+		hfthread_trans_set_path(&hfthread->trans, hfview_get_path(hfthread->hfview));
+		strcpy(hfthread->trans.rename[OLDNAME],name);
+		hfthread->set_protocol(hfthread, FDELETE);
+		hfthread->send(hfthread);
+		g_free(name);
+		g_free(user);
+	}
+}
+
+boolean hfview_delete_success(struct hfview_struct *hfview)
+{
+	boolean select;
+	GtkListStore *list_store;
+	GtkTreeIter *iter = &hfview->widget.selection;
+	
+	debug_where();
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(hfview->widget.treeview)));
+	select = VALID_ITER(iter, list_store);
+	if (select) {
+		gtk_list_store_remove(list_store, iter);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void cb_fview_hide_file_activate(GtkMenuItem *menuitem, gpointer user_data)
+{
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
+	struct hfthread_struct *hfthread = linuxarms->hfthread;
+	struct hfview_struct *hfview = hfthread->hfview;
+	
+	hfthread->trans.hide = !(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(hfview->widget.hide)));
+	hfthread->set_protocol(hfthread, FVIEW);
+	hfthread->send(hfthread);
+}
+
+void cb_window_rename_destroy(GtkObject *object,gpointer user_data)
+{
+	gtk_widget_destroy(GTK_WIDGET(user_data));
+}                                        
+
+void cb_rename_ok_clicked(GtkButton *button, gpointer user_data)
+{
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
+	struct hfthread_struct *hfthread = linuxarms->hfthread;
+	const char *oldname, *newname;
+
+	oldname = gtk_entry_get_text(GTK_ENTRY(hfthread->widget.oldname));
+	newname = gtk_entry_get_text(GTK_ENTRY(hfthread->widget.newname));
+	hfthread_trans_set_path(&hfthread->trans, hfview_get_path(hfthread->hfview));
+	hfthread_trans_set_rename(&hfthread->trans, (char *)oldname, (char *)newname);
+	hfthread->set_protocol(hfthread, FRENAME);
+	hfthread->send(hfthread);
+	//if (hfthread->send(hfthread))
+	//	gtk_widget_set_sensitive(hfthread->hfview->widget.treeview, FALSE);
+	gtk_widget_destroy(hfthread->widget.window);
+}                                        
+
+void cb_rename_help_clicked(GtkButton *button, gpointer user_data)
+{
+	message_box_info((GtkWidget *)user_data, 
+			"请确保输入的新文件名"
+			"符合文件名命名规范，"
+			"并且长度小于256个字符");
+}                              
+
+void cb_rename_entry_changed(GtkEditable *editable, gpointer user_data)
+{
+	int i, len;
+	const char *newname;
+	newname = gtk_entry_get_text(GTK_ENTRY(editable));
+	len = strlen(newname); 
+	if (len == 0)
+		return;
+	for (i = 0; i < len; i ++)
+		if (newname[i] != ' ')
+			break;
+	if (i == len)
+		return;
+	gtk_widget_set_sensitive(GTK_WIDGET(user_data), TRUE);
 }

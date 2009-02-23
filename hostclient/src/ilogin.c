@@ -220,7 +220,6 @@ void create_window_login(struct linuxarms_struct *linuxarms)
 	g_signal_connect((gpointer)window_login, "delete_event",
 			G_CALLBACK(cb_window_login_delete_event),
 			(gpointer)login);
-
 	g_signal_connect((gpointer)checkbutton_rem, "toggled",
 			G_CALLBACK(cb_login_rem_toggled),
 			(gpointer)login);

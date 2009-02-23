@@ -27,9 +27,10 @@ boolean afthread_init(struct afthread_struct *afthread,
                 print_error(ESYSERR,"错误");
                 return FALSE;
         }   
-	afthread->thread = NULL;
+	linuxarms_thread_init(&afthread->thread);
 	afthread->afview = afview;
 	afthread->atthread = atthread;
+	afthread->competence = FALSE;
 	
 	afthread->set_protocol = afthread_set_protocol;
         afthread->send = afthread_send;
@@ -50,7 +51,7 @@ boolean afthread_thread(void *p)
 	struct atthread_struct *atthread = afthread->atthread;
 	linuxarms_print("create afthread thread...\n");
 
-	afthread->thread = linuxarms_thread_self();
+	afthread->thread.id = linuxarms_thread_self();
 
 	anet_init(&afthread->socket, get_localhost_ip(),get_fthread_port());
 	if (!create_tcp_server(&afthread->socket)) {
@@ -59,7 +60,7 @@ boolean afthread_thread(void *p)
 	}
 	debug_print("afthread socket ip : %s tcp: %d port: %d\n", afthread->socket.ip,
 				afthread->socket.tcp, afthread->socket.port);
-	while (afthread->thread) {
+	while (afthread->thread.id) {
 		if (!afthread->recv(afthread)) {
 			linuxarms_print("asthread recv data error,exit....\n");
 			exit(1);
@@ -73,14 +74,15 @@ boolean afthread_thread(void *p)
 			break;
 		case FVIEW:
 			debug_print("protocol->afthread: 浏览文件\n");
-			if (access(afthread->afview->path, F_OK) == -1) {
+			if (access(afview->path, F_OK) == -1) {
 				afthread->set_protocol(afthread, FNOEXIST);
 				afthread->send(afthread);
 				break;
 			}
 			afthread->set_protocol(afthread, FVIEW);
 			afthread->send(afthread);
-			do_file_view(afthread->afview);
+			afview->hide = afthread->trans.hide;
+			do_file_view(afview);
 			break;
 		case FRENAME:
 			debug_print("protocol->afthread: 重命名文件\n");
@@ -123,6 +125,7 @@ boolean afthread_trans_init(struct afthread_trans *aftrans)
 	memset(aftrans->path, '\0', PATH_LEN);
 	aftrans->path[0] = '/';
 	memset(aftrans->rename, '\0', FILE_NAME_LEN * 2);
+	aftrans->hide = TRUE;
 	return TRUE;
 }
 boolean afthread_trans_set_protocol(struct afthread_trans *aftrans, protocol_fthread protocol)

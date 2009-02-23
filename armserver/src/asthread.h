@@ -10,8 +10,8 @@
 /*
  * asthread_trans 系统信息显示和实时监视(进程信息显示)线程
  * 		  传送的数据
- * @protocol:  控制(见protocol/protocol_sthread)
- * @kill:  要杀死的进程的进程号(当ctrl = KILL时，该域才有效)
+ * @protocol:     控制(见protocol/protocol_sthread)
+ * @kill:         要杀死的进程的进程号(当ctrl = KILL时，该域才有效)
  */
 struct asthread_trans {
 	protocol_sthread protocol;
@@ -35,13 +35,13 @@ struct proc_struct;
  * @proc:      读取proc文件系统相关数据结构
  */
 struct asthread_struct {
-	linuxarms_thread_t *thread;
+	struct linuxarms_thread thread;
 	struct assinfo_struct *assinfo;
 	struct asprocess_struct *asprocess;
 	struct asthread_trans trans;
 	struct anet_struct socket;
 	struct proc_struct proc;
-	boolean lock;
+	boolean competence;
 
 	boolean (*set_protocol)(struct asthread_struct *asthread, protocol_sthread protocol);
 	boolean (*send)(struct asthread_struct *asthread);

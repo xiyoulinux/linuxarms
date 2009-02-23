@@ -30,9 +30,8 @@ static inline void linuxarms_print(const char *format, ...)
 }
 #ifdef __DEBUG__
 #define debug_where() \
-	printf("\n###DEBUG###[file name]###[line]###[function name]\n");\
-	printf("########### %s ### %d ### %s\n", \
-					__FILE__, __LINE__, __FUNCTION__);
+		printf("\n###FILE: %s ###LINE: %d ###FUC: %s\n", \
+		                  __FILE__, __LINE__, __FUNCTION__);
 static inline void debug_print(const char *format, ...)
 {
 	va_list args;

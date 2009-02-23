@@ -30,9 +30,10 @@ boolean acthread_trans_set_buf(struct acthread_trans *trans, const char *buf);
  *@trans:    传输数据
   */
 struct acthread_struct {
-	linuxarms_thread_t *thread;
+	struct linuxarms_thread thread;
 	struct anet_struct socket;
 	struct acthread_trans trans;
+	boolean competence;
 
 	boolean (*send)(struct acthread_struct *acthread);
 	boolean (*recv)(struct acthread_struct *acthread);

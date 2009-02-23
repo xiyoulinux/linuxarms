@@ -21,6 +21,7 @@
 #include "debug.h"
 #include "error.h"
 #include "hnet.h"
+
 static int prev_process_nums = 0;
 static const char *task_state_array[] = {
         "Running",          /*  0  */
@@ -31,6 +32,7 @@ static const char *task_state_array[] = {
         "Dead",             /* 32  */
 	"Uknown"
 };
+
 
 static boolean hsprocess_send_info(struct hsprocess_struct *hsprocess);
 static boolean hsprocess_recv_info(struct hsprocess_struct *hsprocess);
@@ -47,18 +49,17 @@ boolean hsprocess_init(struct hsprocess_struct *hsprocess,
 	hsprocess->set_protocol = hsprocess_set_protocol;
 	hsprocess->send = hsprocess_send_info;
 	hsprocess->recv = hsprocess_recv_info;
-	hsprocess->clock = TM_THREE;
+	hsprocess->clock = TM_FIVE;
 	hsprocess->kill = kill;
-	hsprocess->widget.popup_menu = FALSE;
+	hsprocess->widget.popup = FALSE;
 	return TRUE;
 }
-
 /*
  * 选择的进程变化的时候，调用该回调函数
  */
 void cb_process_selection_changed(GtkWidget *widget, gpointer user_data)
 {
-	/*struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
 	struct hsprocess_struct *hsprocess = linuxarms->hsthread->hsprocess;
 	boolean select;
 	GtkTreeModel *list_store;
@@ -77,10 +78,31 @@ void cb_process_selection_changed(GtkWidget *widget, gpointer user_data)
 		debug_where();
 		g_free(user);
 	} 
-	if (hsprocess->widget.popup_kill)
+	if (hsprocess->widget.popup)
 		gtk_widget_set_sensitive(hsprocess->widget.popup_kill, select);
 	gtk_widget_set_sensitive(hsprocess->widget.menu_kill, select);
-	debug_where();*/
+	/*boolean select;
+	GtkTreeModel *list_store;
+	GtkTreeIter iter;
+	GtkTreeSelection *selection;
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget->treeview));
+	select = gtk_tree_selection_get_selected(selection, &list_store, &iter);
+	if (select) {
+		char *user;
+		gtk_tree_model_get(list_store, &iter,
+				COL_SUSER, &user,
+				-1);
+		if (!hsthread->competence && strcmp(user, "root") == 0) {
+			gtk_widget_set_sensitive(widget->process_kill, FALSE);
+			gtk_widget_set_sensitive(widget->menu_kill, FALSE);
+		} else
+			gtk_widget_set_sensitive(widget->menu_kill, TRUE);
+		widget->selection = iter;
+		g_free(user);
+	} else {
+		gtk_widget_set_sensitive(widget->menu_kill, FALSE);
+	}*/
+	debug_where();
 }
 /*
  * 用户在treeview_process控件上按下鼠标的时候，调用该回调函数
@@ -90,6 +112,8 @@ gboolean cb_process_button_press(GtkWidget *widget,
 {
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
 	
+	if (linuxarms->hsthread->hsprocess->widget.popup)
+		linuxarms->hsthread->hsprocess->widget.popup = FALSE;
 	if (event->type != GDK_BUTTON_PRESS)
 		return TRUE;
 	if (event->button == BUTTON_RIGHT) {
@@ -97,6 +121,7 @@ gboolean cb_process_button_press(GtkWidget *widget,
 		gtk_menu_popup (GTK_MENU(popup_menu),
 				NULL, NULL, NULL, NULL,
 				event->button, event->time);
+		linuxarms->hsthread->hsprocess->widget.popup = TRUE;
 	} else {
 		linuxarms->hsthread->hsprocess->widget.popup_kill = NULL;
 	}
@@ -131,6 +156,7 @@ void cb_process_kill_activate(GtkMenuItem *menuitem,gpointer user_data)
 		hmthread->send(hmthread);
 		hsthread_set_trans(hsthread, SKILL, atoi(pid));
 		hsthread->send(hsthread);
+		hsprocess->widget.selection = iter;
 		g_free(pid);
 	}
 	debug_print("选中要杀死的进程的进程号为 %d\n",*hsprocess->kill);
@@ -165,18 +191,19 @@ boolean do_show_process(struct hsprocess_struct *hsprocess)
 	/* 循环接收进程信息 */
 	GtkListStore *list_store;
 	GtkTreeIter iter;
-	GdkPixbuf *exec;
+	GdkPixbuf *theme_icon;
+	GtkIconTheme *theme;
 	struct hsprocess_trans *hstrans;
 	char pid[10], cpu[10], mem[10];
 	int pid_old = 0;
 	int process_nums = 0;
 	LINUXARMS_POINTER(hsprocess);
 	hstrans = &hsprocess->trans;
-	debug_where();
+	theme = gtk_icon_theme_get_default();
 	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(hsprocess->widget.treeview)));
-	debug_where();
-	exec = gdk_pixbuf_new_from_file(find_file("gtk-exec.png"), NULL);
-	debug_where();
+	//g_object_ref(list_store);
+	//gtk_tree_view_set_model(GTK_TREE_VIEW(hsprocess->widget.treeview), NULL); 
+
 	boolean valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list_store), &iter);
 	while (TRUE) {
 		if (!hsprocess->recv(hsprocess)) {
@@ -187,17 +214,21 @@ boolean do_show_process(struct hsprocess_struct *hsprocess)
 		case SSENDALL:
 			goto out;
 		case SPROCESS:
-			//debug_where();
-			//if (pid_old == hstrans->pid)
-			//	break;
+			if (pid_old == hstrans->pid)
+				break;
+			pid_old = hstrans->pid;
 			if (!valid)
 				gtk_list_store_append(list_store, &iter);
-			pid_old = hstrans->pid;
+			theme_icon = gtk_icon_theme_load_icon(theme, 
+					get_default_icon_name(hstrans->name),
+					APP_ICON_SIZE, GTK_ICON_LOOKUP_USE_BUILTIN, NULL);
+			if (!theme_icon)
+				theme_icon = create_pixbuf("gtk-exec.png");
 			snprintf(cpu, 10, "%2d%s", (int)hstrans->cpu * 100, "%");
 			snprintf(mem, 10, "%.1fKB", hstrans->mem);
 			snprintf(pid, 10, "%d", hstrans->pid);
 			gtk_list_store_set(GTK_LIST_STORE(list_store), &iter, 
-				COL_SPIXBUF, exec,
+				COL_SPIXBUF, theme_icon,
 				COL_SNAME,   hstrans->name,
 				COL_SID,     pid,
 				COL_SUSER,   hstrans->user,
@@ -216,7 +247,6 @@ boolean do_show_process(struct hsprocess_struct *hsprocess)
 		//hstrans->protocol = SMAX;
 	}
 out:
-	debug_where();
 	hstrans->protocol = SMAX;
 	if (process_nums < prev_process_nums) {
 		int i = prev_process_nums - process_nums;
@@ -233,6 +263,8 @@ out:
 			gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter);
 		}
 	}
+	//gtk_tree_view_set_model(GTK_TREE_VIEW(hsprocess->widget.treeview), GTK_TREE_MODEL(list_store));
+	//g_object_unref(list_store);		
 	prev_process_nums = process_nums;
 	/*
 	hsprocess->trans.protocol = SPROCESS;

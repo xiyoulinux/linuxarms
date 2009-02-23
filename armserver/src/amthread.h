@@ -26,17 +26,18 @@ boolean amthread_trans_set_protocol(struct amthread_trans *amtrans,
 
 /*
  * main structure
+ * @thread:     thread structure
  * @lock:	is there a data sending or receiving?
  * @user:	the user who use hostclient
  * @trans:	the packet which send or receive
  * @socket:	TCP socket
  */ 
 struct amthread_struct {
-	boolean lock;
-	linuxarms_thread_t *thread;
+	struct linuxarms_thread thread;
 	struct user_struct *user;
 	struct amthread_trans trans;
 	struct anet_struct socket;
+	boolean competence;
 
 	void (*down_lock)(struct amthread_struct *amthread);
 	void (*up_lock)(struct amthread_struct *amthread);
@@ -44,7 +45,6 @@ struct amthread_struct {
 				protocol_mthread protocol);
 	boolean (*send)(struct amthread_struct *amthread);
 	boolean (*recv)(struct amthread_struct *amthread);
-	boolean (*competence)(struct amthread_struct *amthread);
 
 };
 //extern int *have_user;
