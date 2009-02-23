@@ -102,7 +102,7 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 
 	strcpy(socket->ip, user->ip);
 	if (create_tcp_client(socket) == FALSE) {
-		snprintf(buf, 80, "无法连接服务器 %s :请\n确保ip地址格式正确并且有效！", socket->ip);
+		snprintf(buf, 80, "无法连接服务器 %s :请\n确保ip地址格式正确并且有效!", socket->ip);
 		message_box_error(login->widget.window_login, buf);
 		socket->tcp = -1;
 		return;
