@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
 	add_file_directory("/usr/share/linuxarms-hostclient/pixmaps");
 	add_file_directory("/usr/share/linuxarms-hostclient/doc");
 	add_file_directory("/etc/linuxarms-hostclient/config");
+	add_file_directory("/etc/linuxarms-hostclient/config");
 	//add_file_directory("/usr/share/icons/gnome/16x16/apps");
 #ifdef _DEBUG_
 	add_file_directory("./pixmaps");
