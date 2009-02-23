@@ -263,9 +263,16 @@ boolean hsthread_kill_success(struct hsthread_struct *hsthread)
 	LINUXARMS_POINTER(hsthread);
 	struct hsprocess_widget *widget = &hsthread->hsprocess->widget;
 	GtkListStore *list_store;
-	
+	GtkTreeIter *iter = &widget->selection;
+	boolean select;
+
 	debug_where();
 	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(
 				    GTK_TREE_VIEW(widget->treeview)));
-	return gtk_list_store_remove(GTK_LIST_STORE(list_store),&widget->selection);
+	select = VALID_ITER(iter, list_store);
+	if (select) {
+		gtk_list_store_remove(GTK_LIST_STORE(list_store),iter);
+		return TRUE;
+	}
+	return FALSE;
 }
