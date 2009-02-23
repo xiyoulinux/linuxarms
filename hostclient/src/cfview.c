@@ -27,7 +27,7 @@
 
 #define FSIZE_GB (FSIZE_MB * 1024)
 
-#define VALID_ITER(iter, list_store) ((iter)!= NULL && (iter)->user_data != NULL)
+//#define VALID_ITER(iter, list_store) ((iter)!= NULL && (iter)->user_data != NULL)
 //&& list_store->stamp == (iter)-  >stamp && !g_sequence_iter_is_end ((iter)->user_data) && g_sequence_iter_get_sequence ((iter)->user_data) ==      list_store->seq)
 
 static int prev_file_nums = 0;
@@ -265,20 +265,20 @@ gboolean cb_fview_button_press(GtkWidget *widget,
 		        GdkEventButton *event, gpointer user_data)
 {
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
-	struct hfthread_struct *hfthread = linuxarms->hfthread;
+	struct hfview_struct *hfview = linuxarms->hfthread->hfview;
 	//selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(hfview->widget.treeview));
 //	select = gtk_tree_selection_get_selected(selection, &model, &iter);
 //	if (event->type != GDK_BUTTON_PRESS && event->type != GDK_2BUTTON_PRESS)
 //		return FALSE;
 	debug_print("文件浏览界面鼠标按下\n");
-	if (hfthread->hfview->widget.popup)
-		hfthread->hfview->widget.popup = FALSE;
+	if (hfview->widget.popup)
+		hfview->widget.popup = FALSE;
 	if (event->type == GDK_BUTTON_PRESS && event->button == BUTTON_RIGHT) {
 		GtkWidget *popup_menu = create_popup_menu_fview(linuxarms);
 		gtk_menu_popup (GTK_MENU(popup_menu),
 			     NULL, NULL, NULL, NULL,
 			     event->button, event->time);
-		hfthread->hfview->widget.popup = TRUE;
+		hfview->widget.popup = TRUE;
 		cb_fview_selection_changed(NULL, linuxarms);
 	}
 	return FALSE;

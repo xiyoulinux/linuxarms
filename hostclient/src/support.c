@@ -7,6 +7,7 @@
 #include <gtk/gtk.h>
 #include "support.h"
 #include "sprocess.h"
+#include "error.h"
 
 static GList *pixmaps_directories = NULL;
 
@@ -115,6 +116,12 @@ static const struct default_process_icon default_icon_table[] = {
 
 void add_file_directory(const gchar *directory)
 {
+	/*
+	if (access(directory, F_OK) == -1) {	
+		print_error(EWARNING, "路径 %s 不存在!\n", directory);
+		return;
+	}
+	*/
 	pixmaps_directories = g_list_prepend(pixmaps_directories,
 			g_strdup(directory));
 }

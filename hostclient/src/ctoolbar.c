@@ -18,7 +18,7 @@ struct list_head {
 	struct list_head *next;
 };
 
-static struct list_head *list;
+static struct list_head *list = NULL;
 
 boolean list_head_new(int num)
 {

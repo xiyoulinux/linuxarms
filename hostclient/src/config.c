@@ -181,6 +181,7 @@ static boolean login_config_set_path(struct login_config_struct *config)
 	}
 	snprintf(config->path, CONFIG_FILE_PATH_LEN, 
 		 "%s/."USER_CONFIG_DIR_NAME"/config", p);
+	add_file_directory(config->path);
 	config->inited = TRUE;
 	return TRUE;
 }

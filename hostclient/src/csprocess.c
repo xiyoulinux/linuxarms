@@ -75,6 +75,7 @@ void cb_process_selection_changed(GtkWidget *widget, gpointer user_data)
 			select = FALSE;
 		else
 			select = TRUE;
+		hsprocess->widget.selection = iter;
 		debug_where();
 		g_free(user);
 	} 
@@ -111,9 +112,10 @@ gboolean cb_process_button_press(GtkWidget *widget,
 	                 GdkEventButton *event, gpointer user_data)
 {
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
+	struct hsprocess_struct *hsprocess = linuxarms->hsthread->hsprocess;
 	
-	if (linuxarms->hsthread->hsprocess->widget.popup)
-		linuxarms->hsthread->hsprocess->widget.popup = FALSE;
+	if (hsprocess->widget.popup)
+		hsprocess->widget.popup = FALSE;
 	if (event->type != GDK_BUTTON_PRESS)
 		return TRUE;
 	if (event->button == BUTTON_RIGHT) {
@@ -121,9 +123,10 @@ gboolean cb_process_button_press(GtkWidget *widget,
 		gtk_menu_popup (GTK_MENU(popup_menu),
 				NULL, NULL, NULL, NULL,
 				event->button, event->time);
-		linuxarms->hsthread->hsprocess->widget.popup = TRUE;
+		hsprocess->widget.popup = TRUE;
+		cb_process_selection_changed(NULL, linuxarms);
 	} else {
-		linuxarms->hsthread->hsprocess->widget.popup_kill = NULL;
+		hsprocess->widget.popup_kill = NULL;
 	}
 	debug_where();
 	return FALSE;
@@ -138,17 +141,16 @@ void cb_process_kill_activate(GtkMenuItem *menuitem,gpointer user_data)
 	struct hmthread_struct *hmthread = linuxarms->hmthread;
 	struct hsthread_struct *hsthread = linuxarms->hsthread;
 	struct hsprocess_struct *hsprocess = hsthread->hsprocess;
-	GtkWidget *treeview = hsprocess->widget.treeview;
-	GtkTreeModel *list_store;
-	GtkTreeIter iter;
+	struct hsprocess_widget *widget = &hsprocess->widget;
+	GtkListStore *list_store;
+	GtkTreeIter *iter = &widget->selection;
 	char *pid;
 	boolean select;
+        list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(widget->treeview)));
+	select = VALID_ITER(iter, list_store);
 
-	select = gtk_tree_selection_get_selected(
-		 gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview)),
-		 &list_store, &iter);
 	if (select) {
-		gtk_tree_model_get(list_store, &iter, COL_SID, &pid,-1);
+		gtk_tree_model_get(GTK_TREE_MODEL(list_store), iter, COL_SID, &pid,-1);
 		*hsprocess->kill = atoi(pid);
 		if (hsthread->timer.timer != -1)
 			hsthread_close_timer(hsthread);
@@ -156,7 +158,7 @@ void cb_process_kill_activate(GtkMenuItem *menuitem,gpointer user_data)
 		hmthread->send(hmthread);
 		hsthread_set_trans(hsthread, SKILL, atoi(pid));
 		hsthread->send(hsthread);
-		hsprocess->widget.selection = iter;
+		//hsprocess->widget.selection = iter;
 		g_free(pid);
 	}
 	debug_print("选中要杀死的进程的进程号为 %d\n",*hsprocess->kill);
@@ -197,6 +199,8 @@ boolean do_show_process(struct hsprocess_struct *hsprocess)
 	char pid[10], cpu[10], mem[10];
 	int pid_old = 0;
 	int process_nums = 0;
+
+	debug_where();
 	LINUXARMS_POINTER(hsprocess);
 	hstrans = &hsprocess->trans;
 	theme = gtk_icon_theme_get_default();
