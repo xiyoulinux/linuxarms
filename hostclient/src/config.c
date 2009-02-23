@@ -118,7 +118,7 @@ static boolean login_config_create(void);
 
 static boolean login_config_create(void)
 {
-	char *home;
+	char *home, *p;
 	char tmp[80];
 	FILE *fp;
 	home = get_user_home();
@@ -142,6 +142,9 @@ static boolean login_config_create(void)
 		fprintf(fp, "SERVERIP 0\nUSER 0\n");
 		fclose(fp);
 	}
+	p = strrchr(tmp, '/');
+	*p = '\0';
+	add_file_directory(tmp);
 	return TRUE;
 }
 /*
