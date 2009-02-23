@@ -17,13 +17,14 @@
 boolean hcthread_init(struct hcthread_struct *hcthread)
 {
 	LINUXARMS_POINTER(hcthread);
-	hcthread->thread = NULL;
-	
+
+	linuxarms_thread_init(&hcthread->thread);
 	hcthread->send = hcthread_send;
 	hcthread->recv = hcthread_recv;
 
 	hcthread->showinfo = showinfo;
 	hcthread->competence = FALSE;
+
 	return TRUE;
 }
 /*
@@ -68,13 +69,13 @@ gboolean hcthread_thread(void *p)
 {
 	struct hcthread_struct *hcthread = (struct hcthread_struct *)p;
 	linuxarms_print("create hcthread thread...\n");
-	hcthread->thread = linuxarms_thread_self();
+	hcthread->thread.id = linuxarms_thread_self();
 	/* 建立网络连接 */
 	hnet_init(&hcthread->socket, get_armserver_ip(), get_cthread_port());
 	create_tcp_client(&hcthread->socket);
 	debug_print("hcthread socket ip : %s tcp: %d port: %d\n", hcthread->socket.ip,
 				hcthread->socket.tcp, hcthread->socket.port);	
-	while (hcthread->thread) {
+	while (hcthread->thread.id) {
 		do {
 			hcthread_recv(hcthread);        /* 接收从arm端输出过来的数据 */  
 			if(hcthread->trans.protocol == CSEND) {

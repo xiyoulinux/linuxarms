@@ -27,20 +27,20 @@ struct linuxarms_struct {
 	struct hcthread_struct *hcthread;
 };
 
-#define LINUXARMS_CHAR(p) do{ \
-	if (!p) { \
-		debug_where(); \
+#define LINUXARMS_CHAR(p) do{                            \
+	if (!(p)) {                                      \
+		debug_where();                           \
 		print_error(EWARNING, "无效的字符指针"); \
-		return FALSE; \
-	} \
+		return FALSE;                            \
+	}                                                \
 }while(0)
 
-#define LINUXARMS_POINTER(p) do{ \
-	if (!p) { \
-		debug_where(); \
-		print_error(EWARNING, "%s : 无效的指针", #p); \
-		return FALSE; \
-	} \
+#define LINUXARMS_POINTER(p) do{                             \
+	if (!(p)) {                                          \
+		debug_where();                               \
+		print_error(EWARNING, "%s : 无效的指针", #p);\
+		return FALSE;                                \
+	}                                                    \
 }while(0)
 
 #endif

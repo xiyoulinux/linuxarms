@@ -9,6 +9,7 @@
 #define PROCESS_COLUMNS 6
 #define PROCESS_NAME_LEN 16
 #define PROCESS_USER_LEN 20
+#define APP_ICON_SIZE 16
 enum {
 	COL_SPIXBUF = 0,
 	COL_SNAME,
@@ -56,8 +57,8 @@ struct hsprocess_widget {
 	GtkWidget *menu_three;
 	GtkWidget *menu_five;
 	GtkWidget *popup_kill;
-	boolean popup_menu;
-	GtkTreeIter selected_row;
+	boolean popup;
+	GtkTreeIter selection;
 };
 /*
  * hsprocess_struct 实时监视主数据结构

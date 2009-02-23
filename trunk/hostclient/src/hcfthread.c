@@ -31,9 +31,10 @@ boolean hfthread_init(struct hfthread_struct *hfthread,
                 print_error(ESYSERR,"无效参数");
                 return FALSE;
         }
-	hfthread->thread = NULL;
+	linuxarms_thread_init(&hfthread->thread);
 	hfthread->hfview  =hfview;
 	hfthread->hftrans = hftrans;
+	hfthread->competence = FALSE;
 
 	hfthread->down_lock = hfthread_down_lock;
 	hfthread->up_lock = hfthread_up_lock;
@@ -42,6 +43,7 @@ boolean hfthread_init(struct hfthread_struct *hfthread,
 	hfthread->recv = hfthread_recv;
 	hfthread_trans_init(&hfthread->trans);
 	//hnet_init(&hfthread->socket, get_armserver_ip(), get_fthread_port());
+	
 	hfthread->up_lock(hfthread);
 	return TRUE;
 }
@@ -54,7 +56,7 @@ gboolean hfthread_thread(void *p)
 	struct hfthread_struct *hfthread = (struct hfthread_struct *)p;
 	struct hfview_struct *hfview = hfthread->hfview;
 	linuxarms_print("create hfthread thread...\n");
-	hfthread->thread = linuxarms_thread_self();
+	hfthread->thread.id = linuxarms_thread_self();
 	hnet_init(&hfthread->socket, get_armserver_ip(), get_fthread_port());
 	if (!create_tcp_client(&hfthread->socket)) {
 		print_error(ESYSERR,"建立文件浏览和文件传输网络连接错误");
@@ -62,7 +64,7 @@ gboolean hfthread_thread(void *p)
 	}
 	debug_print("hfthread socket ip : %s tcp: %d port: %d\n", hfthread->socket.ip,
 				hfthread->socket.tcp, hfthread->socket.port);
-	while (hfthread->thread) {
+	while (hfthread->thread.id) {
 		if (!hfthread->recv(hfthread)) {
 			linuxarms_print("hfthread recive data error\n");
 			break;
@@ -80,20 +82,22 @@ gboolean hfthread_thread(void *p)
 			statusbar_set_text("给出的路径不存在");
 			break;
 		case FRENAMESUC: /* 重命名文件成功 */
-			hfthread_rename_success(hfthread);
-			gtk_widget_set_sensitive(hfview->widget.treeview, TRUE);
+			hfview_rename_success(hfview, hfthread->trans.rename[NEWNAME]);
+			statusbar_set_text("重命名文件成功");
+			//gtk_widget_set_sensitive(hfview->widget.treeview, TRUE);
 			break;
 		case FRENAMEERR: /* 重命名文件失败 */
 			statusbar_set_text("重命名文件失败");
-			gtk_widget_set_sensitive(hfview->widget.treeview, TRUE);
+			//gtk_widget_set_sensitive(hfview->widget.treeview, TRUE);
 			break;
 		case FDELETESUC: /* 删除文件成功 */
-			hfthread_delete_success(hfthread);
-			gtk_widget_set_sensitive(hfview->widget.treeview, TRUE);
+			hfview_delete_success(hfview);
+			statusbar_set_text("删除文件成功");
+			//gtk_widget_set_sensitive(hfview->widget.treeview, TRUE);
 			break;
 		case FDELETEERR: /* 删除文件失败 */
 			statusbar_set_text("删除文件失败");
-			gtk_widget_set_sensitive(hfview->widget.treeview, TRUE);
+			//gtk_widget_set_sensitive(hfview->widget.treeview, TRUE);
 			break;
 		default:
 			break;
@@ -108,15 +112,13 @@ static void hfthread_down_lock(struct hfthread_struct *hfthread)
 {
 	if (!hfthread)
 		return ;
-	while (hfthread->lock)
-		sleep(1);
-	hfthread->lock = TRUE;
+	linuxarms_thread_lock(&hfthread->thread);
 }
 static void hfthread_up_lock(struct hfthread_struct *hfthread)
 {
 	if (!hfthread)
 		return;
-	hfthread->lock = FALSE;
+	linuxarms_thread_unlock(&hfthread->thread);
 }
 
 /*
@@ -175,6 +177,7 @@ boolean hfthread_trans_init(struct hfthread_trans *hftrans)
 	memset(hftrans->path, '\0', PATH_LEN);
 	hftrans->path[0] = '/';
 	memset(hftrans->rename, '\0', FNAME_LEN * 2);
+	hftrans->hide = TRUE;
 	return TRUE;
 }
 boolean hfthread_trans_set_protocol(struct hfthread_trans *hftrans, protocol_fthread protocol)
@@ -220,40 +223,3 @@ boolean hfthread_trans_set_rename(struct hfthread_trans *hftrans, char *oldname,
 	return TRUE;
 }
 
-boolean hfthread_rename_success(struct hfthread_struct *hfthread)
-{
-	boolean select;
-	GtkTreeModel *list_store;
-	GtkTreeIter iter;
-	GtkTreeSelection *selection;
-	
-	debug_where();
-	selection = gtk_tree_view_get_selection(
-		GTK_TREE_VIEW(hfthread->hfview->widget.treeview));
-	select = gtk_tree_selection_get_selected(selection, &list_store, &iter);
-	if (select) {
-		gtk_list_store_set(GTK_LIST_STORE(list_store), &iter,
-				COL_FNAME, hfthread->trans.rename[NEWNAME],
-				-1);
-		return TRUE;
-	}
-	return FALSE;
-}
-
-boolean hfthread_delete_success(struct hfthread_struct *hfthread)
-{
-	boolean select;
-	GtkTreeModel *list_store;
-	GtkTreeIter iter;
-	GtkTreeSelection *selection;
-	
-	debug_where();
-	selection = gtk_tree_view_get_selection(
-		GTK_TREE_VIEW(hfthread->hfview->widget.treeview));
-	select = gtk_tree_selection_get_selected(selection, &list_store, &iter);
-	if (select) {
-		gtk_list_store_remove(GTK_LIST_STORE(list_store),&iter);
-		return TRUE;
-	}
-	return FALSE;
-}

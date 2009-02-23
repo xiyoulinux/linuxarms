@@ -18,10 +18,6 @@
 #define CONFIG_BUF_SIZE 256
 #define INFO_SIZE 80
 
-typedef enum {
-	FAILURE = -1, /* -1 */
-	SUCCESS /* 0 */
-}Status;
 
 /*
  * user_struct  用于存放获取的用户信息
@@ -34,7 +30,6 @@ struct user_struct {
 	char ip[IP_LEN];
 	char name[USER_NAME_LEN];
 	char passwd[PASSWD_LEN];
-	boolean competence;
 };
 
 boolean user_struct_init(struct user_struct *user);
@@ -62,17 +57,17 @@ struct login_config_struct;
  */
 struct login_struct {
 	boolean remember;
-	struct user_struct *user;
+	struct user_struct user;
 	struct hnet_struct *socket;
 	struct login_config_struct *config;
 	struct login_widget widget;
-	Status status;
+	boolean competence;
 };
 
 boolean login_init(struct login_struct *login,
-		   struct user_struct *user,
 		   struct login_config_struct *config,
 		   struct hnet_struct *socket);
+boolean login_user_competence(struct login_struct *login);
 void create_window_login(struct linuxarms_struct *linuxarms);
 boolean login_add_default_data(struct login_struct *login);
 gboolean cb_window_login_delete_event(GtkWidget *widget,

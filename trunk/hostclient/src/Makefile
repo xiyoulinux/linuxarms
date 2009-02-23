@@ -48,5 +48,5 @@ $(object):$(OBJS) $(HEADER)
 
 .PHONY : clean
 clean:
-	-rm -f $(OBJS) $(boject)
+	-rm -f $(OBJS) $(object)
 

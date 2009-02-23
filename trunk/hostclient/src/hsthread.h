@@ -26,8 +26,8 @@ boolean hsthread_timer_init(struct hsthread_timer *hstimer);
 /*
  * hsthread_trans 系统信息显示和实时监视(进程信息显示)线程
  * 		  传送的数据
- * @protocol:  控制(见protocol_sthread)
- * @kill:  要杀死的进程的进程号(当ctrl = KILL时，该域才有效)
+ * @protocol:     控制(见protocol_sthread)
+ * @kill:         要杀死的进程的进程号(当ctrl = KILL时，该域才有效)
  */
 struct hsthread_trans {
 	protocol_sthread protocol;
@@ -52,13 +52,13 @@ struct hnet_struct;
  * @timer:     定时更新的时间间距
  */
 struct hsthread_struct {
-	linuxarms_thread_t *thread;
+	struct linuxarms_thread thread;
 	struct hssinfo_struct *hssinfo;
 	struct hsprocess_struct *hsprocess;
 	struct hsthread_trans trans;
 	struct hnet_struct socket;
 	struct hsthread_timer timer;
-	boolean lock;
+	boolean competence;
 	
 	void (*down_lock)(struct hsthread_struct *hsthread);
 	void (*up_lock)(struct hsthread_struct *hsthread);

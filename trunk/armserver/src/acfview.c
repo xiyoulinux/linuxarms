@@ -29,6 +29,7 @@ boolean afview_init(struct afview_struct *afview,char *path,
 		return FALSE;
 	}
 	afview->path = path;
+	afview->hide = FALSE;
 	afview->socket = socket;
 	
 	afview->set_protocol = afview_set_protocol;
@@ -153,6 +154,8 @@ boolean do_file_view(struct afview_struct *afview)
 		/*if (strcmp(dent->d_name, ".") == 0 ||
 		    strcmp(dent->d_name, "..") == 0)
 			continue;*/
+		if (afview->hide && *dent->d_name == '.')
+			continue;
 		ret = afview_send_set_data(&afview->fsend, (unsigned int)dent->d_type, 
 					dent->d_name, afview->path);
 		if (ret) {

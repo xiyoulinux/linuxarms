@@ -52,9 +52,10 @@ void cb_notebook_switch_page(GtkNotebook *notebook,
 		gtk_widget_set_sensitive(GTK_WIDGET(linuxarms->mwindow->toolbar), FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.rename), FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.del), FALSE);
-		debug_print("前一个面板为文件浏览\n");
+		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.hide), FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_upload), FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_download), FALSE);
+		debug_print("前一个面板为文件浏览\n");
 		break;
 	}
 	debug_print("当前页面的页面号为 = %d\n",page_num);
@@ -87,6 +88,7 @@ void cb_notebook_switch_page(GtkNotebook *notebook,
 		gtk_widget_set_sensitive(GTK_WIDGET(linuxarms->mwindow->toolbar), TRUE);
 		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.rename), TRUE);
 		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.del), TRUE);
+		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.hide), TRUE);
 		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_upload), TRUE);
 		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_download), TRUE);
 		old_num = PFILEVIEW;
@@ -112,6 +114,7 @@ boolean gtk_window_main_set_sensitive(struct linuxarms_struct *linuxarms)
 	gtk_widget_set_sensitive(GTK_WIDGET(linuxarms->mwindow->toolbar), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.rename), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.del), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.hide), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_upload), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_download), FALSE);
 
@@ -140,4 +143,14 @@ void cb_linuxarms_window_main_close(GtkObject *object, gpointer user_data)
 	hostclient_close_all_thread(linuxarms);
 	list_head_free();
 	gtk_main_quit();
+}
+
+gboolean cb_window_main_button_press(GtkWidget *widget,
+		        GdkEventButton *event, gpointer user_data)
+{
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
+	debug_print("window_main press\n");
+	if (linuxarms->hfthread->hfview->widget.popup)
+		linuxarms->hfthread->hfview->widget.popup = FALSE;
+	return TRUE;
 }

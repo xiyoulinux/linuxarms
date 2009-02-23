@@ -3,11 +3,115 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
-
+#include <glib.h>
 #include <gtk/gtk.h>
 #include "support.h"
+#include "sprocess.h"
 
 static GList *pixmaps_directories = NULL;
+
+struct default_process_icon {
+	const char *command;
+	const char *icon;
+};
+
+/* The current table is only a test */
+static const struct default_process_icon default_icon_table[] = {
+/* "0", "gnome-run", */
+	{"X", "gnome-mdi"},
+	{"Xorg", "gnome-mdi"},
+
+	{"aio"G_DIR_SEPARATOR_S"0", "gnome-run"},
+
+	{"apache", "other"G_DIR_SEPARATOR_S"SMB-Server-alt"},
+	{"apache2", "other"G_DIR_SEPARATOR_S"SMB-Server-alt"},
+
+	{"atd", "gnome-set-time"},
+
+	{"bash", "gnome-terminal"},
+
+	{"cron", "gnome-set-time"},
+	{"CRON", "gnome-set-time"},
+
+	{"cupsd", "other"G_DIR_SEPARATOR_S"Printer"},
+	{"cvsd",  "other"G_DIR_SEPARATOR_S"SMB-Server-alt"},
+	{"dbus-daemon-1", "other"G_DIR_SEPARATOR_S"Reading"},
+
+	{"emacs", "gnome-emacs"},
+	{"emacsserver", "gnome-emacs"},
+	{"emacs21", "gnome-emacs"},
+
+	{"events"G_DIR_SEPARATOR_S"0", "other"G_DIR_SEPARATOR_S"Dialog-Warning5"},
+
+	{"evolution-alarm-notify", "other"G_DIR_SEPARATOR_S"Button-Apps"},
+	{"evolution-wombat", "other"G_DIR_SEPARATOR_S"Button-Apps"},
+
+	{"exim4", "other"G_DIR_SEPARATOR_S"Envelope"},
+
+	{"famd", "other"G_DIR_SEPARATOR_S"Find-Files2"},
+	{"gam_server", "other"G_DIR_SEPARATOR_S "Find-Files2"},
+
+	{"gconfd-2", "other"G_DIR_SEPARATOR_S"Control-Center2"},
+	{"gdm", "gdm"},
+	{"getty", "gksu-icon"},
+	{"gnome-session", "gnome-logo-icon-transparent"},
+	{"inetd", "other"G_DIR_SEPARATOR_S"Networking"},
+
+	{"logger", "gnome-log"},
+
+	{"kblockd"G_DIR_SEPARATOR_S"0", "other"G_DIR_SEPARATOR_S"Disks"},
+
+	/* "khelper", "other"G_DIR_SEPARATOR_S "Help", */
+	{"kirqd", "other"G_DIR_SEPARATOR_S"Connection-Ethernet"},
+	{"klogd", "gnome-log"},
+
+	{"ksoftirqd"G_DIR_SEPARATOR_S"0", "other"G_DIR_SEPARATOR_S"Connection-Ethernet"},
+
+	/* "kswapd0", "other"G_DIR_SEPARATOR_S"Harddisk", */
+
+	{"mc", "mc"},
+
+	{"metacity", "metacity-properties"},
+
+	{"migration"G_DIR_SEPARATOR_S"0" ,"other"G_DIR_SEPARATOR_S"Bird"},
+
+	{"mysqld", "other"G_DIR_SEPARATOR_S"MySQL"},
+	{"mutt", "mutt"},
+	{"pdflush", "gnome-run"},
+	{"portmap","other"G_DIR_SEPARATOR_S"Connection-Ethernet"},
+	{"powernowd", "battstat"},
+
+	{"pppoe", "other"G_DIR_SEPARATOR_S"Modem"},
+
+	{"reiserfs"G_DIR_SEPARATOR_S"0","other"G_DIR_SEPARATOR_S"Disks"},
+
+	{"sendmail", "other"G_DIR_SEPARATOR_S"Envelope"},
+	{"setiathome", "other"G_DIR_SEPARATOR_S"WPicon2"},
+	{"sh", "gnome-term"},
+	{"squid", "other"G_DIR_SEPARATOR_S"Proxy-Config"},
+
+	{"sshd", "ssh-askpass-gnome"},
+	{"ssh", "ssh-askpass-gnome"},
+	{"ssh-agent", "ssh-askpass-gnome"},
+
+	{"syslogd", "gnome-log"},
+
+	{"tail", "other"G_DIR_SEPARATOR_S"Tail"},
+
+	{"top", "gnome-ccperiph"},
+
+	{"xfs", "other"G_DIR_SEPARATOR_S"Font-Capplet"},
+	{"xscreensaver", "xscreensaver"},
+	{"xterm", "gnome-xterm"},
+
+	{"vim", "vim"},
+	{"gedit", "text-editor"},
+	{"kedit", "kedit"},
+
+	{"default", "klinkstatus"}
+	/* GNOME applets */
+};
+
 
 void add_file_directory(const gchar *directory)
 {
@@ -71,25 +175,25 @@ GdkPixbuf* create_pixbuf(const gchar *filename)
 		return NULL;
 	}
 
-	pixbuf = gdk_pixbuf_new_from_file(pathname, &error);
+	pixbuf = gdk_pixbuf_new_from_file_at_size(pathname, APP_ICON_SIZE, APP_ICON_SIZE, &error);
 	if(!pixbuf){
-		fprintf(stderr, "Failed to load pixbuf file: %s: %s\n",
-						 pathname, error->message);
+		//fprintf(stderr, "Failed to load pixbuf file: %s: %s\n",
+		//				 pathname, error->message);
 		g_error_free(error);
 	}
 	g_free(pathname);
 	return pixbuf;
 }
-
-void glade_set_atk_action_description(AtkAction *action,
-		const gchar *action_name, const gchar *description)
+/*
+ * get 
+ */
+const char *get_default_icon_name(const char *cmd)
 {
-	gint n_actions, i;
-
-	n_actions = atk_action_get_n_actions(action);
-	for(i = 0; i < n_actions; i++){
-		if(!strcmp(atk_action_get_name(action, i), action_name))
-			atk_action_set_description(action, i, description);
+	int i;
+	for (i = 0; i < G_N_ELEMENTS(default_icon_table) - 1; i++) {
+		if (strstr(default_icon_table[i].command, cmd) != NULL)
+			return default_icon_table[i].icon;
 	}
+	return default_icon_table[i].icon;
 }
 

@@ -32,7 +32,6 @@
 #include <glib.h>
 #endif
 
-//int *have_user;
 char *login_user;
 
 int main(int args, char *argv[])
@@ -48,11 +47,6 @@ int main(int args, char *argv[])
 	if (!g_thread_supported())
 		g_thread_init(NULL);
 #endif
-	/*
-	have_user = (int *)mmap(NULL,sizeof(int),
-			PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS,-1,0);
-	*have_user = 0;
-	*/
 	if (getuid() != 0) {
 		linuxarms_print("Sorry, we must start armserver with root...\n");
 		return 1;
@@ -64,7 +58,8 @@ int main(int args, char *argv[])
 	add_file_directory("/etc/linuxarms-armserver/config");
 	add_file_directory("/usr/share/linuxarms-armserver/drive/beep");
 	add_file_directory("/usr/share/linuxarms-armserver/drive/led");
-/* if we are debug the program,we can use this config and resource file 
+/* 
+ * if we are debug the program,we can use this config and resource file 
  * withoutinstall the programs
  */
 #ifdef _DEBUG_

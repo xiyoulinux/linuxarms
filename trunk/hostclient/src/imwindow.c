@@ -97,6 +97,10 @@ void create_window_main(struct linuxarms_struct *linuxarms)
 	g_signal_connect((gpointer)window_main, "destroy", 
 			 G_CALLBACK(cb_linuxarms_window_main_close), 
 			 (gpointer)linuxarms);
+	/*g_signal_connect (G_OBJECT (window_main), "button_press_event",
+                          G_CALLBACK (cb_window_main_button_press),
+			  (gpointer)linuxarms);
+	*/
 	g_signal_connect((gpointer)notebook_main, "switch_page", 
 			 G_CALLBACK(cb_notebook_switch_page), 
 			 (gpointer)linuxarms);

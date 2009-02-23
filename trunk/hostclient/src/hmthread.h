@@ -41,13 +41,13 @@ boolean hmthread_trans_set_protocol(struct hmthread_trans *hmtrans,
  * @widget:	GtkWidget
  */ 
 struct hmthread_struct {
-	linuxarms_thread_t *thread;
-	boolean lock;
+	struct linuxarms_thread thread;
 	protocol_mthread protocol;
 	struct user_struct *user;
 	struct hnet_struct socket;
 	struct hmthread_trans trans;
 	struct hmthread_widget widget;
+	boolean competence;
 
 	void (*down_lock)(struct hmthread_struct *hmthread);
 	void (*up_lock)(struct hmthread_struct *hmthread);
@@ -55,12 +55,11 @@ struct hmthread_struct {
 				protocol_mthread protocol);
 	boolean (*send)(struct hmthread_struct *hmthread);
 	boolean (*recv)(struct hmthread_struct *hmthread);
-	boolean (*competence)(struct hmthread_struct *hmthread);
 
 };
 
 /* 初始化hmthread_struct结构体 */
-int hmthread_init(struct hmthread_struct *hmthread, struct user_struct *user);
+boolean hmthread_init(struct hmthread_struct *hmthread, struct user_struct *user);
 /* 主线程执行体 */
 boolean hmthread_thread(void *p);
 gboolean create_window_main_timeout(gpointer user_data);

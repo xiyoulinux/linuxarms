@@ -59,6 +59,8 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	GtkWidget *image344;
 	GtkWidget *fview_download;
 	GtkWidget *image345;
+	GtkWidget *separator_hide;
+	GtkWidget *fview_hide;
 	GtkWidget *menubar_help;
 	GtkWidget *menubar_help_menu;
 	GtkWidget *help_topic;
@@ -161,7 +163,7 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_tooltips_set_tip(tooltips, process_update_three, _("\346\257\217\351"
 				"\232\2243\347\247\222\351\222\237\346"
 				"\233\264\346\226\260\344\270\200\346\254\241"), NULL);
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(process_update_three), TRUE);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(process_update_three), FALSE);
 
 	process_update_five = gtk_radio_menu_item_new_with_mnemonic(
 				process_update_three_group, 
@@ -173,7 +175,7 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_tooltips_set_tip(tooltips, process_update_five,_("\346\257\217\351\232\224"
 					"5\347\247\222\351\222\237\346\233\264\346\226"
 					"\260\344\270\200\346\254\241"), NULL);
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(process_update_five), FALSE);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(process_update_five), TRUE);
 
 	separator_one = gtk_separator_menu_item_new();
 	gtk_widget_show(separator_one);
@@ -258,6 +260,16 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	image345 = gtk_image_new_from_stock("gtk-goto-bottom", GTK_ICON_SIZE_MENU);
 	gtk_widget_show(image345);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(fview_download), image345);
+	
+	separator_hide = gtk_separator_menu_item_new();
+	gtk_widget_show(separator_hide);
+	gtk_container_add(GTK_CONTAINER(menubar_fview_menu), separator_hide);
+	gtk_widget_set_sensitive(separator_hide, FALSE);
+	
+	fview_hide = gtk_check_menu_item_new_with_mnemonic(_("显示隐藏文件"));
+	gtk_widget_show(fview_hide);
+	gtk_container_add(GTK_CONTAINER(menubar_fview_menu), fview_hide);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(fview_hide), FALSE);
 	/* 创建帮助子菜单 */
 	menubar_help = gtk_menu_item_new_with_mnemonic(_("\345\270\256\345\212\251(_H)"));
 	gtk_widget_show(menubar_help);
@@ -304,11 +316,14 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 			 G_CALLBACK(cb_logout_activate), 
 			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)restart, "activate",
-			 G_CALLBACK(cb_restart_activate), NULL);
+			 G_CALLBACK(cb_restart_activate),
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)shutdown, "activate",
-			 G_CALLBACK(cb_shutdown_activate), NULL);
+			 G_CALLBACK(cb_shutdown_activate),
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)quit, "activate",
-			 G_CALLBACK(cb_quit_activate), NULL);
+			 G_CALLBACK(cb_quit_activate),
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)process_update_three, "activate",
 			 G_CALLBACK(cb_process_update_three_activate), 
 			 (gpointer)hsprocess);
@@ -319,17 +334,26 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 			 G_CALLBACK(cb_process_kill_activate), 
 			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)fview_rename, "activate",
-			 G_CALLBACK(cb_fview_rename_activate), NULL);
+			 G_CALLBACK(cb_fview_rename_activate),
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)fview_delete, "activate",
-			 G_CALLBACK(cb_fview_delete_activate), NULL);
+			 G_CALLBACK(cb_fview_delete_activate),
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)fview_upload, "activate", 
-			 G_CALLBACK(cb_fview_upload_activate), NULL);
+			 G_CALLBACK(cb_fview_upload_activate),
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)fview_download, "activate",
-			 G_CALLBACK(cb_fview_download_activate), NULL);
+			 G_CALLBACK(cb_fview_download_activate),
+			 (gpointer)linuxarms);
+	g_signal_connect((gpointer) fview_hide, "activate",
+			 G_CALLBACK (cb_fview_hide_file_activate),
+			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)help_topic, "activate",
-			 G_CALLBACK(cb_help_topic_activate), NULL);
+			 G_CALLBACK(cb_help_topic_activate),
+			 NULL);
 	g_signal_connect((gpointer)help_about, "activate",
-			 G_CALLBACK(cb_help_about_activate), NULL);  
+			 G_CALLBACK(cb_help_about_activate),
+			 NULL);
 	
 	hmthread->widget.login = login;
 	hmthread->widget.logout = logout;
@@ -342,6 +366,7 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 
 	hfview->widget.rename = fview_rename;
 	hfview->widget.del = fview_delete;
+	hfview->widget.hide = fview_hide;
 	htthread->widget.menubar_upload = fview_upload;
 	htthread->widget.menubar_download = fview_download;
 

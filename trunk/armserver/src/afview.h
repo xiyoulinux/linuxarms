@@ -52,6 +52,7 @@ boolean afview_recv_set_protocol(struct afview_recv *frecv, protocol_fthread pro
  */
 struct afview_struct {
 	char *path;
+	boolean hide;
 	struct afview_send fsend;
 	struct afview_recv frecv;
 	struct anet_struct *socket;

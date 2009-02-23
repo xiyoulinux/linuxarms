@@ -14,10 +14,6 @@
 #define CONFIG_BUF_SIZE 4096
 #define INFO_SIZE 80
 
-typedef enum {
-	FAILURE_ = -1, /* -1 */
-	SUCCESS_ /* 0 */
-}Status;
 
 /*
  * user_struct  用于存放获取的用户信息
@@ -30,7 +26,6 @@ struct user_struct {
 	char ip[IP_LEN];
 	char name[USER_NAME_LEN];
 	char passwd[PASSWD_LEN];
-	boolean competence;
 };
 boolean user_struct_init(struct user_struct *user);
 boolean user_competece(struct user_struct *user);
@@ -39,21 +34,20 @@ boolean user_struct_set(struct user_struct *user, char *ip, char *name, char *pa
  * login_struct 用户登录处理及相关信息显示和出错处理
  * @user: 用户信息
  * @socket: 网络相关模块
- * @status: 网络结果状态信息
  */
 struct login_struct {
 	struct user_struct user;
 	struct anet_struct *socket;
-	Status status;
+	boolean competence;
 };
 /*
  * login functions definitions
  */
-/*inward interface*/
-boolean set_error_info(struct login_struct *login, const char *error_info);
-const char *get_error(struct login_struct *login);
+//boolean set_error_info(struct login_struct *login, const char *error_info);
+//const char *get_error(struct login_struct *login);
 boolean login_init(struct login_struct *login, struct anet_struct *socket);
 boolean login_check_user(struct login_struct *login);
 boolean login_set_env(struct login_struct *login);
+boolean login_user_competence(struct login_struct *login);
 
 #endif

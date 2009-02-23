@@ -10,7 +10,6 @@
 #define FILE_INFO_COLUMNS 5
 #define FILE_NAME_LEN 256
 #define FILE_USER_LEN 20
-#define MAX_FILE_NUMS 500 /* 一次最多能显示的文件 */
 enum {
 	TYPE_DIR = 4,
 	TYPE_FILE = 8
@@ -58,10 +57,18 @@ boolean hfview_send_init(struct hfview_send *fsend);
 struct hfview_widget {
 	GtkWidget *path;
 	GtkWidget *treeview;
+	GtkAdjustment *vadjustment;
 	GtkWidget *back;
 	GtkWidget *up;
 	GtkWidget *rename;
 	GtkWidget *del;
+	GtkWidget *hide;
+	GtkWidget *popup_rename;
+	GtkWidget *popup_del;
+	GtkWidget *popup_upload;
+	GtkWidget *popup_download;
+	GtkTreeIter selection;
+	boolean popup;
 };
 /*
  * hfview_struct   文件浏览控制数据结构
@@ -86,8 +93,6 @@ GtkListStore *create_page_fview(struct linuxarms_struct *linuxarms);
 void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data);
 gboolean cb_fview_button_press(GtkWidget *widget,
 	                 GdkEventButton *event, gpointer user_data);
-void cb_treeview_fview_columns_changed(GtkTreeView *treeview,
-                                gpointer user_data);
 void cb_treeview_fview_row_activated(GtkTreeView *treeview,
 		GtkTreePath *path, GtkTreeViewColumn *col, gpointer user_data);
 
@@ -99,5 +104,19 @@ boolean hfview_delete(struct hfthread_struct *hfthread);
 boolean do_file_view(struct hfview_struct *hfview);
 boolean hfview_set_path(struct hfview_struct *hfview, const char *path);
 const char *hfview_get_path(struct hfview_struct *hfview);
-extern gulong button_pressed_signal_id;
+
+GtkWidget* create_popup_menu_fview(struct linuxarms_struct *linuxarms);
+void cb_fview_rename_activate(GtkMenuItem *menuitem, gpointer user_data);
+void cb_fview_delete_activate(GtkMenuItem *menuitem, gpointer user_data);
+extern void cb_fview_upload_activate(GtkMenuItem *menuitem, gpointer user_data);
+extern void cb_fview_download_activate(GtkMenuItem *menuitem, gpointer user_data);
+
+void create_window_rename(struct linuxarms_struct *linuxarms);
+void cb_window_rename_destroy(GtkObject *object,gpointer user_data);
+void cb_rename_ok_clicked(GtkButton *button, gpointer user_data);
+void cb_rename_help_clicked(GtkButton *button, gpointer user_data);
+void cb_rename_entry_changed(GtkEditable *editable, gpointer user_data);
+
+boolean hfview_rename_success(struct hfview_struct *hfview, const char *newname);
+boolean hfview_delete_success(struct hfview_struct *hfview);
 #endif
