@@ -78,7 +78,7 @@ boolean do_show_asprocess(struct asthread_struct *asthread)
 out:
 	closedir(dir);
 	debug_where();
-	asprocess->trans.protocol = SSENDALL;
+	asprocess->set_protocol(asprocess, SSENDALL);
 	asprocess->send(asprocess);
 	return TRUE;
 }

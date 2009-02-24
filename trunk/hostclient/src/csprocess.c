@@ -221,11 +221,15 @@ boolean do_show_process(struct hsprocess_struct *hsprocess)
 			if (pid_old == hstrans->pid)
 				break;
 			pid_old = hstrans->pid;
-			if (!valid)
+			if (!valid) {
 				gtk_list_store_append(list_store, &iter);
-			theme_icon = gtk_icon_theme_load_icon(theme, 
-					get_default_icon_name(hstrans->name),
+			}
+			theme_icon = gtk_icon_theme_load_icon(theme, hstrans->name,
 					APP_ICON_SIZE, GTK_ICON_LOOKUP_USE_BUILTIN, NULL);
+			if (!theme_icon)
+				theme_icon = gtk_icon_theme_load_icon(theme, 
+						get_default_icon_name(hstrans->name),
+						APP_ICON_SIZE, GTK_ICON_LOOKUP_USE_BUILTIN, NULL);
 			if (!theme_icon)
 				theme_icon = create_pixbuf("gtk-exec.png");
 			snprintf(cpu, 10, "%2d%s", (int)hstrans->cpu * 100, "%");
@@ -252,9 +256,9 @@ boolean do_show_process(struct hsprocess_struct *hsprocess)
 	}
 out:
 	hstrans->protocol = SMAX;
-	if (process_nums < prev_process_nums) {
+	if (process_nums < prev_process_nums ) {
 		int i = prev_process_nums - process_nums;
-		while (i--) {
+		while (i-- && valid) {
 			gtk_list_store_set(GTK_LIST_STORE(list_store), &iter, 
 				COL_SPIXBUF, NULL,
 				COL_SNAME,   "",
@@ -264,7 +268,7 @@ out:
 				COL_SCPU,    "",
 				COL_SMEM,    "",
 				-1);
-			gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter);
+			valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter);
 		}
 	}
 	//gtk_tree_view_set_model(GTK_TREE_VIEW(hsprocess->widget.treeview), GTK_TREE_MODEL(list_store));

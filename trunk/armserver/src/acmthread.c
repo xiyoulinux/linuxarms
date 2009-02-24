@@ -259,19 +259,19 @@ void armserver_close_all_thread(struct linuxarms_struct *linuxarms)
 	struct asthread_struct *asthread = linuxarms->asthread;
 	struct acthread_struct *acthread = linuxarms->acthread;
 	if (asthread->thread.id) {
-		linuxarms_thread_exit(&asthread->thread.id);
+		linuxarms_thread_exit(&asthread->thread);
 		close_tcp_server(&asthread->socket);
 	}
 	if (afthread->thread.id) {
-		linuxarms_thread_exit(&afthread->thread.id);
+		linuxarms_thread_exit(&afthread->thread);
 		close_tcp_server(&afthread->socket);
 	}
 	if (acthread->thread.id) {
-		linuxarms_thread_exit(&acthread->thread.id);
+		linuxarms_thread_exit(&acthread->thread);
 		close_tcp_server(&acthread->socket);
 	}
 	if (amthread->thread.id) {
-		linuxarms_thread_exit(&amthread->thread.id);
+		linuxarms_thread_exit(&amthread->thread);
 		close_tcp_server(&amthread->socket);
 	}
 }
@@ -339,6 +339,7 @@ void armserver_login_result(struct linuxarms_struct *linuxarms, protocol_mthread
 		linuxarms_print("try to login count == %d, end login session...\n",
 				LOGIN_CHECK_TIMEOUT);
 		memset(login_user, '\0', USER_NAME_LEN);
+		armserver_close_all_thread(linuxarms);
 		exit(1);
 		break;
 	case LOGIN:

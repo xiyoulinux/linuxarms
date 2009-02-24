@@ -49,7 +49,7 @@ int htthread_init(struct htthread_struct *htthread,
 		ret = ENOSOCKET;
 		goto out;
 	}
-	htthread->thread = NULL;
+	linuxarms_thread_init(&htthread->thread);
 	htthread->select = FMAX;
 	htthread->socket = *socket;
 	htthread->widget = *widget;

@@ -1,3 +1,4 @@
+#define __DEBUG__
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -96,11 +97,12 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 		user_struct_set(&hmthread->trans.user, user->ip, user->name, user->passwd);
 		hmthread->set_protocol(hmthread, LOGIN);
 		hmthread->send(hmthread);
-		debug_where();
+		debug_print("已经建立连接\n");
 		return;
 	}
 
 	strcpy(socket->ip, user->ip);
+	debug_print("create mthread tcp conection\n");
 	if (create_tcp_client(socket) == FALSE) {
 		snprintf(buf, 80, "无法连接服务器 %s :请\n确保ip地址格式正确并且有效!", socket->ip);
 		message_box_error(login->widget.window_login, buf);
@@ -113,8 +115,10 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 	else
 		login->competence = FALSE;
 	debug_where();
-	if (hmthread->thread.id == NULL)
+	if (hmthread->thread.id == NULL) {
+		debug_print("create mthread \n");
 		linuxarms_thread_create(hmthread_thread, linuxarms);
+	}
 	debug_where();
 }
 

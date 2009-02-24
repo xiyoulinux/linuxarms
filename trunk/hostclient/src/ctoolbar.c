@@ -72,6 +72,7 @@ boolean list_head_test_next()
 boolean list_head_free()
 {
 	struct list_head *p,*r;
+
 	LINUXARMS_POINTER(list);
 	for (p = list; p->next != list;) {
 		r = p->next;

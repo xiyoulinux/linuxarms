@@ -1,3 +1,4 @@
+//#define __DEBUG__
 #include <gtk/gtk.h>
 #include <locale.h>
 #include "linuxarms.h"
@@ -45,7 +46,6 @@ int main(int argc, char *argv[])
 #ifdef GTK_THREAD
 	if (!g_thread_supported())
 		g_thread_init(NULL);
-
 	//gdk_threads_init();
 #endif
 	setlocale (LC_ALL, "");
@@ -103,6 +103,7 @@ int main(int argc, char *argv[])
 	gtk_timeout_add(50, create_window_main_timeout, (gpointer)&linuxarms);
 #endif
 	gtk_main();
+	//hostclient_close_all_thread(&linuxarms);
 	return 0;
 }
 

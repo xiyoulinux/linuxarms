@@ -64,6 +64,7 @@ GtkListStore  *create_page_fview(struct linuxarms_struct *linuxarms)
 	gtk_box_pack_start(GTK_BOX(hbox_fpath), entry_fpath, TRUE, TRUE, 0);
 	gtk_entry_set_max_length(GTK_ENTRY(entry_fpath), 512);
 	gtk_entry_set_invisible_char(GTK_ENTRY(entry_fpath), 9679);
+	GTK_WIDGET_UNSET_FLAGS(entry_fpath, GTK_CAN_FOCUS);
 	gtk_entry_set_editable(GTK_ENTRY(entry_fpath), FALSE);
 	gtk_entry_set_text(GTK_ENTRY(entry_fpath), "/");
 	
@@ -298,6 +299,7 @@ void create_window_rename(struct linuxarms_struct *linuxarms)
 	GtkWidget *button_rename_cancel;
 	GtkWidget *alignment13;
 	GtkWidget *hbox13;
+	GtkWidget *fixed12;
 	GtkWidget *image352;
 	GtkWidget *label14;
 	GtkWidget *fixed11;
@@ -313,24 +315,25 @@ void create_window_rename(struct linuxarms_struct *linuxarms)
 	GtkWidget *label13;
 
 	window_rename = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window_rename), _("\351\207\215\345\221\275\345\220\215"));
+	gtk_window_set_title(GTK_WINDOW(window_rename), _("重命名文件"));
 	gtk_window_set_position(GTK_WINDOW(window_rename), GTK_WIN_POS_CENTER);
 	gtk_window_set_resizable(GTK_WINDOW(window_rename), FALSE);
 	gtk_window_set_icon_name(GTK_WINDOW(window_rename), "gtk-about");
 	gtk_window_set_type_hint(GTK_WINDOW(window_rename), GDK_WINDOW_TYPE_HINT_DIALOG);
-
+  
 	table = gtk_table_new(3, 2, FALSE);
 	gtk_widget_show(table);
 	gtk_container_add(GTK_CONTAINER(window_rename), table);
-
-	label_old = gtk_label_new(_("\346\227\247\346\226\207\344\273\266\345\220\215\357\274\232"));
+	gtk_container_set_border_width(GTK_CONTAINER(table), 3);
+	
+	label_old = gtk_label_new(_("旧文件名："));
 	gtk_widget_show(label_old);
 	gtk_table_attach(GTK_TABLE(table), label_old, 0, 1, 0, 1,
 			(GtkAttachOptions)(GTK_FILL),
 			(GtkAttachOptions)(0), 0, 0);
 	gtk_misc_set_alignment(GTK_MISC(label_old), 0, 0.5);
 
-	label_new = gtk_label_new(_("\346\226\260\346\226\207\344\273\266\345\220\215\357\274\232"));
+	label_new = gtk_label_new(_("新文件名："));
 	gtk_widget_show(label_new);
 	gtk_table_attach(GTK_TABLE(table), label_new, 0, 1, 1, 2,
 			(GtkAttachOptions)(GTK_FILL),
@@ -342,10 +345,9 @@ void create_window_rename(struct linuxarms_struct *linuxarms)
 	gtk_table_attach(GTK_TABLE(table), entry_old, 1, 2, 0, 1,
 			(GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
 			(GtkAttachOptions)(0), 0, 0);
+	GTK_WIDGET_UNSET_FLAGS(entry_old, GTK_CAN_FOCUS);
+	gtk_editable_set_editable(GTK_EDITABLE(entry_old), FALSE);
 	gtk_entry_set_invisible_char(GTK_ENTRY(entry_old), 9679);
-	gtk_entry_set_max_length(GTK_ENTRY(entry_old), 256);
-	gtk_widget_set_sensitive(entry_old, FALSE);
-	//gtk_entry_set_text(GTK_ENTRY(entry_old), hfthread->trans.rename[OLDNAME]);
 
 	entry_new = gtk_entry_new();
 	gtk_widget_show(entry_new);
@@ -353,13 +355,17 @@ void create_window_rename(struct linuxarms_struct *linuxarms)
 			(GtkAttachOptions)(GTK_EXPAND | GTK_FILL),
 			(GtkAttachOptions)(0), 0, 0);
 	gtk_entry_set_invisible_char(GTK_ENTRY(entry_new), 9679);
-	gtk_entry_set_max_length(GTK_ENTRY(entry_new), 256);
 
 	hbox11 = gtk_hbox_new(FALSE, 0);
 	gtk_widget_show(hbox11);
 	gtk_table_attach(GTK_TABLE(table), hbox11, 1, 2, 2, 3,
 			(GtkAttachOptions)(GTK_FILL),
 			(GtkAttachOptions)(GTK_FILL), 0, 0);
+
+	fixed12 = gtk_fixed_new();
+	gtk_widget_show(fixed12);
+	gtk_box_pack_start(GTK_BOX(hbox11), fixed12, TRUE, TRUE, 0);
+	gtk_widget_set_size_request(fixed12, 35, -1);
 
 	button_rename_cancel = gtk_button_new();
 	gtk_widget_show(button_rename_cancel);
@@ -377,19 +383,18 @@ void create_window_rename(struct linuxarms_struct *linuxarms)
 	gtk_widget_show(image352);
 	gtk_box_pack_start(GTK_BOX(hbox13), image352, FALSE, FALSE, 0);
 
-	label14 = gtk_label_new_with_mnemonic(_("\345\217\226\346\266\210"));
+	label14 = gtk_label_new_with_mnemonic(_("取消"));
 	gtk_widget_show(label14);
 	gtk_box_pack_start(GTK_BOX(hbox13), label14, FALSE, FALSE, 0);
 
 	fixed11 = gtk_fixed_new();
 	gtk_widget_show(fixed11);
 	gtk_box_pack_start(GTK_BOX(hbox11), fixed11, FALSE, TRUE, 0);
-	gtk_widget_set_size_request(fixed11, 34, -1);
+	gtk_widget_set_size_request(fixed11, 3, -1);
 
 	button_rename_ok = gtk_button_new();
 	gtk_widget_show(button_rename_ok);
 	gtk_box_pack_start(GTK_BOX(hbox11), button_rename_ok, FALSE, FALSE, 0);
-	gtk_widget_set_sensitive(button_rename_ok, FALSE);
 
 	alignment14 = gtk_alignment_new(0.5, 0.5, 0, 0);
 	gtk_widget_show(alignment14);
@@ -403,7 +408,7 @@ void create_window_rename(struct linuxarms_struct *linuxarms)
 	gtk_widget_show(image353);
 	gtk_box_pack_start(GTK_BOX(hbox14), image353, FALSE, FALSE, 0);
 
-	label15 = gtk_label_new_with_mnemonic(_("\347\241\256\345\256\232"));
+	label15 = gtk_label_new_with_mnemonic(_("确定"));
 	gtk_widget_show(label15);
 	gtk_box_pack_start(GTK_BOX(hbox14), label15, FALSE, FALSE, 0);
 
@@ -425,10 +430,10 @@ void create_window_rename(struct linuxarms_struct *linuxarms)
 	gtk_widget_show(image351);
 	gtk_box_pack_start(GTK_BOX(hbox12), image351, FALSE, FALSE, 0);
 
-	label13 = gtk_label_new_with_mnemonic(_("\345\270\256\345\212\251"));
+	label13 = gtk_label_new_with_mnemonic(_("帮助"));
 	gtk_widget_show(label13);
 	gtk_box_pack_start(GTK_BOX(hbox12), label13, FALSE, FALSE, 0);
-
+	
 	g_signal_connect((gpointer)window_rename, "destroy",
 			G_CALLBACK(cb_window_rename_destroy),
 			(gpointer)window_rename);
