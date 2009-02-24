@@ -27,9 +27,6 @@
 
 #define FSIZE_GB (FSIZE_MB * 1024)
 
-//#define VALID_ITER(iter, list_store) ((iter)!= NULL && (iter)->user_data != NULL)
-//&& list_store->stamp == (iter)-  >stamp && !g_sequence_iter_is_end ((iter)->user_data) && g_sequence_iter_get_sequence ((iter)->user_data) ==      list_store->seq)
-
 static int prev_file_nums = 0;
 static boolean hfview_send_info(struct hfview_struct *hfview);
 static boolean hfview_recv_info(struct hfview_struct *hfview);
@@ -170,7 +167,7 @@ boolean do_file_view(struct hfview_struct *hfview)
 out:
 	if (file_nums < prev_file_nums) {
 		int i = prev_file_nums - file_nums;
-		while (i--) {
+		while (i-- && valid) {
 			gtk_list_store_set(GTK_LIST_STORE(list_store), &iter, 
 				COL_FPIXBUF, NULL,
 				COL_FNAME, "",
@@ -179,7 +176,7 @@ out:
 				COL_FUSER, "",
 				COL_FMTIME,"",
 				-1);
-			gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter);
+			valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter);
 		}
 		/*while (valid && i--) {
 			GtkTreePath *path;
@@ -200,13 +197,15 @@ void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data)
 {
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
 	struct hfthread_struct *hfthread = linuxarms->hfthread;
-	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
+	struct htthread_struct *htthread = hfthread->hftrans;
 	struct hfview_struct *hfview = hfthread->hfview;
 	boolean select;
 	GtkTreeModel *list_store;
 	GtkTreeIter iter;
 	GtkTreeSelection *selection;
 	boolean rename, delete, upload, download;
+	char home[PATH_LEN];
+	const char *path;
 	
 	rename = delete = upload = download = FALSE;
 	debug_where();
@@ -215,8 +214,7 @@ void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data)
 	select = gtk_tree_selection_get_selected(selection, &list_store, &iter);
 	if (select) {
 		char *type, *user, *name;
-		char home[PATH_LEN];
-		const char *path;
+		
 		gtk_tree_model_get(list_store, &iter,
 				COL_FNAME, &name,
 				COL_FTYPE, &type,
@@ -237,15 +235,18 @@ void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data)
 		if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0) {
 			rename = FALSE;
 		}
-		path = hfview_get_path(hfview);
-		snprintf(home, PATH_LEN, "/home/%s",linuxarms->login->user.name);
-		if (strstr(path, home)) {
-			download = TRUE;
-		}
 		hfview->widget.selection = iter;
 		g_free(name);
 		g_free(type);
 		g_free(user);
+	}
+	path = hfview_get_path(hfview);
+	snprintf(home, PATH_LEN, "/home/%s",linuxarms->login->user.name);
+	if (strstr(path, home)) {
+		download = TRUE;
+	}
+	if (hfthread->competence) {
+		download = TRUE;
 	}
 	if (hfview->widget.popup) {
 		gtk_widget_set_sensitive(hfview->widget.popup_rename, rename);
@@ -259,6 +260,7 @@ void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data)
 	gtk_widget_set_sensitive(htthread->widget.menubar_download, download);
 	gtk_widget_set_sensitive(htthread->widget.toolbar_upload, upload);
 	gtk_widget_set_sensitive(htthread->widget.toolbar_download, download);
+
 }
 
 gboolean cb_fview_button_press(GtkWidget *widget,

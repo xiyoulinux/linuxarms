@@ -53,7 +53,8 @@ boolean hfthread_init(struct hfthread_struct *hfthread,
  */
 gboolean hfthread_thread(void *p)
 {
-	struct hfthread_struct *hfthread = (struct hfthread_struct *)p;
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)p;
+	struct hfthread_struct *hfthread = linuxarms->hfthread;
 	struct hfview_struct *hfview = hfthread->hfview;
 	linuxarms_print("create hfthread thread...\n");
 	hfthread->thread.id = linuxarms_thread_self();
@@ -77,6 +78,7 @@ gboolean hfthread_thread(void *p)
 			break;
 		case FVIEW: /* 文件浏览处理 */
 			do_file_view(hfthread->hfview);
+			cb_fview_selection_changed(NULL, linuxarms);
 			break;
 		case FNOEXIST:
 			statusbar_set_text("给出的路径不存在");

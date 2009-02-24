@@ -41,7 +41,7 @@ struct htthread_trans {
  * @savefile_size:   已经传输文件的大小
  */
 struct htthread_struct {
-	linuxarms_thread_t *thread;
+	struct linuxarms_thread thread;
 	protocol_fthread select;
 	long long file_size;
 	long long savefile_size;

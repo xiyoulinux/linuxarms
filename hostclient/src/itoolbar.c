@@ -64,10 +64,7 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 	gtk_widget_show(button_back);
 	gtk_container_add(GTK_CONTAINER(toolitem_back), button_back);
 	gtk_widget_set_size_request(button_back, 60, -1);
-	gtk_tooltips_set_tip(tooltips, button_back,
-			     _("\350\277\224\345\233\236\345\210\260\345"
-			     "\210\232\346\211\215\350\256\277\351\227\256"
-			     "\350\277\207\347\232\204\347\233\256\345\275\225"), NULL);
+	gtk_tooltips_set_tip(tooltips, button_back,_("返回到刚才访问过的目录"), NULL);
 
 	alignment2 = gtk_alignment_new(0.5, 0.5, 0, 0);
 	gtk_widget_show(alignment2);
@@ -81,7 +78,7 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 	gtk_widget_show(image_back);
 	gtk_box_pack_start(GTK_BOX(vbox_tool_back), image_back, TRUE, TRUE, 0);
 
-	label_back = gtk_label_new(_("\345\220\216\351\200\200"));
+	label_back = gtk_label_new(_("后退"));
 	gtk_widget_show(label_back);
 	gtk_box_pack_start(GTK_BOX(vbox_tool_back), label_back, FALSE, FALSE, 0);
 
@@ -93,9 +90,7 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 	gtk_widget_show(button_up);
 	gtk_container_add(GTK_CONTAINER(toolitem_up), button_up);
 	gtk_widget_set_size_request(button_up, 60, -1);
-	gtk_tooltips_set_tip(tooltips, button_up,
-			     _("\350\277\224\345\233\236\344\270"
-			     "\212\347\272\247\347\233\256\345\275\225"), NULL);
+	gtk_tooltips_set_tip(tooltips, button_up, _("返回上级目录"), NULL);
 
 	alignment3 = gtk_alignment_new(0.5, 0.5, 0, 0);
 	gtk_widget_show(alignment3);
@@ -109,7 +104,7 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 	gtk_widget_show(image_up);
 	gtk_box_pack_start(GTK_BOX(vbox_tool_up), image_up, TRUE, TRUE, 0);
 
-	label_up = gtk_label_new(_("\345\220\221\344\270\212"));
+	label_up = gtk_label_new(_("向上"));
 	gtk_widget_show(label_up);
 	gtk_box_pack_start(GTK_BOX(vbox_tool_up), label_up, FALSE, FALSE, 0);
 
@@ -130,10 +125,7 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 	gtk_widget_show(button_download);
 	gtk_container_add(GTK_CONTAINER(toolitem_downolad), button_download);
 	gtk_widget_set_size_request(button_download, 60, -1);
-	gtk_tooltips_set_tip(tooltips, button_download,
-			     _("\344\273\216\346\234\254\346\234\272\344"
-			     "\270\213\350\275\275\346\226\207\344\273\266"
-			     "\345\210\260arm\347\263\273\347\273\237\344\270\212"), NULL);
+	gtk_tooltips_set_tip(tooltips, button_download, _("从本机下载文件到arm系统上"), NULL);
 
 	alignment4 = gtk_alignment_new(0.5, 0.5, 0, 0);
 	gtk_widget_show(alignment4);
@@ -147,7 +139,7 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 	gtk_widget_show(image_download);
 	gtk_box_pack_start(GTK_BOX(vbox_tool_download), image_download, TRUE, TRUE, 0);
 
-	label_download = gtk_label_new(_("\344\270\213\350\275\275"));
+	label_download = gtk_label_new(_("下载"));
 	gtk_widget_show(label_download);
 	gtk_box_pack_start(GTK_BOX(vbox_tool_download), label_download, FALSE, FALSE, 0);
 
@@ -159,11 +151,7 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 	gtk_widget_show(button_upload);
 	gtk_container_add(GTK_CONTAINER(toolitem_upload), button_upload);
 	gtk_widget_set_size_request(button_upload, 60, -1);
-	gtk_tooltips_set_tip(tooltips, button_upload,
-			     _("\344\273\216arm\347\263\273\347"
-			     "\273\237\344\270\212\344\274\240"
-			     "\346\226\207\344\273\266\345\210\260"
-			     "\346\234\254\346\234\272\344\270\212"), NULL);
+	gtk_tooltips_set_tip(tooltips, button_upload, _("从arm系统上传文件到本机上"), NULL);
 
 	alignment5 = gtk_alignment_new(0.5, 0.5, 0, 0);
 	gtk_widget_show(alignment5);
@@ -177,7 +165,7 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 	gtk_widget_show(image_upload);
 	gtk_box_pack_start(GTK_BOX(vbox8), image_upload, TRUE, TRUE, 0);
 
-	label_upload = gtk_label_new(_("\344\270\212\344\274\240"));
+	label_upload = gtk_label_new(_("上传"));
 	gtk_widget_show(label_upload);
 	gtk_box_pack_start(GTK_BOX(vbox8), label_upload, FALSE, FALSE, 0);
 	
@@ -201,5 +189,7 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 	list_head_new(BACK_NUM);
 	gtk_widget_set_sensitive(button_up, FALSE);
 	gtk_widget_set_sensitive(button_back, FALSE);
+	gtk_widget_set_sensitive(button_upload, FALSE);
+	gtk_widget_set_sensitive(button_download, FALSE);
 	return toolbar;
 }

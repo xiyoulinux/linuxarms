@@ -55,6 +55,7 @@ void cb_notebook_switch_page(GtkNotebook *notebook,
 		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.hide), FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_upload), FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_download), FALSE);
+		gtk_widget_set_sensitive(hfview->widget.hide, FALSE);
 		debug_print("前一个面板为文件浏览\n");
 		break;
 	}
@@ -85,17 +86,11 @@ void cb_notebook_switch_page(GtkNotebook *notebook,
 		hsthread->send(hsthread);
 		debug_print("启动定时器\n");
 	} else {
-		gtk_widget_set_sensitive(GTK_WIDGET(linuxarms->mwindow->toolbar), TRUE);
-		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.rename), TRUE);
-		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.del), TRUE);
-		gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.hide), TRUE);
-		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_upload), TRUE);
-		gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_download), TRUE);
+		gtk_widget_set_sensitive(hfview->widget.hide, TRUE);
 		old_num = PFILEVIEW;
 		hfthread_trans_set_path(&hfthread->trans, hfview_get_path(hfview));
 		hfthread->set_protocol(hfthread, FVIEW);
 		hfthread->send(hfthread);
-		//do_file_view(hfthread->hfview);
 	}
 }
 
@@ -111,7 +106,7 @@ boolean gtk_window_main_set_sensitive(struct linuxarms_struct *linuxarms)
 	gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_three), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_five), FALSE);
 	
-	gtk_widget_set_sensitive(GTK_WIDGET(linuxarms->mwindow->toolbar), FALSE);
+	//gtk_widget_set_sensitive(GTK_WIDGET(linuxarms->mwindow->toolbar), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.rename), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.del), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.hide), FALSE);
@@ -140,8 +135,9 @@ void cb_linuxarms_window_main_close(GtkObject *object, gpointer user_data)
 	debug_where();
 	hmthread->set_protocol(hmthread, CLOSECLIENT);
 	hmthread->send(hmthread);
-	hostclient_close_all_thread(linuxarms);
+	//hostclient_close_all_thread(linuxarms);
 	list_head_free();
+	hostclient_close_all_thread(linuxarms);
 	gtk_main_quit();
 }
 

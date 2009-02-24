@@ -63,7 +63,7 @@ boolean create_window_main_timeout(gpointer user_data)
 			debug_where();
 			linuxarms_thread_create(hsthread_thread, hsthread);
 			debug_where();
-			linuxarms_thread_create(hfthread_thread, hfthread);
+			linuxarms_thread_create(hfthread_thread, linuxarms);
 			debug_where();
 			//linuxarms_thread_create(hcthread_thread, hcthread);
 			snprintf(buf, 40, "Linux ARMS[登录用户：%s]", hmthread->user->name);
@@ -104,6 +104,7 @@ LOGOUT_RESTART_SHUTDOWN:
 			debug_print("protocol->hmthread：尝试登录次数过多...\n");
 			checkmult = TRUE;
 			create_window_dialog("尝试登录次数过多...\n");
+			break;
 		case MERROR:
 			debug_print("protocol->hmthread :执行命令失败\n");
 			statusbar_set_text("执行命令失败");
@@ -148,7 +149,7 @@ boolean hmthread_thread(void *p)
 	while (hmthread->thread.id) {
 		if (!hmthread->recv(hmthread)) {
 			linuxarms_print("hmthread recive data error\n");
-			cb_linuxarms_window_main_close(NULL, linuxarms);
+			//cb_linuxarms_window_main_close(NULL, linuxarms);
 			break;
 		}
 		hmthread->down_lock(hmthread);
@@ -258,20 +259,21 @@ void hostclient_close_all_thread(struct linuxarms_struct *linuxarms)
 	struct hfthread_struct *hfthread = linuxarms->hfthread;
 	struct hsthread_struct *hsthread = linuxarms->hsthread;
 	struct hcthread_struct *hcthread = linuxarms->hcthread;
+
 	if (hsthread->thread.id) {
-		linuxarms_thread_exit(&hsthread->thread.id);
+		linuxarms_thread_exit(&hsthread->thread);
 		close_tcp_client(&hsthread->socket);
 	}
 	if (hfthread->thread.id) {
-		linuxarms_thread_exit(&hfthread->thread.id);
+		linuxarms_thread_exit(&hfthread->thread);
 		close_tcp_client(&hfthread->socket);
 	}
 	if (hcthread->thread.id) {
-		linuxarms_thread_exit(&hcthread->thread.id);
+		linuxarms_thread_exit(&hcthread->thread);
 		close_tcp_client(&hcthread->socket);
 	}
 	if (hmthread->thread.id) {
-		linuxarms_thread_exit(&hmthread->thread.id);
+		linuxarms_thread_exit(&hmthread->thread);
 		close_tcp_client(&hmthread->socket);
 	}
 }

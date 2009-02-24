@@ -23,7 +23,7 @@ struct linuxarms_thread {
 };
 void linuxarms_thread_init(struct linuxarms_thread *thread);
 linuxarms_thread_t *linuxarms_thread_create(THREADFUNC func, void *arg);
-void linuxarms_thread_exit(linuxarms_thread_t **thread);
+void linuxarms_thread_exit(struct linuxarms_thread *thread);
 linuxarms_thread_t *linuxarms_thread_self();
 
 linuxarms_thread_lock_t *linuxarms_thread_lock_create(void);

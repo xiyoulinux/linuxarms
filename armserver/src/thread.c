@@ -12,7 +12,7 @@
 void linuxarms_thread_init(struct linuxarms_thread *thread)
 {
 	LINUXARMS_THREAD_POINTER(thread);
-	thread->state = TRUE;
+	thread->state = FALSE;
 	thread->lock = linuxarms_thread_lock_create();
 	thread->id = NULL;
 }
@@ -28,10 +28,14 @@ linuxarms_thread_t *linuxarms_thread_self()
 {
 	return g_thread_self();
 }
-void linuxarms_thread_exit(linuxarms_thread_t **thread)
+void linuxarms_thread_exit(struct linuxarms_thread *thread)
 {
 	//g_thread_join(thread);
-	*thread = NULL;
+	LINUXARMS_THREAD_POINTER(thread);
+	if (linuxarms_thread_trylock(thread))
+		linuxarms_thread_unlock(thread);
+	linuxarms_thread_lock_free(thread);
+	thread->id = NULL;
 }
 
 linuxarms_thread_lock_t *linuxarms_thread_lock_create(void)
@@ -59,7 +63,6 @@ boolean linuxarms_thread_trylock(struct linuxarms_thread *thread)
 void linuxarms_thread_lock_free(struct linuxarms_thread *thread)
 {
 	LINUXARMS_THREAD_POINTER(thread);
-	thread->state = TRUE;
 	g_mutex_free(thread->lock);
 }
 #else
@@ -77,11 +80,14 @@ linuxarms_thread_t *linuxarms_thread_self()
 {
 	return &pthread_self();
 }
-void linuxarms_thread_exit(linuxarms_thread_t **thread)
+void linuxarms_thread_exit(struct linuxarms_thread *thread)
 {
 	//pthread_join(thread, &pthread_ret);
-	free(*thread);
-	*thread = NULL;
+	LINUXARMS_THREAD_POINTER(thread);
+	if (linuxarms_thread_trylock(thread))
+		linuxarms_thread_unlock(thread);
+	linuxarms_thread_lock_free(thread);
+	thread->id = NULL;
 }
 linuxarms_thread_lock_t *linuxarms_thread_lock_create(void)
 {
