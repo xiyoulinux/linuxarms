@@ -4,7 +4,7 @@
 #include "thread.h"
 #include "stdio.h"
 
-#define FILE_SIZE 2
+#define LOG_FILE_SIZE 2//单位： M
 #define LOGHOME_DIR "/root/linuxarms-armserver"
 
 struct log_struct {
@@ -15,7 +15,7 @@ struct log_struct {
 };
 
 
-boolean armserver_init_log(const char *usename);
-boolean write_log(const char *log_data); 
-boolean close_log(void);
+boolean linuxarms_init_log(const char *usename);
+boolean linuxarms_write_log(const char *log_data); 
+void linuxarms_close_log(void);
 #endif

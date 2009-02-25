@@ -15,7 +15,7 @@
 
 static struct log_struct log;
 
-boolean armserver_init_log(const char *usename)
+boolean linuxarms_init_log(const char *usename)
 {
 	/* 初始化log结构体 */
 	/* 创建配置文件 */
@@ -30,7 +30,7 @@ boolean armserver_init_log(const char *usename)
 	
 	/* 初始化log_struct 结构体 */
 	linuxarms_thread_init(&log.log_thread);
-	log.log_file_size = FILE_SIZE;
+	log.log_file_size = LOG_FILE_SIZE;
 	log.log_inited = FALSE;
 	
 	/* 创建用户日志主目录 */
@@ -70,7 +70,7 @@ boolean armserver_init_log(const char *usename)
 		print_error(ESYSERR, "function error");
 	} else {
 		stat(temp_dir,  &buf);
-		if (buf.st_size >= (log.log_file_size*1024*1024)) {
+		if (buf.st_size >= (log.log_file_size * 1024 * 1024)) {
 			fclose(fp);
 			log.log_fp = fopen(temp_dir, "w");
 		} else {
@@ -81,11 +81,11 @@ boolean armserver_init_log(const char *usename)
 	log.log_inited = TRUE;
 	return TRUE;
 }
-boolean write_log(const char *log_data)
+boolean linuxarms_write_log(const char *log_data)
 {
 	/* 写入信息 */
 	time_t timep;
-	char buf[80];
+	char buf[40];
 	
 	if (!log.log_inited)
 		return FALSE;
@@ -93,7 +93,7 @@ boolean write_log(const char *log_data)
 	strcpy(buf, ctime(&timep));
 	buf[strlen(buf)-1] = '\0';
 	linuxarms_thread_lock(&log.log_thread);
-	if (fprintf(log.log_fp, "%s linuxarms-armserver : %s\n", 
+	if (fprintf(log.log_fp, "%s linuxarms-armserver: %s\n", 
 				buf, log_data) == -1) {
 		print_error(EWARNING, "无法保存此日志信息");
 		linuxarms_thread_unlock(&log.log_thread);
@@ -102,12 +102,10 @@ boolean write_log(const char *log_data)
 	linuxarms_thread_unlock(&log.log_thread);
 	return TRUE;
 }
-boolean close_log()
+void linuxarms_close_log(void)
 {
 	if (!log.log_inited)
-		return FALSE;
+		return ;
 	linuxarms_thread_lock_free(&log.log_thread);
-	if(fclose(log.log_fp) == -1)
-		return FALSE;
-	return TRUE;
+	fclose(log.log_fp);  
 }

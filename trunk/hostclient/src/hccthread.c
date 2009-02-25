@@ -10,6 +10,11 @@
 #include "config.h"
 #include "sctrl.h"
 
+static boolean hcthread_send(struct hcthread_struct *hcthread);
+static boolean hcthread_send(struct hcthread_struct *hcthread);
+static boolean showinfo(struct hcthread_struct *hcthread);
+
+
 /*
  * 初始化实时控制主数据结构
  *

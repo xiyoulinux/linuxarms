@@ -31,7 +31,7 @@ struct hcthread_trans {
  *@widget:   界面结构体
  *@socket:   建立的网络连接 
  *@trans:    传输数据
-  */
+ */
 struct hcthread_struct {
 	struct linuxarms_thread thread;
 	struct hcthread_widget widget;
@@ -43,9 +43,6 @@ struct hcthread_struct {
 	boolean (*recv)(struct hcthread_struct *hcthread);
 	boolean (*showinfo)(struct hcthread_struct *hcthread);
 };
-boolean hcthread_send(struct hcthread_struct *hcthread);
-boolean hcthread_recv(struct hcthread_struct *hcthread);
-boolean showinfo(struct hcthread_struct *hcthread);
 boolean hcthread_init(struct hcthread_struct *hcthread);
 gboolean hcthread_thread(void *p);
 #endif
