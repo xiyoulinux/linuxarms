@@ -12,10 +12,12 @@
  * 		  传送的数据
  * @protocol:     控制(见protocol/protocol_sthread)
  * @kill:         要杀死的进程的进程号(当ctrl = KILL时，该域才有效)
+ * @all:          是否显示所有进程信息(all = TRUE,显示。默认为不显示)
  */
 struct asthread_trans {
 	protocol_sthread protocol;
 	int kill;
+	boolean all;
 };
 
 boolean asthread_trans_init(struct asthread_trans *astrans);

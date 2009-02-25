@@ -46,6 +46,10 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	GtkWidget *process_update_three;
 	GtkWidget *process_update_five;
 	GtkWidget *separator_one;
+	GSList *process_show_user_group = NULL;
+	GtkWidget *process_show_user;
+	GtkWidget *process_show_all;
+	GtkWidget *separator_process_show;
 	GtkWidget *process_kill;
 	GtkWidget *image341;
 	GtkWidget *menubar_fview;
@@ -68,7 +72,6 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	GtkWidget *help_separator_one;
 	GtkWidget *help_about;
 	GtkWidget *image347;
-
 	GtkWidget *image309;
 	GtkWidget *image310;
 	GtkWidget *image311;
@@ -80,29 +83,25 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_widget_show(menubar);
 	gtk_box_pack_start(GTK_BOX(vbox_main), menubar, FALSE, FALSE, 0);
 
-	menubar_file = gtk_menu_item_new_with_mnemonic(_("\346\226\207\344\273\266(_F)"));
+	menubar_file = gtk_menu_item_new_with_mnemonic(_("文件(_F)"));
 	gtk_widget_show(menubar_file);
 	gtk_container_add(GTK_CONTAINER(menubar), menubar_file);
 	menubar_file_menu = gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menubar_file), menubar_file_menu);
 
-	login = gtk_image_menu_item_new_with_mnemonic(_("\347\231\273\345\275\225arm"
-			"\347\263\273\347\273\237"));
+	login = gtk_image_menu_item_new_with_mnemonic(_("登录arm系统"));
 	gtk_widget_show(login);
 	gtk_container_add(GTK_CONTAINER(menubar_file_menu), login);
-	gtk_tooltips_set_tip(tooltips, login, 
-			     _("\347\231\273\345\275\225arm\347\263\273\347\273\237"), NULL);
+	gtk_tooltips_set_tip(tooltips, login, _("登录arm系统"), NULL);
 
 	image309 = gtk_image_new_from_stock("gtk-jump-to", GTK_ICON_SIZE_MENU);
 	gtk_widget_show(image309);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(login), image309);
 
-	logout = gtk_image_menu_item_new_with_mnemonic(_("\346\263\250\351\224\200\347"
-					"\224\250\346\210\267\347\231\273\345\275\225"));
+	logout = gtk_image_menu_item_new_with_mnemonic(_("注销用户登录"));
 	gtk_widget_show(logout);
 	gtk_container_add(GTK_CONTAINER(menubar_file_menu), logout);
-	gtk_tooltips_set_tip(tooltips, logout,_("\346\263\250\351\224\200\345\275\223"
-					"\345\211\215\347\224\250\346\210\267"), NULL);
+	gtk_tooltips_set_tip(tooltips, logout,_("注销当前用户"), NULL);
 
 	image310 = gtk_image_new_from_stock("gtk-justify-left", GTK_ICON_SIZE_MENU);
 	gtk_widget_show(image310);
@@ -113,21 +112,19 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_container_add(GTK_CONTAINER(menubar_file_menu), file_separator_one);
 	gtk_widget_set_sensitive(file_separator_one, FALSE);
 
-	restart = gtk_image_menu_item_new_with_mnemonic(_("\351\207\215\345\220\257arm"
-			  "\347\263\273\347\273\237"));
+	restart = gtk_image_menu_item_new_with_mnemonic(_("重启arm系统"));
 	gtk_widget_show(restart);
 	gtk_container_add(GTK_CONTAINER(menubar_file_menu), restart);
+	gtk_tooltips_set_tip(tooltips, restart, _("重启arm系统(必须root用户)"), NULL);
 
 	image311 = gtk_image_new_from_stock("gtk-refresh", GTK_ICON_SIZE_MENU);
 	gtk_widget_show(image311);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(restart), image311);
 
-	shutdown = gtk_image_menu_item_new_with_mnemonic(_("\345\205\263\346\257\225arm"
-			   "\347\263\273\347\273\237"));
+	shutdown = gtk_image_menu_item_new_with_mnemonic(_("关闭arm系统"));
 	gtk_widget_show(shutdown);
 	gtk_container_add(GTK_CONTAINER(menubar_file_menu), shutdown);
-	gtk_tooltips_set_tip(tooltips, shutdown, 
-		_("\345\205\263\351\227\255arm\347\263\273\347\273\237"), NULL);
+	gtk_tooltips_set_tip(tooltips, shutdown, _("关闭arm系统(必须root用户)"), NULL);
 
 	image312 = gtk_image_new_from_stock("gtk-stop", GTK_ICON_SIZE_MENU);
 	gtk_widget_show(image312);
@@ -138,7 +135,7 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_container_add(GTK_CONTAINER(menubar_file_menu), file_separator_two);
 	gtk_widget_set_sensitive(file_separator_two, FALSE);
 
-	quit = gtk_image_menu_item_new_with_mnemonic(_("\351\200\200\345\207\272"));
+	quit = gtk_image_menu_item_new_with_mnemonic(_("退出"));
 	gtk_widget_show(quit);
 	gtk_container_add(GTK_CONTAINER(menubar_file_menu), quit);
 	gtk_widget_add_accelerator(quit, "activate", accel_group,
@@ -154,27 +151,22 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	menubar_process_menu = gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menubar_process), menubar_process_menu);
 
-	process_update_three = gtk_radio_menu_item_new_with_mnemonic(process_update_three_group, 
-				_("\346\233\264\346\226\260(3\347\247\222)"));
+	process_update_three = 
+		gtk_radio_menu_item_new_with_mnemonic(process_update_three_group,  _("更新进程(3秒)"));
 	process_update_three_group = 
 		gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(process_update_three));
 	gtk_widget_show(process_update_three);
 	gtk_container_add(GTK_CONTAINER(menubar_process_menu), process_update_three);
-	gtk_tooltips_set_tip(tooltips, process_update_three, _("\346\257\217\351"
-				"\232\2243\347\247\222\351\222\237\346"
-				"\233\264\346\226\260\344\270\200\346\254\241"), NULL);
+	gtk_tooltips_set_tip(tooltips, process_update_three, _("每隔3秒钟更新一次当前显示的进程信息"), NULL);
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(process_update_three), FALSE);
 
 	process_update_five = gtk_radio_menu_item_new_with_mnemonic(
-				process_update_three_group, 
-				_("\346\233\264\346\226\260(5\347\247\222)"));
+				process_update_three_group, _("更新进程(5秒)"));
 	process_update_three_group = 
 		gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(process_update_five));
 	gtk_widget_show(process_update_five);
 	gtk_container_add(GTK_CONTAINER(menubar_process_menu), process_update_five);
-	gtk_tooltips_set_tip(tooltips, process_update_five,_("\346\257\217\351\232\224"
-					"5\347\247\222\351\222\237\346\233\264\346\226"
-					"\260\344\270\200\346\254\241"), NULL);
+	gtk_tooltips_set_tip(tooltips, process_update_five,_("每隔5秒钟更新一次当前显示的进程信息"), NULL);
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(process_update_five), TRUE);
 
 	separator_one = gtk_separator_menu_item_new();
@@ -182,12 +174,28 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_container_add(GTK_CONTAINER(menubar_process_menu), separator_one);
 	gtk_widget_set_sensitive(separator_one, FALSE);
 
-	process_kill = gtk_image_menu_item_new_with_mnemonic(_("\346\235\200\346\255\273"));
+	process_show_user = gtk_radio_menu_item_new_with_mnemonic(process_show_user_group, _("用户进程"));
+	process_show_user_group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(process_show_user));
+	gtk_widget_show(process_show_user);
+	gtk_container_add(GTK_CONTAINER(menubar_process_menu), process_show_user);
+	gtk_tooltips_set_tip(tooltips, process_show_user, _("显示当前登录用户的进程"), NULL);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(process_show_user), TRUE);
+
+	process_show_all = gtk_radio_menu_item_new_with_mnemonic(process_show_user_group, _("所有进程"));
+	process_show_user_group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(process_show_all));
+	gtk_widget_show(process_show_all);
+	gtk_container_add(GTK_CONTAINER(menubar_process_menu), process_show_all);
+	gtk_tooltips_set_tip(tooltips, process_show_all, _("显示系统所有的进程"), NULL);
+
+	separator_process_show = gtk_separator_menu_item_new();
+	gtk_widget_show(separator_process_show);
+	gtk_container_add(GTK_CONTAINER(menubar_process_menu), separator_process_show);
+	gtk_widget_set_sensitive(separator_process_show, FALSE);
+
+	process_kill = gtk_image_menu_item_new_with_mnemonic(_("杀死进程"));
 	gtk_widget_show(process_kill);
 	gtk_container_add(GTK_CONTAINER(menubar_process_menu), process_kill);
-	gtk_tooltips_set_tip(tooltips, process_kill,
-			_("\346\235\200\346\255\273\351\200\211\344\270"
-			"\255\347\232\204\350\277\233\347\250\213"), NULL);
+	gtk_tooltips_set_tip(tooltips, process_kill, _("杀死当前选中的进程"), NULL);
 	gtk_widget_add_accelerator(process_kill, "activate", accel_group,
 			GDK_K, (GdkModifierType)GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
@@ -195,19 +203,17 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_widget_show(image341);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(process_kill), image341);
 	/* 创建浏览子菜单 */
-	menubar_fview = gtk_menu_item_new_with_mnemonic(_("\346\265\217\350\247\210(_V)"));
+	menubar_fview = gtk_menu_item_new_with_mnemonic(_("浏览(_V)"));
 	gtk_widget_show(menubar_fview);
 	gtk_container_add(GTK_CONTAINER(menubar), menubar_fview);
 
 	menubar_fview_menu = gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menubar_fview), menubar_fview_menu);
 
-	fview_rename = gtk_image_menu_item_new_with_mnemonic(_("\351\207\215\345"
-				"\221\275\345\220\215\346\226\207\344\273\266"));
+	fview_rename = gtk_image_menu_item_new_with_mnemonic(_("重命名文件"));
 	gtk_widget_show(fview_rename);
 	gtk_container_add(GTK_CONTAINER(menubar_fview_menu), fview_rename);
-	gtk_tooltips_set_tip(tooltips, fview_rename, _("\351\207\215\345\221\275\345\220"
-			"\215\351\200\211\344\270\255\347\232\204\346\226\207\344\273\266"), NULL);
+	gtk_tooltips_set_tip(tooltips, fview_rename, _("重命名选中的文件或者文件夹"), NULL);
 	gtk_widget_add_accelerator(fview_rename, "activate", accel_group,
 			GDK_F2, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
 
@@ -215,13 +221,10 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_widget_show(image342);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(fview_rename), image342);
 
-	fview_delete = gtk_image_menu_item_new_with_mnemonic(_(
-			"\345\210\240\351\231\244\346\226\207\344\273\266"));
+	fview_delete = gtk_image_menu_item_new_with_mnemonic(_("删除文件"));
 	gtk_widget_show(fview_delete);
 	gtk_container_add(GTK_CONTAINER(menubar_fview_menu), fview_delete);
-	gtk_tooltips_set_tip(tooltips, fview_delete, _(
-			"\345\210\240\351\231\244\351\200\211"
-			"\344\270\255\347\232\204\346\226\207\344\273\266"), NULL);
+	gtk_tooltips_set_tip(tooltips, fview_delete, _("删除选中的文件"), NULL);
 
 	image343 = gtk_image_new_from_stock("gtk-delete", GTK_ICON_SIZE_MENU);
 	gtk_widget_show(image343);
@@ -232,13 +235,10 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_container_add(GTK_CONTAINER(menubar_fview_menu), edit_separator_one);
 	gtk_widget_set_sensitive(edit_separator_one, FALSE);
 
-	fview_upload = gtk_image_menu_item_new_with_mnemonic(_(
-				"\344\270\212\344\274\240\346\226\207\344\273\266"));
+	fview_upload = gtk_image_menu_item_new_with_mnemonic(_("上传文件"));
 	gtk_widget_show(fview_upload);
 	gtk_container_add(GTK_CONTAINER(menubar_fview_menu), fview_upload);
-	gtk_tooltips_set_tip(tooltips, fview_upload, _("\344\273\216arm\347\263\273\347\273"
-				"\237\344\270\212\344\274\240\346\226\207"
-				"\344\273\266\345\210\260\346\234\254\346\234\272"), NULL);
+	gtk_tooltips_set_tip(tooltips, fview_upload, _("从arm系统上传文件当本机"), NULL);
 	gtk_widget_add_accelerator(fview_upload, "activate", accel_group,
 			GDK_U, (GdkModifierType)GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
@@ -246,14 +246,10 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_widget_show(image344);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(fview_upload), image344);
 
-	fview_download = gtk_image_menu_item_new_with_mnemonic(
-			_("\344\270\213\350\275\275\346\226\207\344\273\266"));
+	fview_download = gtk_image_menu_item_new_with_mnemonic(_("下载文件"));
 	gtk_widget_show(fview_download);
 	gtk_container_add(GTK_CONTAINER(menubar_fview_menu), fview_download);
-	gtk_tooltips_set_tip(tooltips, fview_download,
-			     _("\344\273\216\346\234\254\346\234\272\344"
-			     "\270\213\350\275\275\346\226\207\344\273\266"
-			     "\345\210\260arm\347\263\273\347\273\237\344\270\212"), NULL);
+	gtk_tooltips_set_tip(tooltips, fview_download, _("从本机下载文件到arm系统上"), NULL);
 	gtk_widget_add_accelerator(fview_download, "activate", accel_group,
 			GDK_D, (GdkModifierType)GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
@@ -271,19 +267,17 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_container_add(GTK_CONTAINER(menubar_fview_menu), fview_hide);
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(fview_hide), FALSE);
 	/* 创建帮助子菜单 */
-	menubar_help = gtk_menu_item_new_with_mnemonic(_("\345\270\256\345\212\251(_H)"));
+	menubar_help = gtk_menu_item_new_with_mnemonic(_("帮助(_H)"));
 	gtk_widget_show(menubar_help);
 	gtk_container_add(GTK_CONTAINER(menubar), menubar_help);
 
 	menubar_help_menu = gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menubar_help), menubar_help_menu);
 
-	help_topic = gtk_image_menu_item_new_with_mnemonic(
-			_("\345\270\256\345\212\251\344\270\273\351\242\230"));
+	help_topic = gtk_image_menu_item_new_with_mnemonic(_("帮助主题"));
 	gtk_widget_show(help_topic);
 	gtk_container_add(GTK_CONTAINER(menubar_help_menu), help_topic);
-	gtk_tooltips_set_tip(tooltips, help_topic, 
-			_("\345\270\256\345\212\251\346\226\207\346\241\243"), NULL);
+	gtk_tooltips_set_tip(tooltips, help_topic, _("显示帮助文档"), NULL);
 	gtk_widget_add_accelerator(help_topic, "activate", accel_group,
 			GDK_F1, (GdkModifierType)0, GTK_ACCEL_VISIBLE);
 
@@ -296,18 +290,16 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_container_add(GTK_CONTAINER(menubar_help_menu), help_separator_one);
 	gtk_widget_set_sensitive(help_separator_one, FALSE);
 
-	help_about = gtk_image_menu_item_new_with_mnemonic(_("\345\205\263\344\272\216"));
+	help_about = gtk_image_menu_item_new_with_mnemonic(_("关于"));
 	gtk_widget_show(help_about);
 	gtk_container_add(GTK_CONTAINER(menubar_help_menu), help_about);
-	gtk_tooltips_set_tip(tooltips, help_about, _(
-			"\345\205\263\344\272\216\346\234\254\350\275\257\344\273\266"), NULL);
+	gtk_tooltips_set_tip(tooltips, help_about, _("关于本软件"), NULL);
 	gtk_widget_add_accelerator(help_about, "activate", accel_group,
 			GDK_A, (GdkModifierType)GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
 	image347 = gtk_image_new_from_stock("gtk-about", GTK_ICON_SIZE_MENU);
 	gtk_widget_show(image347);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(help_about), image347);
-	
 	
 	g_signal_connect((gpointer)login, "activate",
 			 G_CALLBACK(cb_login_activate), 
@@ -326,10 +318,16 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)process_update_three, "activate",
 			 G_CALLBACK(cb_process_update_three_activate), 
-			 (gpointer)hsprocess);
+			 (gpointer)hsthread);
 	g_signal_connect((gpointer)process_update_five, "activate",
 			 G_CALLBACK(cb_process_update_five_activate), 
-			 (gpointer)hsprocess);
+			 (gpointer)hsthread);
+	g_signal_connect((gpointer)process_show_user, "activate",
+			 G_CALLBACK(cb_process_show_user_activate),
+			 (gpointer)hsthread);
+	g_signal_connect((gpointer)process_show_all, "activate",
+			 G_CALLBACK(cb_process_show_all_activate),
+			 (gpointer)hsthread);
 	g_signal_connect((gpointer)process_kill, "activate",
 			 G_CALLBACK(cb_process_kill_activate), 
 			 (gpointer)linuxarms);
@@ -363,6 +361,8 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	hsprocess->widget.menu_kill = process_kill;
 	hsprocess->widget.menu_three = process_update_three;
 	hsprocess->widget.menu_five = process_update_five;
+	hsprocess->widget.menu_user = process_show_user;
+	hsprocess->widget.menu_all = process_show_all;
 
 	hfview->widget.rename = fview_rename;
 	hfview->widget.del = fview_delete;

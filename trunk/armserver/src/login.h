@@ -43,8 +43,6 @@ struct login_struct {
 /*
  * login functions definitions
  */
-//boolean set_error_info(struct login_struct *login, const char *error_info);
-//const char *get_error(struct login_struct *login);
 boolean login_init(struct login_struct *login, struct anet_struct *socket);
 boolean login_check_user(struct login_struct *login);
 boolean login_set_env(struct login_struct *login);

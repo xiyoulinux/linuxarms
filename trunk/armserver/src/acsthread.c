@@ -73,6 +73,7 @@ boolean asthread_thread(void *p)
 			debug_print("protocol->asthread: 显示系统信息或者进程信息\n");
 			asthread->set_protocol(asthread, asthread->trans.protocol);
 			asthread->send(asthread);
+			asthread->asprocess->all = asthread->trans.all;
 			/*显示进程信息*/
 			asthread->proc.set_ctrl(&asthread->proc, asthread->trans.protocol);
 			asthread->proc.set_state(&asthread->proc, CONTINUE);
@@ -142,6 +143,7 @@ boolean asthread_trans_init(struct asthread_trans *astrans)
 	LINUXARMS_POINTER(astrans);
 	astrans->protocol = SMAX;
 	astrans->kill = -1;
+	astrans->all = FALSE;
 	return TRUE;
 }
 

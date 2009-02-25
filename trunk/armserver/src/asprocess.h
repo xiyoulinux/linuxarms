@@ -33,12 +33,14 @@ struct asprocess_struct {
 	struct asprocess_trans trans;
 	struct anet_struct *socket;
 	int *kill;
+	boolean all;
 
 	boolean (*set_protocol)(struct asprocess_struct *asprocess, 
 				protocol_sthread protocol);
 	boolean (*recv)(struct asprocess_struct *asprocess);
 	boolean (*send)(struct asprocess_struct *asprocess);
 };
+struct asthread_struct;
 boolean asprocess_init(struct asprocess_struct *asprocess, 
 			int *kill, struct anet_struct *socket);
 boolean do_show_asprocess(struct asthread_struct *asthread);

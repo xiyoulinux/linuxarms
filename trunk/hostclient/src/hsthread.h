@@ -1,5 +1,6 @@
 #ifndef _HSTHREAD_H
 #define _HSTHREAD_H
+#include "linuxarms.h"
 #include "protocol.h"
 #include "hnet.h"
 #include "thread.h"
@@ -28,10 +29,12 @@ boolean hsthread_timer_init(struct hsthread_timer *hstimer);
  * 		  传送的数据
  * @protocol:     控制(见protocol_sthread)
  * @kill:         要杀死的进程的进程号(当ctrl = KILL时，该域才有效)
+ * @all:          是否显示所有进程信息(all = TRUE,显示。默认为不显示)
  */
 struct hsthread_trans {
 	protocol_sthread protocol;
 	int kill;
+	boolean all;
 };
 
 boolean hsthread_trans_init(struct hsthread_trans *hstrans);

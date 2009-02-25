@@ -7,6 +7,7 @@
 
 #include "linuxarms.h"
 #include "asprocess.h"
+#include "amthread.h"
 #include "asthread.h"
 #include "protocol.h"
 #include "proc.h"
@@ -95,6 +96,7 @@ boolean asprocess_init(struct asprocess_struct *asprocess,
 	asprocess->send = asprocess_send_info;
 	asprocess->recv = asprocess_recv_info;
 	asprocess->kill = kill;
+	asprocess->all = FALSE;
 	return TRUE;
 }
 /*
@@ -139,6 +141,8 @@ boolean asprocess_read_info(struct asprocess_struct *asprocess, int pid)
 	*p = '\0';
 	stat(path, &sb);
 	pwd = getpwuid(sb.st_uid);
+	if (!asprocess->all && strcmp(pwd->pw_name, login_user) != 0)
+		return FALSE;
 	strncpy(user, pwd->pw_name, PROCESS_USER_LEN);
 	if(num < 80) 
 		return FALSE;

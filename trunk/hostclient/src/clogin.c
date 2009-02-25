@@ -97,6 +97,7 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 		user_struct_set(&hmthread->trans.user, user->ip, user->name, user->passwd);
 		hmthread->set_protocol(hmthread, LOGIN);
 		hmthread->send(hmthread);
+		//hmthread->set_protocol(hmthread, MMAX);
 		debug_print("已经建立连接\n");
 		return;
 	}
