@@ -26,6 +26,9 @@ struct hcthread_trans {
 	protocol_cthread protocol;
 	char buffer[TRANS_SIZE];
 };
+boolean hcthread_trans_init(struct hcthread_trans *trans);
+boolean hcthread_trans_set_protocol(struct hcthread_trans *trans,protocol_cthread protocol);
+boolean hcthread_trans_set_buf(struct hcthread_trans *trans, const char *buf);
 /*  
  *hcthread_strucnt 实时控制线程主数据结构 
  *@widget:   界面结构体

@@ -11,7 +11,7 @@
 #include "sctrl.h"
 
 static boolean hcthread_send(struct hcthread_struct *hcthread);
-static boolean hcthread_send(struct hcthread_struct *hcthread);
+static boolean hcthread_recv(struct hcthread_struct *hcthread);
 static boolean showinfo(struct hcthread_struct *hcthread);
 
 
@@ -24,9 +24,9 @@ boolean hcthread_init(struct hcthread_struct *hcthread)
 	LINUXARMS_POINTER(hcthread);
 
 	linuxarms_thread_init(&hcthread->thread);
+	hcthread_trans_init(&hcthread->trans);
 	hcthread->send = hcthread_send;
 	hcthread->recv = hcthread_recv;
-
 	hcthread->showinfo = showinfo;
 	hcthread->competence = FALSE;
 
@@ -35,7 +35,7 @@ boolean hcthread_init(struct hcthread_struct *hcthread)
 /*
  * 发送一个请求到armserver上
  */
-boolean hcthread_send(struct hcthread_struct *hcthread)
+static boolean hcthread_send(struct hcthread_struct *hcthread)
 {
 	return hnet_send(hcthread->socket.tcp, 
 			&hcthread->trans, sizeof(struct hcthread_trans));
@@ -43,13 +43,13 @@ boolean hcthread_send(struct hcthread_struct *hcthread)
 /*
  *接受一个数据从armserver
  */
-boolean hcthread_recv(struct hcthread_struct *hcthread)
+static boolean hcthread_recv(struct hcthread_struct *hcthread)
 {
 	return hnet_recv(hcthread->socket.tcp, 
 			&hcthread->trans, sizeof(struct hcthread_trans));
 }
 
-boolean showinfo(struct hcthread_struct *hcthread)
+static boolean showinfo(struct hcthread_struct *hcthread)
 {
 	/* 显示信息 */
 	GtkWidget *textview = hcthread->widget.textview_ctrl;
@@ -91,5 +91,37 @@ gboolean hcthread_thread(void *p)
 		} while (hcthread->trans.protocol != CSENDALL);
 		hcthread_send(hcthread);                 /* 发送协议CRECVALL */
 	}
+	return TRUE;
+}
+boolean hcthread_trans_init(struct hcthread_trans *trans)
+{
+	LINUXARMS_POINTER(trans);
+	trans->protocol = CMAX;
+	memset(trans->buffer, '\0',TRANS_SIZE);
+	return TRUE;
+}
+boolean hcthread_trans_set_protocol(struct hcthread_trans *trans,protocol_cthread protocol)
+{
+	LINUXARMS_POINTER(trans);
+	if (!PROTOCOL_IS_CTHREAD(protocol)) {
+		debug_where();
+		print_error(EWARNING, "无效的协议");
+		trans->protocol = CMAX;
+		return FALSE;
+	};
+	trans->protocol = protocol;
+	return TRUE;
+}
+boolean hcthread_trans_set_buf(struct hcthread_trans *trans, const char *buf)
+{
+	LINUXARMS_POINTER(trans);
+	LINUXARMS_CHAR(buf);
+	if (strlen(buf) >= TRANS_SIZE) {
+		debug_where();
+		print_error(EWARNING, "缓冲区溢出");
+		strncpy(trans->buffer, buf, TRANS_SIZE);
+		return FALSE;
+	}
+	strcpy(trans->buffer, buf);
 	return TRUE;
 }
