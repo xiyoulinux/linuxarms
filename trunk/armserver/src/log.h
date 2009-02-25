@@ -4,8 +4,6 @@
 #include "thread.h"
 #include "stdio.h"
 
-#define LOG_DIR_LEN 128	
-#define USE_NAME_LEN 20
 #define FILE_SIZE 2
 #define LOGHOME_DIR "/root/linuxarms-armserver"
 
@@ -18,6 +16,6 @@ struct log_struct {
 
 
 boolean armserver_init_log(const char *usename);
-boolean write_log(char *log_data); 
+boolean write_log(const char *log_data); 
 boolean close_log(void);
 #endif
