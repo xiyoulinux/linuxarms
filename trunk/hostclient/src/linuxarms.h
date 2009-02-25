@@ -42,5 +42,4 @@ struct linuxarms_struct {
 		return FALSE;                                \
 	}                                                    \
 }while(0)
-#define VALID_ITER(iter, list_store) ((iter)!= NULL && (iter)->user_data != NULL)
 #endif

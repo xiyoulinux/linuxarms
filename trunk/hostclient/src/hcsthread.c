@@ -269,7 +269,7 @@ boolean hsthread_kill_success(struct hsthread_struct *hsthread)
 	debug_where();
 	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(
 				    GTK_TREE_VIEW(widget->treeview)));
-	select = VALID_ITER(iter, list_store);
+	select = gtk_list_store_iter_is_valid(list_store, iter);
 	if (select) {
 		gtk_list_store_remove(GTK_LIST_STORE(list_store),iter);
 		return TRUE;

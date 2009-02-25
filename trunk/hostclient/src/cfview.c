@@ -116,21 +116,28 @@ boolean do_file_view(struct hfview_struct *hfview)
 	struct hfview_recv *frecv;
 	char *stime;
 	GtkListStore *list_store;
-	GtkTreeIter iter;
+	GtkTreeModel *model;
+	GtkTreeSelection *selection;
+	GtkTreeIter iter, last;
 	GdkPixbuf *directory;
 	GdkPixbuf *file;
-	int file_nums = 0;
+	int file_nums;
+	boolean valid, change;
 
 	debug_where();
 	LINUXARMS_POINTER(hfview);
 	widget = &hfview->widget;
 	frecv = &hfview->frecv;
-	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(widget->treeview)));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(widget->treeview));
+	list_store = GTK_LIST_STORE(model);
 	directory = gdk_pixbuf_new_from_file_at_size(find_file("gtk-directory.png"), 16, 16, NULL);
 	file = gdk_pixbuf_new_from_file_at_size(find_file("gtk-file.png"), 16, 16, NULL);
 	debug_where();
 
-	boolean valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list_store), &iter);
+	valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list_store), &iter);
+	file_nums = 0;
+	last = iter;
+	change = FALSE;
 	while (TRUE) {
 		if (!hfview->recv(hfview)) {
 			debug_print("接收文件信息失败\n");
@@ -145,6 +152,11 @@ boolean do_file_view(struct hfview_struct *hfview)
 			if (!valid) {
 				gtk_list_store_append(list_store, &iter);
 			}
+			if (frecv->type == TYPE_DIR) {
+				last = iter;
+				change = gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &last);
+				gtk_list_store_move_after(list_store, &iter, NULL);
+			}
 			file_nums++;
 			stime = ctime(&frecv->mtime);
 			stime[strlen(stime) - 1] = '\0';
@@ -156,8 +168,14 @@ boolean do_file_view(struct hfview_struct *hfview)
 				COL_FUSER, frecv->user,
 				COL_FMTIME,stime,
 				-1);
-			if (valid)
-				valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter);
+			if (valid) {
+				if (change) {
+					iter = last;
+					change = FALSE;
+					valid = TRUE;
+				} else
+					valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter);
+			}
 			break;
 		default:
 			break;
@@ -191,6 +209,10 @@ out:
 	}
 	prev_file_nums = file_nums;
 	gtk_adjustment_set_value(GTK_ADJUSTMENT(widget->vadjustment), 0);
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget->treeview));
+	valid = gtk_tree_selection_get_selected(selection, &model, &iter);
+	if (valid) 
+		gtk_tree_selection_unselect_iter(selection, &iter);
 	return TRUE;
 }
 void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data)
@@ -365,7 +387,7 @@ void cb_fview_rename_activate(GtkMenuItem *menuitem, gpointer user_data)
 	
 	debug_where();
 	list_store = gtk_tree_view_get_model(GTK_TREE_VIEW(widget->treeview));
-	select = VALID_ITER(iter, list_store);
+	select = gtk_list_store_iter_is_valid(GTK_LIST_STORE(list_store), iter);
 	if (select) {
 		char *name, *user;
 		gtk_tree_model_get(list_store, iter,
@@ -390,7 +412,7 @@ boolean hfview_rename_success(struct hfview_struct *hfview, const char *newname)
 	
 	debug_where();
 	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(hfview->widget.treeview)));
-	select = VALID_ITER(iter, list_store);
+	select = gtk_list_store_iter_is_valid(list_store, iter);
 	if (select) {
 		gtk_list_store_set(GTK_LIST_STORE(list_store), iter,
 				COL_FNAME, newname,
@@ -412,7 +434,7 @@ void cb_fview_delete_activate(GtkMenuItem *menuitem, gpointer user_data)
 	
 	debug_where();
 	list_store = gtk_tree_view_get_model(GTK_TREE_VIEW(hfview->widget.treeview));
-	select = VALID_ITER(iter, list_store);
+	select = gtk_list_store_iter_is_valid(GTK_LIST_STORE(list_store), iter);
 	if (select) {
 		char *name, *user, *type;
 		int sure;
@@ -455,7 +477,7 @@ boolean hfview_delete_success(struct hfview_struct *hfview)
 	
 	debug_where();
 	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(hfview->widget.treeview)));
-	select = VALID_ITER(iter, list_store);
+	select = gtk_list_store_iter_is_valid(list_store, iter);
 	if (select) {
 		gtk_list_store_remove(list_store, iter);
 		return TRUE;
