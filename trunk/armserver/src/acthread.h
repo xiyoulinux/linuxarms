@@ -37,11 +37,7 @@ struct acthread_struct {
 
 	boolean (*send)(struct acthread_struct *acthread);
 	boolean (*recv)(struct acthread_struct *acthread);
-	boolean (*handle)(struct acthread_struct *acthread);
 };
-boolean acthread_send(struct acthread_struct *acthread);
-boolean acthread_recv(struct acthread_struct *acthread);
-boolean acthread_handle(struct acthread_struct *acthread);
 boolean acthread_init(struct acthread_struct *acthread);
 boolean acthread_thread(void *p);
 #endif

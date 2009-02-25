@@ -15,6 +15,10 @@
 #include "config.h"
 #include "thread.h"
 
+static boolean acthread_send(struct acthread_struct *acthread);
+static boolean acthread_recv(struct acthread_struct *acthread);
+static boolean acthread_handle(struct acthread_struct *acthread);
+
 void do_cd(char *cmd)
 {
 	char dir[512];
@@ -45,14 +49,16 @@ boolean acthread_init(struct acthread_struct *acthread)
 	LINUXARMS_POINTER(acthread);
 	linuxarms_thread_init(&acthread->thread);
 	acthread->competence = FALSE;
-	anet_init(&acthread->socket, get_localhost_ip(), get_cthread_port());
+	//anet_init(&acthread->socket, get_localhost_ip(), get_cthread_port());
 	acthread_trans_init(&acthread->trans);
+	acthread->send = acthread_send;
+	acthread->recv = acthread_recv;
 	return TRUE;
 }
 /*
  * 发送一个请求到hostclient上
  */
-boolean acthread_send(struct acthread_struct *acthread)
+static boolean acthread_send(struct acthread_struct *acthread)
 {
 	return anet_send(acthread->socket.tcp, &acthread->trans, 
 			sizeof(struct acthread_trans));
@@ -60,12 +66,12 @@ boolean acthread_send(struct acthread_struct *acthread)
 /*
  *接受一个数据从hostclient
  */
-boolean acthread_recv(struct acthread_struct *acthread)
+static boolean acthread_recv(struct acthread_struct *acthread)
 {
 	return anet_recv(acthread->socket.tcp, &acthread->trans, 
 			sizeof(struct acthread_trans));
 }
-boolean acthread_handle(struct acthread_struct *acthread)
+static boolean acthread_handle(struct acthread_struct *acthread)
 {
 	/* 进行重定向 */
 	int fd;
