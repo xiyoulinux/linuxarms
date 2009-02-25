@@ -147,7 +147,7 @@ void cb_process_kill_activate(GtkMenuItem *menuitem,gpointer user_data)
 	char *pid;
 	boolean select;
         list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(widget->treeview)));
-	select = VALID_ITER(iter, list_store);
+	select = gtk_list_store_iter_is_valid(list_store, iter);
 
 	if (select) {
 		gtk_tree_model_get(GTK_TREE_MODEL(list_store), iter, COL_SID, &pid,-1);
