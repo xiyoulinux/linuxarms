@@ -143,6 +143,7 @@ boolean hmthread_thread(void *p)
 	/* 发送登录请求 */
 	hmthread->set_protocol(hmthread, LOGIN);
 	hmthread->send(hmthread);
+	hmthread->set_protocol(hmthread, MMAX);
 	debug_where();
 	debug_print("hmthread socket ip : %s tcp: %d port: %d\n", hmthread->socket.ip,
 				hmthread->socket.tcp, hmthread->socket.port);
@@ -177,6 +178,7 @@ boolean hmthread_init(struct hmthread_struct *hmthread, struct user_struct *user
 	hnet_init(&hmthread->socket, NULL, get_mthread_port());
 	hmthread->trans.user = *user;
 	hmthread->trans.protocol = MMAX;
+	hmthread->protocol = MMAX;
 	hmthread->down_lock = hmthread_down_lock;
 	hmthread->up_lock = hmthread_up_lock;
 	hmthread->set_protocol = hmthread_set_protocol;

@@ -56,6 +56,8 @@ struct hsprocess_widget {
 	GtkWidget *menu_kill;
 	GtkWidget *menu_three;
 	GtkWidget *menu_five;
+	GtkWidget *menu_user;
+	GtkWidget *menu_all;
 	GtkWidget *popup_kill;
 	boolean popup;
 	GtkTreeIter selection;

@@ -65,45 +65,29 @@ void cb_process_selection_changed(GtkWidget *widget, gpointer user_data)
 	GtkTreeModel *list_store;
 	GtkTreeIter iter;
 	GtkTreeSelection *selection;
+
+	debug_where();
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(hsprocess->widget.treeview));
 	select = gtk_tree_selection_get_selected(selection, &list_store, &iter);
 	if (select) {
-		char *user;
-		gtk_tree_model_get(list_store, &iter, COL_SUSER, &user, -1);
-		list_store = gtk_tree_view_get_model(GTK_TREE_VIEW(hsprocess->widget.treeview));
-		if (strcmp(user, linuxarms->hmthread->user->name) != 0)
+		char *user, *name;
+		gtk_tree_model_get(list_store, &iter, COL_SNAME, &name, COL_SUSER, &user, -1);
+		if (strlen(name) == 0) {
+			gtk_tree_selection_unselect_iter(selection, &iter);
+			goto out;
+		}
+		if (strcmp(user, linuxarms->login->user.name) != 0)
 			select = FALSE;
 		else
 			select = TRUE;
 		hsprocess->widget.selection = iter;
-		debug_where();
+out:
+		g_free(name);
 		g_free(user);
 	} 
 	if (hsprocess->widget.popup)
 		gtk_widget_set_sensitive(hsprocess->widget.popup_kill, select);
 	gtk_widget_set_sensitive(hsprocess->widget.menu_kill, select);
-	/*boolean select;
-	GtkTreeModel *list_store;
-	GtkTreeIter iter;
-	GtkTreeSelection *selection;
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget->treeview));
-	select = gtk_tree_selection_get_selected(selection, &list_store, &iter);
-	if (select) {
-		char *user;
-		gtk_tree_model_get(list_store, &iter,
-				COL_SUSER, &user,
-				-1);
-		if (!hsthread->competence && strcmp(user, "root") == 0) {
-			gtk_widget_set_sensitive(widget->process_kill, FALSE);
-			gtk_widget_set_sensitive(widget->menu_kill, FALSE);
-		} else
-			gtk_widget_set_sensitive(widget->menu_kill, TRUE);
-		widget->selection = iter;
-		g_free(user);
-	} else {
-		gtk_widget_set_sensitive(widget->menu_kill, FALSE);
-	}*/
-	debug_where();
 }
 /*
  * 用户在treeview_process控件上按下鼠标的时候，调用该回调函数
@@ -205,8 +189,6 @@ boolean do_show_process(struct hsprocess_struct *hsprocess)
 	hstrans = &hsprocess->trans;
 	theme = gtk_icon_theme_get_default();
 	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(hsprocess->widget.treeview)));
-	//g_object_ref(list_store);
-	//gtk_tree_view_set_model(GTK_TREE_VIEW(hsprocess->widget.treeview), NULL); 
 
 	boolean valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list_store), &iter);
 	while (TRUE) {
@@ -274,10 +256,6 @@ out:
 	//gtk_tree_view_set_model(GTK_TREE_VIEW(hsprocess->widget.treeview), GTK_TREE_MODEL(list_store));
 	//g_object_unref(list_store);		
 	prev_process_nums = process_nums;
-	/*
-	hsprocess->trans.protocol = SPROCESS;
-	hsprocess->send(hsprocess);
-	*/
 	return TRUE;
 }
 

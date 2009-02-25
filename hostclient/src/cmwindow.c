@@ -45,6 +45,8 @@ void cb_notebook_switch_page(GtkNotebook *notebook,
 		gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_kill), FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_three), FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_five), FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_user), FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_all), FALSE);
 		hmthread->set_protocol(hmthread, CSTHREAD);
 		hmthread->send(hmthread);
 		break;
@@ -80,6 +82,8 @@ void cb_notebook_switch_page(GtkNotebook *notebook,
 			//gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_kill), TRUE);
 			gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_three), TRUE);
 			gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_five), TRUE);
+			gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_user), TRUE);
+			gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_all), TRUE);
 			old_num = PPROCESS;
 		}
 		hsthread_create_timer(hsthread);
@@ -105,6 +109,8 @@ boolean gtk_window_main_set_sensitive(struct linuxarms_struct *linuxarms)
 	gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_kill), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_three), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_five), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_user), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_all), FALSE);
 	
 	//gtk_widget_set_sensitive(GTK_WIDGET(linuxarms->mwindow->toolbar), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.rename), FALSE);

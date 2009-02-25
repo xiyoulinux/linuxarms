@@ -168,13 +168,14 @@ boolean do_file_view(struct hfview_struct *hfview)
 				COL_FUSER, frecv->user,
 				COL_FMTIME,stime,
 				-1);
-			if (valid) {
-				if (change) {
-					iter = last;
-					change = FALSE;
-					valid = TRUE;
-				} else
-					valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter);
+			if (!valid)
+				break;
+			if (change) {
+				iter = last;
+				change = FALSE;
+				valid = TRUE;
+			} else {
+				valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter);
 			}
 			break;
 		default:
@@ -183,6 +184,7 @@ boolean do_file_view(struct hfview_struct *hfview)
 	}
 	debug_where();
 out:
+	frecv->protocol = FMAX;
 	if (file_nums < prev_file_nums) {
 		int i = prev_file_nums - file_nums;
 		while (i-- && valid) {
@@ -196,16 +198,6 @@ out:
 				-1);
 			valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter);
 		}
-		/*while (valid && i--) {
-			GtkTreePath *path;
-			if (!gtk_list_store_iter_is_valid(list_store, &iter))
-				break;
-			path = gtk_tree_model_get_path(GTK_TREE_MODEL(list_store), &iter);
-			if (gtk_tree_model_get_iter(GTK_TREE_MODEL(list_store), &iter, path)) {
-				 valid = gtk_list_store_remove(GTK_LIST_STORE(list_store), &iter);
-				debug_print("free......................\n");
-			}
-		}*/
 	}
 	prev_file_nums = file_nums;
 	gtk_adjustment_set_value(GTK_ADJUSTMENT(widget->vadjustment), 0);
@@ -236,12 +228,15 @@ void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data)
 	select = gtk_tree_selection_get_selected(selection, &list_store, &iter);
 	if (select) {
 		char *type, *user, *name;
-		
 		gtk_tree_model_get(list_store, &iter,
 				COL_FNAME, &name,
 				COL_FTYPE, &type,
 				COL_FUSER, &user,
 				-1);
+		if (strlen(name) == 0) {
+			gtk_tree_selection_unselect_iter(selection, &iter);
+			goto out;
+		}
 		if (strcmp(type, "文件夹") == 0) {
 			upload = FALSE;
 			delete = TRUE; 
@@ -258,6 +253,7 @@ void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data)
 			rename = FALSE;
 		}
 		hfview->widget.selection = iter;
+out:
 		g_free(name);
 		g_free(type);
 		g_free(user);

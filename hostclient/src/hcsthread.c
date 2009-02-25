@@ -245,6 +245,7 @@ boolean hsthread_trans_init(struct hsthread_trans *hstrans)
 	LINUXARMS_POINTER(hstrans);
 	hstrans->protocol = SMAX;
 	hstrans->kill = -1;
+	hstrans->all = FALSE;
 	return TRUE;
 }
 boolean hsthread_trans_set_protocol(struct hsthread_trans *hstrans, 
