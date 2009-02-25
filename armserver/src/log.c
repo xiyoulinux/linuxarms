@@ -81,7 +81,7 @@ boolean armserver_init_log(const char *usename)
 	log.log_inited = TRUE;
 	return TRUE;
 }
-boolean write_log(char *log_data)
+boolean write_log(const char *log_data)
 {
 	/* 写入信息 */
 	time_t timep;
