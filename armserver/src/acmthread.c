@@ -49,7 +49,7 @@ boolean amthread_thread(void *p)
 
 	linuxarms_print("create amthread thread...\n");
 	amthread->thread.id = linuxarms_thread_self();
-	debug_print("hmthread socket ip : %s tcp: %d port: %d\n", amthread->socket.ip,
+	debug_print("amthread socket ip : %s tcp: %d port: %d\n", amthread->socket.ip,
 				amthread->socket.tcp, amthread->socket.port);
 	while (amthread->thread.id) {
 		if (!amthread->recv(amthread)) {
@@ -244,7 +244,7 @@ boolean armserver_create_all_thread(struct linuxarms_struct *linuxarms)
 	debug_where();
 	acthread->thread.id = linuxarms_thread_create(acthread_thread, acthread);
 	if (acthread->thread.id == NULL) {
-		print_error(ESYSERR,"create afthread error");
+		print_error(ESYSERR,"create acthread error");
 		goto out;
 	}
 	

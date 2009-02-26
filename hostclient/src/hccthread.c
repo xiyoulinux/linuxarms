@@ -1,3 +1,4 @@
+#define __DEBUG__
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
