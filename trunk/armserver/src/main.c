@@ -108,7 +108,6 @@ int main(int args, char *argv[])
 			strcpy(hostclient_ip, inet_ntoa(client_addr.sin_addr));
 		        struct login_struct login;
 			struct amthread_struct amthread;
-			struct acthread_struct acthread;
 			struct linuxarms_struct linuxarms;
 
 			/* 初始化afthread结构体 */
@@ -128,6 +127,10 @@ int main(int args, char *argv[])
 			asprocess_init(&asprocess, &asthread.trans.kill, &asthread.socket);
 			assinfo_init(&assinfo);
 			asthread_init(&asthread, &assinfo, &asprocess);
+
+			/* 初始化acthread结构体 */
+			struct acthread_struct acthread;
+			acthread_init(&acthread);
 			
 			/* 初始化amthread结构体 */
 			login_init(&login, &amthread.socket);
