@@ -1,5 +1,5 @@
 /*
- * linuxarms/armseerver/src/hcthread.h
+ * linuxarms/armseerver/src/acthread.h
  * chen Jifeng<chengov@gmail.com>
  */
 #ifndef _ACTHREAD_H
