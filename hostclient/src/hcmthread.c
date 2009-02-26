@@ -65,7 +65,7 @@ boolean create_window_main_timeout(gpointer user_data)
 			debug_where();
 			linuxarms_thread_create(hfthread_thread, linuxarms);
 			debug_where();
-			//linuxarms_thread_create(hcthread_thread, hcthread);
+			linuxarms_thread_create(hcthread_thread, hcthread);
 			snprintf(buf, 40, "Linux ARMS[登录用户：%s]", hmthread->user->name);
 			debug_where();
 			gtk_window_set_title(GTK_WINDOW(linuxarms->mwindow->window), buf);
