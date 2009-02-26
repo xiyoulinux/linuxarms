@@ -15,28 +15,25 @@ THREAD_LINK = -lpthread
 endif
 
 CC=$(CROSS)gcc
-GTKFLAGSS = -I$(ARMGTK)/usr/include/gtk-2.0 \
-	    -I$(ARMGTK)/usr/lib/gtk-2.0/include
 GLIBFLAGS = -I$(ARMGTK)/usr/include/glib-2.0 \
 	    -I$(ARMGTK)/usr/lib/glib-2.0/include
 IINCLUDE =  -I$(ARMGTK)/usr/include
-CFLAGS = -Wall -O2 $(GTKFLAGS) $(GLIBFLAGS) $(IINCLUDE)
+srcdir = -I.
+CFLAGS = $(GTKFLAGS) $(GLIBFLAGS) $(IINCLUDE) $(srcdir)
 LINK =  $(THREAD_LINK) -lglib-2.0 -lgmodule-2.0 -lcrypt
 object = armserver
-
-OBJS = main.o error.o acmthread.o accthread.o acfthread.o acsthread.o \
-       actthread.o proc.o anet.o acsprocess.o acssinfo.o clogin.o \
-       support.o arm.o config.o acfview.o thread.o log.o       
-
-HEADER = linuxarms.h protocol.h arm.h error.h debug.h amthread.h \
-	 acthread.h afthread.h asthread.h atthread.h proc.h anet.h \
-	 asprocess.h assinfo.h login.h support.h beepdrv.h leddrv.h \
-	 config.h afview.h thread.h log.h
+sources = main.c error.c acmthread.c accthread.c acfthread.c acsthread.c \
+       actthread.c proc.c anet.c acsprocess.c acssinfo.c clogin.c \
+       support.c arm.c config.c acfview.c thread.c log.c
+OBJS = $(sources:.c=.o)
 .SUFFIXES: .c .h
-$(object):$(OBJS) $(HEADER)
+%.o:%.c
+	$(CC) -Wall -O2 $(CFLAGS) -c $< -o $@
+%.deps:%.c
+	$(CC) -M  $(CFLAGS) $< > $@.$$$$; sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; rm -f $@.$$$$
+$(object):$(OBJS)
 	$(CC) -Wall -O2 $(OBJS) -o $(object) $(LINK)
-%.o : %.c $(HEADER)
-	$(CC) $(CFLAGS) -c $< -o $@  
+sinclude $(sources:.c=.deps)
 .PHONY : clean
 clean:
 	-rm -f $(OBJS) $(object)

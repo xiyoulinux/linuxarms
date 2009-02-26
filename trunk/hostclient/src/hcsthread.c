@@ -188,7 +188,6 @@ gboolean hsthread_timer(gpointer data)
 		return TRUE;
 	hsthread->send(hsthread);
 	debug_print("hsthread send data to armserver...\n");
-	debug_print("timer time = %d\n", hsthread->timer.time);
 	return TRUE;
 }
 

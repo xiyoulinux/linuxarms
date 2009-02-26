@@ -4,5 +4,6 @@
 struct assinfo_struct {
 	char a;
 };
+
 boolean assinfo_init(struct assinfo_struct *assinfo);
 #endif
