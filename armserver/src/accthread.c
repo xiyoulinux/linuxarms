@@ -19,9 +19,22 @@ static boolean acthread_send(struct acthread_struct *acthread);
 static boolean acthread_recv(struct acthread_struct *acthread);
 static boolean acthread_handle(struct acthread_struct *acthread);
 
-void do_cd(char *cmd)
+/*
+ *处理 cd 命令
+ */
+void do_cd(struct acthread_struct *acthread)
 {
 	char dir[512];
+	int ret;
+	FILE *fp;
+	char cmd[100];
+	char result[10];
+
+	snprintf(cmd, 100, "%s", acthread->trans.buffer);
+	fp = fopen(TEMP_FILE, "a+");
+	if (fp == NULL) {
+		print_error(ESYSERR, "system call error\n");
+	}
 	if (strlen(cmd) == 2) {
 		sprintf(dir,"%s", getenv("HOME"));
 	} else if ((strlen(cmd) == 4) && (cmd[3] =='~')) {
@@ -35,10 +48,18 @@ void do_cd(char *cmd)
 	} else if((strlen(cmd) >4) && (cmd[3] == '/')) {
 		sprintf(dir, "%s", &cmd[3]);
 	}
-	if (chdir(dir) == -1) {
-		debug_where();
-		print_error(EWARNING, "chdir: error");
-	}
+	ret = chdir(dir);
+	if (ret == 0) {
+		strcpy(result, "TRUE");
+	} else
+		strcpy(result, "FALSE");
+	fprintf(fp, "%s#%s", result, dir);
+	fclose(fp);
+	
+	acthread_trans_set_protocol(&acthread->trans, CSENDCD);
+	acthread->send(acthread);
+	
+	return;
 }
 /*
  * 初始化实时控制主数据结构
@@ -49,7 +70,6 @@ boolean acthread_init(struct acthread_struct *acthread)
 	LINUXARMS_POINTER(acthread);
 	linuxarms_thread_init(&acthread->thread);
 	acthread->competence = FALSE;
-	//anet_init(&acthread->socket, get_localhost_ip(), get_cthread_port());
 	acthread_trans_init(&acthread->trans);
 	acthread->send = acthread_send;
 	acthread->recv = acthread_recv;
@@ -73,13 +93,19 @@ static boolean acthread_recv(struct acthread_struct *acthread)
 }
 static boolean acthread_handle(struct acthread_struct *acthread)
 {
-	/* 进行重定向 */
 	int fd;
 	int ret;
+	
+	/* 进行重定向 */
 	fd = open(TEMP_FILE, (O_RDWR | O_CREAT), 0644);
 	dup2(fd, 1);
 	close(fd);
 	/* 处理命令 */
+	if(strstr(acthread->trans.buffer, "cd")) {
+		do_cd(acthread);
+		return TRUE;
+	}
+	
 	ret = system(acthread->trans.buffer);
 	if (ret == 127) {
 		printf("/bin/sh not available\n");
@@ -88,8 +114,7 @@ static boolean acthread_handle(struct acthread_struct *acthread)
 	} else if (ret != 0) {
 		printf("command not found\n");
 	} 
-	 if(strstr(acthread->trans.buffer, "cd"))
-		 do_cd(acthread->trans.buffer);
+	
 	return TRUE;
 }
 /*
@@ -100,6 +125,7 @@ boolean acthread_thread(void *p)
 {
 	struct acthread_struct *acthread = (struct acthread_struct *)p;
 	int fd;
+	
 	linuxarms_print("create acthread thread...\n");
 	acthread->thread.id = linuxarms_thread_self();
 	/* 建立网络连接 */
@@ -107,24 +133,26 @@ boolean acthread_thread(void *p)
 	create_tcp_server(&acthread->socket);
 	debug_print("acthread socket ip : %s tcp: %d port: %d\n", acthread->socket.ip,
 				acthread->socket.tcp, acthread->socket.port);	
+	
 	while (acthread->thread.id) {
-		if (!acthread_recv(acthread)) {   /* 接收数据 */
+		if (!acthread->recv(acthread)) {   /* 接收数据 */
 			linuxarms_print("acthread recv data error,exit....\n");
 			exit(1);
 		}
 		if (acthread->trans.protocol == CSEND) {
 			acthread_handle(acthread); /* 处理数据 */
-		}
+		} else
+			continue;
 		fd = open(TEMP_FILE, O_RDWR);
 		do {
 			if(read(fd, acthread->trans.buffer, TRANS_SIZE) != 0) {
-				acthread->trans.protocol = CSEND;
-				acthread_send(acthread); /* 发送数据 */
+				acthread_trans_set_protocol(&acthread->trans, CSEND);
+				acthread->send(acthread); /* 发送数据 */
 			} else {
-				acthread->trans.protocol = CSENDALL;
-				acthread_send(acthread);
+				acthread_trans_set_protocol(&acthread->trans, CSENDALL);
+				acthread->send(acthread);
 			}
-			acthread_recv(acthread); /* 接受数据 */
+			acthread->recv(acthread); /* 接受数据 */
 		} while (acthread->trans.protocol != CRECVALL);
 		close(fd);
 		remove(TEMP_FILE);
