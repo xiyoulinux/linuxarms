@@ -48,7 +48,7 @@ boolean anet_init(struct anet_struct *anet, const char *ip, int port)
 boolean create_tcp_server(struct anet_struct *anet)
 {
 	socklen_t size;
-	int socket_fd;
+	int socket_fd, bind_ret = 1;
 	struct sockaddr_in serv_addr,client_addr;
 	
 	if ((socket_fd = (socket(AF_INET, SOCK_STREAM, 0))) == -1) {
@@ -61,7 +61,10 @@ boolean create_tcp_server(struct anet_struct *anet)
 	serv_addr.sin_addr.s_addr = inet_addr(anet->ip);
 	bzero(&(serv_addr.sin_zero), 8);
 	size = sizeof(struct sockaddr);
-
+	if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&bind_ret, sizeof(bind_ret)) == -1) {
+		print_error(ESYSERR, "setsockopt");
+		goto label;
+	}
 	if ((bind(socket_fd, (struct sockaddr *)&serv_addr, size)) == -1) {
 		print_error(ESYSERR, "bind");
 		goto label;

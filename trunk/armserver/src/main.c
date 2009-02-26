@@ -39,7 +39,7 @@ int main(int args, char *argv[])
 {
 	int user_process;
 	int size;
-	int socket_fd;
+	int socket_fd, bind_ret = 1;
 	int tcp_fd;
 	struct sockaddr_in serv_addr,client_addr;
 	char *config_file;
@@ -84,7 +84,10 @@ int main(int args, char *argv[])
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	bzero(&(serv_addr.sin_zero), 8);
 	size = sizeof(struct sockaddr);
-
+	if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&bind_ret, sizeof(bind_ret)) == -1) {
+		print_error(ESYSERR, "setsockopt");
+		goto err;
+	}
 	if (bind(socket_fd, (struct sockaddr *)&serv_addr, size) == -1) {
 		print_error(ESYSERR, "bind");
 		goto err;
