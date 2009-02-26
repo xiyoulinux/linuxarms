@@ -34,6 +34,7 @@ gboolean cb_ctrl_input_key_press(GtkWidget *widget,
 		gtk_widget_set_sensitive(hcthread->widget.entry_input, FALSE);
 		debug_print("it is enter:%s\n",input);
 		hcthread_trans_set_protocol(&hcthread->trans, CSEND);
+		hcthread_trans_set_buf(&hcthread->trans, input);
 		hcthread->send(hcthread);
 		return TRUE;
 	}

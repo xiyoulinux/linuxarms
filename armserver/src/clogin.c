@@ -94,6 +94,7 @@ boolean login_set_env(struct login_struct *login)
 	setenv("PATH", get_path_env(), 1);
 	setenv("SHELL", pwd->pw_shell, 1);
 	setenv("PWD", "/", 1);
+	chdir("/");
 	if (access(pwd->pw_dir,F_OK) == -1) {
 		print_error(EWARNING, "home directory %s isn't exist,"
 				"so ew change it to \"/\"",pwd->pw_dir);

@@ -78,7 +78,7 @@ GtkWidget *create_ctrl_page(GtkWidget *vbox_main,
 	gtk_box_pack_start (GTK_BOX (hbox_input), fixed6, FALSE, FALSE, 0);
 	gtk_widget_set_size_request (fixed6, 21, -1);
 
-	label_frame = gtk_label_new(_("<b>实时控制[root@EPC-8000:/root/$]</b>"));
+	label_frame = gtk_label_new(_("<b>实时控制[root@EPC-8000:/$]</b>"));
 	gtk_widget_show(label_frame);
 	gtk_frame_set_label_widget(GTK_FRAME(frame_main), label_frame);
 	gtk_label_set_use_markup(GTK_LABEL(label_frame), TRUE);
