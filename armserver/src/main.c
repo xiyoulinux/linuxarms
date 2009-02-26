@@ -27,6 +27,7 @@
 #include "error.h"
 #include "anet.h"
 #include "thread.h"
+#include "arm.h"
 #define _DEBUG_
 #ifdef GTK_THREAD
 #include <glib.h>

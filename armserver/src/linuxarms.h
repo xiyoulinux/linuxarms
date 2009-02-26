@@ -2,11 +2,11 @@
 #define _LINUXARMS_H
 
 #ifndef __GTK_H__
-	#define FALSE (0)
-	#define TRUE !(FALSE)
-	typedef int boolean;
+  #define FALSE (0)
+  #define TRUE !(FALSE)
+  typedef int boolean;
 #else
-	typedef gboolean boolean;
+  typedef gboolean boolean;
 #endif
 
 struct login_struct;

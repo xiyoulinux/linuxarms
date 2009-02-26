@@ -13,7 +13,7 @@ $(object):$(DEPEND)
 	@echo compiling end,now you can type \"./$(object)\" to run $(object)
 clean:
 	@echo "clean all binary file..."
-	-rm -f $(object)
+	test -z "$(object)" || rm "$(object)"
 	(cd ./src;make clean)
 install:
 	@echo install \"$(object)\"...
@@ -45,26 +45,9 @@ install:
 		echo "ERROR:can't find file  \"$(DRIVE_FILE)/led/leddrv.ko\" ..." ;\
 		exit 1 ; \
 	fi
-	@if [ -e $(CONFIG_DIR) ]; \
-	then \
-		echo "WARNING:directory $(CONFIG_DIR) exist..." ; \
-	else \
-		mkdir $(CONFIG_DIR) ; \
-	fi
-	@if [ -e $(RESOURCE_DIR) ]; \
-	then \
-		echo "WARNING:directory $(RESOURCE_DIR) exit..." ; \
-	else \
-		mkdir $(RESOURCE_DIR); \
-	fi
-	@if [ -e $(object) ]; \
-	then \
-		cp $(object) $(EXECUTE_DIR) ;\
-	else \
-		echo "execute file \"$(object)\" not exist..." ;\
-		(make uninstall); \
-		exit 1; \
-	fi
+	mkdir -p $(CONFIG_DIR)
+	mkdir -p $(RESOURCE_DIR)
+	cp $(object) $(EXECUTE_DIR)
 	cp -r $(CONFIG_FILE) $(CONFIG_DIR)
 	cp -r $(DRIVE_FILE) $(RESOURCE_DIR)
 	@echo install end.you can type \"make uninstall\" to uninstall \"$(object)\".

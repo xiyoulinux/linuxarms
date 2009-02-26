@@ -14,7 +14,6 @@
 #define CONFIG_BUF_SIZE 4096
 #define INFO_SIZE 80
 
-
 /*
  * user_struct  用于存放获取的用户信息
  * @ip: 用户输入的IP地址
@@ -40,9 +39,6 @@ struct login_struct {
 	struct anet_struct *socket;
 	boolean competence;
 };
-/*
- * login functions definitions
- */
 boolean login_init(struct login_struct *login, struct anet_struct *socket);
 boolean login_check_user(struct login_struct *login);
 boolean login_set_env(struct login_struct *login);
