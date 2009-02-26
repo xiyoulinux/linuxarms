@@ -1,3 +1,4 @@
+#define _DEBUG__
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include <string.h>
@@ -25,12 +26,15 @@ gboolean cb_ctrl_input_key_press(GtkWidget *widget,
 		handle_command(command);
 		if (command[0] == '\0') {
 			debug_print("sorry~your command be limited\n");
-			statusbar_set_text("sorry~!your command be limited");/* 显示到状态提示栏 */
+			/* 显示到状态提示栏 */
+			statusbar_set_text("sorry~!your command be limited");
 			gtk_entry_set_text(GTK_ENTRY(hcthread->widget.entry_input), "");
 			return FALSE;
 		}
 		gtk_widget_set_sensitive(hcthread->widget.entry_input, FALSE);
 		debug_print("it is enter:%s\n",input);
+		hcthread_trans_set_protocol(&hcthread->trans, CSEND);
+		hcthread->send(hcthread);
 		return TRUE;
 	}
 	return FALSE;

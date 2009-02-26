@@ -69,6 +69,7 @@ typedef enum _Cthread {
 	CRECV,    /* 接收数据 */
 	CSENDALL, /* 发送完毕 */
 	CRECVALL, /* 接收完毕 */
+	CSENDCD,  /* 发送cd命令 */
 	CMAX      /* 无效命令 */
 }protocol_cthread;
 #define  PROTOCOL_IS_CTHREAD(protocol) ((protocol) >= CSEND && (protocol) < CMAX)

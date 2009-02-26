@@ -12,7 +12,6 @@
 
 static boolean hcthread_send(struct hcthread_struct *hcthread);
 static boolean hcthread_recv(struct hcthread_struct *hcthread);
-static boolean showinfo(struct hcthread_struct *hcthread);
 
 
 /*
@@ -27,7 +26,6 @@ boolean hcthread_init(struct hcthread_struct *hcthread)
 	hcthread_trans_init(&hcthread->trans);
 	hcthread->send = hcthread_send;
 	hcthread->recv = hcthread_recv;
-	hcthread->showinfo = showinfo;
 	hcthread->competence = FALSE;
 
 	return TRUE;
@@ -73,6 +71,9 @@ static boolean showinfo(struct hcthread_struct *hcthread)
 gboolean hcthread_thread(void *p)
 {
 	struct hcthread_struct *hcthread = (struct hcthread_struct *)p;
+	char *result;
+	GtkWidget *entry_input = hcthread->widget.entry_input;
+
 	linuxarms_print("create hcthread thread...\n");
 	hcthread->thread.id = linuxarms_thread_self();
 	/* 建立网络连接 */
@@ -82,14 +83,29 @@ gboolean hcthread_thread(void *p)
 				hcthread->socket.tcp, hcthread->socket.port);	
 	while (hcthread->thread.id) {
 		do {
-			hcthread_recv(hcthread);        /* 接收从arm端输出过来的数据 */  
+			hcthread->recv(hcthread);        /* 接收从arm端输出过来的数据 */  
+			if(hcthread->trans.protocol == CSENDCD) {
+				hcthread_trans_set_protocol(&hcthread->trans, CRECV);
+				hcthread->send(hcthread);
+				if (strstr(hcthread->trans.buffer, "TRUE")) {
+					result = strchr(hcthread->trans.buffer, '#');
+					gtk_label_set_text(GTK_LABEL(
+						hcthread->widget.label_path), result);
+				} else {
+					showinfo(hcthread);
+				}
+			}
 			if(hcthread->trans.protocol == CSEND) {
-				hcthread->trans.protocol = CRECV;
-				hcthread_send(hcthread);/* 发送协议CRECV */
 				showinfo(hcthread);     /* 显示所接受的数据 */
+				hcthread_trans_set_protocol(&hcthread->trans, CRECV);
+				hcthread->send(hcthread);/* 发送协议CRECV */
 			}
 		} while (hcthread->trans.protocol != CSENDALL);
-		hcthread_send(hcthread);                 /* 发送协议CRECVALL */
+		hcthread_trans_set_protocol(&hcthread->trans, CRECVALL);
+		hcthread->send(hcthread);                 /* 发送协议CRECVALL */
+
+		gtk_entry_set_text(GTK_ENTRY(entry_input), "");
+		gtk_widget_set_sensitive(entry_input, TRUE);
 	}
 	return TRUE;
 }
