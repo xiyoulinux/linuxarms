@@ -225,7 +225,7 @@ boolean armserver_create_all_thread(struct linuxarms_struct *linuxarms)
 {
 	struct afthread_struct *afthread = linuxarms->afthread;
 	struct asthread_struct *asthread = linuxarms->asthread;
-	//struct acthread_struct *acthread = linuxarms->acthread;
+	struct acthread_struct *acthread = linuxarms->acthread;
 	
 	debug_where();
 	asthread->thread.id = linuxarms_thread_create(asthread_thread, asthread);
@@ -240,14 +240,14 @@ boolean armserver_create_all_thread(struct linuxarms_struct *linuxarms)
 		print_error(ESYSERR,"create afthread error");
 		goto out;
 	}
-	/*
+	
 	debug_where();
 	acthread->thread.id = linuxarms_thread_create(acthread_thread, acthread);
 	if (acthread->thread.id == NULL) {
 		print_error(ESYSERR,"create afthread error");
 		goto out;
 	}
-	*/
+	
 	return TRUE;
 out:
 	return FALSE;
