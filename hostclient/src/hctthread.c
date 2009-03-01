@@ -3,7 +3,7 @@
  * 
  * Copyright (C) 2008 wugang<xuanfeng1104@gmail.com>
  */
-
+#define __DEBUG__
 #include <string.h>
 #include <gtk/gtk.h>
 #include <stdlib.h>
@@ -24,10 +24,6 @@
 static boolean htthread_set_protocol(struct htthread_struct *httread, protocol_fthread protocol);
 static boolean htthread_send(struct htthread_struct *htthread);
 static boolean htthread_recv(struct htthread_struct *htthread);
-
-boolean htthread_upload(struct htthread_struct *htthread);
-boolean htthread_download(struct htthread_struct *htthread);
-
 
 /*
  * init_htthread	initialize htthread_struct structure. 
@@ -58,17 +54,15 @@ boolean htthread_init(struct htthread_struct *htthread,
 static boolean htthread_send(struct htthread_struct *htthread)
 {
 	LINUXARMS_POINTER(htthread);
-	return hnet_send(htthread->socket->tcp, &htthread->trans, 
+	return hnet_send(htthread->socket->tcp, (void *)&htthread->trans, 
 			 sizeof(struct htthread_trans));
-
 }
 
 static boolean htthread_recv(struct htthread_struct *htthread)
 {
 	LINUXARMS_POINTER(htthread);
-	return hnet_recv(htthread->socket->tcp, &htthread->trans, 
+	return hnet_recv(htthread->socket->tcp, (void *)&htthread->trans, 
 			 sizeof(struct htthread_trans));
-
 }
 
 boolean htthread_upload(struct htthread_struct *htthread)
@@ -77,19 +71,26 @@ boolean htthread_upload(struct htthread_struct *htthread)
 	int up;
 	char msg[256];
 	if ((up = open(htthread->path, O_WRONLY | O_CREAT, htthread->mode)) == -1) {
-		snprintf(msg, 256, "在打开要下载的文件: \n%s\n"
+		snprintf(msg, 256, "在创建要上传的文件: \n%s\n"
 				   "时发生错误,可能的原因是没有权限\n"
-				   "打开或者给出的路径错误", htthread->path);
+				   "创建或者给出的路径错误", htthread->path);
 		create_window_dialog(msg);
 		return FALSE;
 	}
 	do {
 		if (!htthread->recv(htthread)) {
-			print_error(EWARNING, "文件下载中，接收文件信息错误");
+			print_error(EWARNING, "文件上传中，接收文件信息错误");
 			return FALSE;
 		}
-		write(up, htthread->trans.buffer, strlen(htthread->trans.buffer));
-	} while (htthread->trans.protocol != FSENDALL);
+		switch (htthread->trans.protocol) {
+		case FSEND:
+			write(up, htthread->trans.buffer, strlen(htthread->trans.buffer));
+			break;
+		default:
+			goto out;
+		}
+	} while (TRUE);
+out:
 	close(up);
 	return TRUE;
 }
@@ -116,37 +117,6 @@ boolean htthread_download(struct htthread_struct *htthread)
 	htthread->send(htthread);
 	return TRUE;
 }
-/*
-boolean htthread_thread(void *p)
-{
-	struct htthread_struct *htthread = (struct htthread_struct *)p;
-	if (!create_tcp_client(htthread->socket)) {
-		print_error(ESYSERR,"建立文件传输网络连接错误");
-		return FALSE;
-	}
-	while (TRUE) {
-		switch(htthread->select) {
-		case FUP:
-			if(htthread->trans.protocol == FUP)
-				hnet_recv(htthread->socket->tcp, &htthread->trans,
-						sizeof(struct htthread_trans));
-			else
-				return FALSE;
-			break;
-		case FDOWN:
-			if(htthread->trans.protocol == FDOWN)
-				hnet_send(htthread->socket->tcp, &htthread->trans,
-						sizeof(struct htthread_trans));
-			else 
-				return FALSE;
-			break;
-		default:
-			return FALSE;
-		}
-	}
-	return TRUE;
-}
-*/
 boolean htthread_trans_init(struct htthread_trans *httrans)
 {
 	LINUXARMS_POINTER(httrans);
