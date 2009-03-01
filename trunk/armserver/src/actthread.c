@@ -1,3 +1,4 @@
+#define __DEBUG__
 #include <string.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -71,8 +72,16 @@ boolean atthread_download(struct atthread_struct *atthread)
 			print_error(EWARNING, "下载文件发生错误");
 			return FALSE;
 		}
-		write(down, atthread->trans.buffer,strlen(atthread->trans.buffer));
-	} while (atthread->trans.protocol != FSENDALL);
+		switch (atthread->trans.protocol) {
+		case FSEND:
+			write(down, atthread->trans.buffer,strlen(atthread->trans.buffer));
+			break;
+		default:
+			goto out;
+
+		}
+	} while (TRUE);
+out:
 	close(down);
 }
 

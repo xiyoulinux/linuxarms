@@ -27,6 +27,7 @@
 #include "error.h"
 #include "anet.h"
 #include "thread.h"
+#include "assinfo.h"
 #include "arm.h"
 #define _DEBUG_
 #ifdef GTK_THREAD
@@ -128,7 +129,7 @@ int main(int args, char *argv[])
 			struct asthread_struct asthread;			
 			/* asprocess.kill = &asthread->trans.kill */
 			asprocess_init(&asprocess, &asthread.trans.kill, &asthread.socket);
-			assinfo_init(&assinfo);
+			assinfo_init(&assinfo, &asthread.socket);
 			asthread_init(&asthread, &assinfo, &asprocess);
 
 			/* 初始化acthread结构体 */
