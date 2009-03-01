@@ -12,6 +12,7 @@
 #include "hsthread.h"
 #include "hfthread.h"
 #include "hcthread.h"
+#include "htthread.h"
 #include "linuxarms.h"
 #include "protocol.h"
 #include "statusbar.h"
@@ -38,6 +39,7 @@ boolean create_window_main_timeout(gpointer user_data)
 	struct hsthread_struct *hsthread = linuxarms->hsthread;
 	struct hfthread_struct *hfthread = linuxarms->hfthread;
 	struct hcthread_struct *hcthread = linuxarms->hcthread;
+	struct htthread_struct *htthread = hfthread->hftrans;
 	struct login_struct *login = linuxarms->login;
 	char buf[40];
 
@@ -53,6 +55,7 @@ boolean create_window_main_timeout(gpointer user_data)
 			hsthread->competence = login_user_competence(login);
 			hfthread->competence = login_user_competence(login);
 			hcthread->competence = login_user_competence(login);
+			htthread->competence = login_user_competence(login);
 			debug_where();
 			login_config_free(login->config);
 			debug_where();

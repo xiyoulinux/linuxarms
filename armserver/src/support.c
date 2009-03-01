@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define PATH_LEN 256
 #define FILE_NAME_LEN 256
 
 struct list {

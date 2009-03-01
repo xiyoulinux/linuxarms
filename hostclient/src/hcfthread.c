@@ -3,8 +3,10 @@
  */
 #define __DEBUG__
 #include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include "hfthread.h"
+#include "htthread.h"
 #include "hnet.h"
 #include "fview.h"
 #include "filetrans.h"
@@ -55,6 +57,7 @@ gboolean hfthread_thread(void *p)
 {
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)p;
 	struct hfthread_struct *hfthread = linuxarms->hfthread;
+	struct htthread_struct *htthread = hfthread->hftrans;
 	struct hfview_struct *hfview = hfthread->hfview;
 	linuxarms_print("create hfthread thread...\n");
 	hfthread->thread.id = linuxarms_thread_self();
@@ -73,8 +76,11 @@ gboolean hfthread_thread(void *p)
 		hfthread->down_lock(hfthread);
 		switch (hfthread->trans.protocol) {
 		case FUP: /* 上传文件处理 */
+			htthread->mode = atoi(hfthread->trans.rename[NEWNAME]);
+			htthread_upload(htthread);
 			break;
 		case FDOWN: /* 下载文件处理 */
+			htthread_download(htthread);
 			break;
 		case FVIEW: /* 文件浏览处理 */
 			do_file_view(hfthread->hfview);
@@ -142,8 +148,8 @@ boolean hfthread_set_trans(struct hfthread_struct *hfthread,
 	}
 	hfthread->trans.protocol = protocol;
 	strncpy(hfthread->trans.path, path , PATH_LEN);
-	strncpy(hfthread->trans.rename[OLDNAME], oldname, FNAME_LEN);
-	strncpy(hfthread->trans.rename[NEWNAME], newname, FNAME_LEN);
+	strncpy(hfthread->trans.rename[OLDNAME], oldname, FILE_NAME_LEN);
+	strncpy(hfthread->trans.rename[NEWNAME], newname, FILE_NAME_LEN);
 	return TRUE;
 out:
 	return FALSE;
@@ -178,7 +184,7 @@ boolean hfthread_trans_init(struct hfthread_trans *hftrans)
 	hftrans->protocol = FMAX;
 	memset(hftrans->path, '\0', PATH_LEN);
 	hftrans->path[0] = '/';
-	memset(hftrans->rename, '\0', FNAME_LEN * 2);
+	memset(hftrans->rename, '\0', FILE_NAME_LEN * 2);
 	hftrans->hide = TRUE;
 	return TRUE;
 }
@@ -216,7 +222,7 @@ boolean hfthread_trans_set_rename(struct hfthread_trans *hftrans, char *oldname,
 	LINUXARMS_POINTER(hftrans);
 	LINUXARMS_CHAR(oldname);
 	LINUXARMS_CHAR(newname);
-	if (strlen(oldname) > FNAME_LEN || strlen(newname) > FNAME_LEN) {
+	if (strlen(oldname) > FILE_NAME_LEN || strlen(newname) > FILE_NAME_LEN) {
 		print_error(EWARNING, "文件名过长");
 		return FALSE;
 	}

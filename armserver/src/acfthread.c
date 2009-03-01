@@ -2,6 +2,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include "afthread.h"
 #include "anet.h"
 #include "afview.h"
@@ -68,9 +71,44 @@ boolean afthread_thread(void *p)
 		switch (afthread->trans.protocol) {
 		case FUP:
 			debug_print("protocol->afthread: 上传文件\n");
+			struct stat buf;
+			char mode[10];
+			snprintf(atthread->path, PATH_LEN, "%s/%s", 
+				 afthread->trans.path, afthread->trans.rename[OLDNAME]);
+			if (access(atthread->path, F_OK) == -1) {
+				afthread->set_protocol(afthread, FNOEXIST);
+				afthread->send(afthread);
+				break;
+			}
+			if (stat(atthread->path, &buf) == -1) {
+				afthread->set_protocol(afthread, FERR);
+				afthread->send(afthread);
+				break;
+			}
+			snprintf(mode, 10, "%d", buf.st_mode);
+			strcpy(afthread->trans.rename[NEWNAME], mode);
+			afthread->set_protocol(afthread, FUP);
+			afthread->send(afthread);
+			atthread_upload(atthread);
 			break;
 		case FDOWN:
 			debug_print("protocol->afthread: 下载文件\n");
+			if (access(afthread->trans.path, F_OK) == -1) {
+				afthread->set_protocol(afthread, FNOEXIST);
+				afthread->send(afthread);
+				break;
+			}
+			snprintf(atthread->path, PATH_LEN, "%s/%s", 
+				 afthread->trans.path, afthread->trans.rename[OLDNAME]);
+			if (access(atthread->path, F_OK) == 0) {
+				afthread->set_protocol(afthread, FEXIST);
+				afthread->send(afthread);
+				break;
+			}
+			atthread->mode = atoi(afthread->trans.rename[NEWNAME]);
+			afthread->set_protocol(afthread, FDOWN);
+			afthread->send(afthread);
+			atthread_download(atthread);
 			break;
 		case FVIEW:
 			debug_print("protocol->afthread: 浏览文件\n");

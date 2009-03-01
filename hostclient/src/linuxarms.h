@@ -26,7 +26,8 @@ struct linuxarms_struct {
 	struct hsthread_struct *hsthread;
 	struct hcthread_struct *hcthread;
 };
-
+#define PATH_LEN 512
+#define FILE_NAME_LEN 256 
 #define LINUXARMS_CHAR(p) do{                            \
 	if (!(p)) {                                      \
 		debug_where();                           \

@@ -14,9 +14,12 @@
 #include "fview.h"
 #include "hfthread.h"
 #include "hmthread.h"
+#include "htthread.h"
+#include "message.h"
 
 GtkWidget* create_filechooserdialog(struct linuxarms_struct *linuxarms)
 {
+	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
 	GtkWidget *filechooserdialog;
 	GtkWidget *dialog_vbox;
 	GtkWidget *dialog_action_area;
@@ -25,21 +28,33 @@ GtkWidget* create_filechooserdialog(struct linuxarms_struct *linuxarms)
 	GtkWidget *hbox7;
 	GtkWidget *image348;
 	GtkWidget *label7;
-	GtkWidget *button_open;
+	GtkWidget *button_ok;
 	GtkWidget *alignment10;
 	GtkWidget *hbox8;
 	GtkWidget *image349;
-	GtkWidget *label8;
+	GtkWidget *label_ok;
 
-	filechooserdialog = gtk_file_chooser_dialog_new ("Open File",
-  			GTK_WINDOW(linuxarms->mwindow->window) , 
-			GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
-	gtk_container_set_border_width (GTK_CONTAINER (filechooserdialog), 5);
-	gtk_window_set_type_hint (GTK_WINDOW (filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+	switch (htthread->select) {
+	case FDOWN:
+		filechooserdialog = gtk_file_chooser_dialog_new("选择要下载的文件",
+			    GTK_WINDOW(linuxarms->mwindow->window), 
+			    GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+		break;
+	case FUP:
+		filechooserdialog = gtk_file_chooser_dialog_new("选择要保存的路径",
+			    GTK_WINDOW(linuxarms->mwindow->window), 
+			    GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
+		break;
+	default:
+		message_box_error(linuxarms->mwindow->window, "错误的请求方式");
+		return NULL;
+	}
+	gtk_container_set_border_width(GTK_CONTAINER(filechooserdialog), 5);
+	gtk_window_set_position(GTK_WINDOW(filechooserdialog), GTK_WIN_POS_CENTER);
+	gtk_window_set_type_hint(GTK_WINDOW(filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
 	dialog_vbox = GTK_DIALOG(filechooserdialog)->vbox;
 	gtk_widget_show(dialog_vbox);
-	gtk_widget_set_size_request(dialog_vbox, 267, 267);
 
 	dialog_action_area = GTK_DIALOG(filechooserdialog)->action_area;
 	gtk_widget_show(dialog_action_area);
@@ -62,18 +77,18 @@ GtkWidget* create_filechooserdialog(struct linuxarms_struct *linuxarms)
 	gtk_widget_show(image348);
 	gtk_box_pack_start(GTK_BOX(hbox7), image348, FALSE, FALSE, 0);
 
-	label7 = gtk_label_new_with_mnemonic(_("\345\217\226\346\266\210"));
+	label7 = gtk_label_new_with_mnemonic(_("取消"));
 	gtk_widget_show(label7);
 	gtk_box_pack_start(GTK_BOX(hbox7), label7, FALSE, FALSE, 0);
 
-	button_open = gtk_button_new();
-	gtk_widget_show(button_open);
-	gtk_dialog_add_action_widget(GTK_DIALOG(filechooserdialog), button_open, GTK_RESPONSE_OK);
-	GTK_WIDGET_SET_FLAGS(button_open, GTK_CAN_DEFAULT);
+	button_ok = gtk_button_new();
+	gtk_widget_show(button_ok);
+	gtk_dialog_add_action_widget(GTK_DIALOG(filechooserdialog), button_ok, GTK_RESPONSE_OK);
+	GTK_WIDGET_SET_FLAGS(button_ok, GTK_CAN_DEFAULT);
 
 	alignment10 = gtk_alignment_new(0.5, 0.5, 0, 0);
 	gtk_widget_show(alignment10);
-	gtk_container_add(GTK_CONTAINER(button_open), alignment10);
+	gtk_container_add(GTK_CONTAINER(button_ok), alignment10);
 
 	hbox8 = gtk_hbox_new(FALSE, 2);
 	gtk_widget_show(hbox8);
@@ -82,22 +97,32 @@ GtkWidget* create_filechooserdialog(struct linuxarms_struct *linuxarms)
 	image349 = gtk_image_new_from_stock("gtk-open", GTK_ICON_SIZE_BUTTON);
 	gtk_widget_show(image349);
 	gtk_box_pack_start(GTK_BOX(hbox8), image349, FALSE, FALSE, 0);
+	switch (htthread->select) {
+	case FDOWN:
+		label_ok = gtk_label_new_with_mnemonic(_("选择"));
+		break;
+	case FUP:
+		label_ok = gtk_label_new_with_mnemonic(_("保存"));
+		break;
+	default:
+		label_ok = gtk_label_new_with_mnemonic(_("打开"));
+		break;
 
-	label8 = gtk_label_new_with_mnemonic(_("选择"));
-	gtk_widget_show(label8);
-	gtk_box_pack_start(GTK_BOX(hbox8), label8, FALSE, FALSE, 0);
+	}
+	gtk_widget_show(label_ok);
+	gtk_box_pack_start(GTK_BOX(hbox8), label_ok, FALSE, FALSE, 0);
 
 	g_signal_connect((gpointer)button_cancel, "clicked",
-				   G_CALLBACK(cb_button_cancel_clicked),
-				   (gpointer)filechooserdialog);
-	g_signal_connect((gpointer)button_open, "clicked",
-				    G_CALLBACK(cb_button_open_clicked),
-				    (gpointer)filechooserdialog);
+			G_CALLBACK(cb_ftrans_button_cancel_clicked),
+			(gpointer)filechooserdialog);
+	g_signal_connect((gpointer)button_ok, "clicked",
+			G_CALLBACK(cb_ftrans_button_ok_clicked),
+			(gpointer)linuxarms);
 	g_signal_connect((gpointer)filechooserdialog, "delete_event",
-				    G_CALLBACK(gtk_widget_destroy),
-				    NULL);				   
-
-	gtk_widget_grab_default(button_open);
+			G_CALLBACK(cb_ftrans_window_close),
+			NULL);
+	htthread->widget.choose = filechooserdialog;
+	gtk_widget_grab_default(button_ok);
 	return filechooserdialog;
 }
 
