@@ -141,14 +141,12 @@ BACK:
 void cb_download_clicked(GtkButton *button, gpointer user_data)
 {
 	debug_where();
-	cb_fview_download_activate(NULL, NULL);
-
+	cb_fview_download_activate(NULL, user_data);
 }
 
 
 void cb_upload_clicked(GtkButton *button, gpointer user_data)
 {
 	debug_where();
-	cb_fview_upload_activate(NULL, NULL);
-
+	cb_fview_upload_activate(NULL, user_data);
 }

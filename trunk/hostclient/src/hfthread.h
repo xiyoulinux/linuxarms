@@ -7,8 +7,10 @@
 #include "debug.h"
 #include "error.h"
 #include <gtk/gtk.h>
-#define PATH_LEN 512
-#define FNAME_LEN 256
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 enum {
 	OLDNAME,
 	NEWNAME
@@ -23,7 +25,7 @@ enum {
 struct hfthread_trans {
 	protocol_fthread protocol;
 	char path[PATH_LEN];
-	char rename[2][FNAME_LEN];
+	char rename[2][FILE_NAME_LEN];
 	boolean hide;
 };
 

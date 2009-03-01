@@ -23,7 +23,7 @@ struct linuxarms_struct {
 	struct acthread_struct *acthread;
 	
 };
-
+#define PATH_LEN 512
 #define LINUXARMS_CHAR(p) do{                           \
 	if (!(p)) {                                     \
 		debug_where();                          \

@@ -26,7 +26,7 @@ typedef enum _Mthread {
  * 系统信息显示和实时监视线程交互协议
  */
 typedef enum _Sthread {
-	SSYSINFO = MMAX + 1,  /* 系统信息显示           */
+	SSYSINFO = MMAX + 1, /* 系统信息显示 */
 	SPROCESS,  /* 实时监视(进程信息显示) */
 	SKILL,     /* 杀死进程               */
 	SKILLSUC,  /* 杀死进程成功           */
@@ -42,7 +42,7 @@ typedef enum _Sthread {
  * 文件浏览和文件传输交互协议
  */
 typedef enum _Fthread {
-	FUP = SMAX + 1,        /* 上传文件               */
+	FUP = SMAX + 1, /* 上传文件           */
 	FDOWN,      /* 下载文件               */
 	CSERSUC,    /* 创建文件传输服务器成功 */
 	FTRANSSUC,  /* 文件传输成功           */
@@ -53,11 +53,14 @@ typedef enum _Fthread {
 	FDELETE,    /* 删除文件               */
 	FDELETESUC, /* 删除文件成功           */
 	FDELETEERR, /* 删除文件失败           */
-	FVIEWSUC,   /* 成功接收信息           */
-	FVIEWERR,   /* 接收信息失败           */
+	FSUC,       /* 成功接收信息           */
+	FERR,       /* 接收信息失败           */
+	FSEND,      /* 发送信息               */
+	FRECV,      /* 接收信息               */
 	FRECVALL,   /* 接收完毕               */
 	FSENDALL,   /* 发送完毕               */
 	FNOEXIST,   /* 文件不存在             */
+	FEXIST,     /* 文件已经存在           */
 	FMAX        /* 无效命令               */
 }protocol_fthread;
 #define  PROTOCOL_IS_FTHREAD(protocol) ((protocol) >= FUP && (protocol) < FMAX)
@@ -65,12 +68,12 @@ typedef enum _Fthread {
  * 实时控制交互协议
  */
 typedef enum _Cthread {
-	CSEND = FMAX + 1,    /* 发送数据 */
-	CRECV,    /* 接收数据 */
-	CSENDALL, /* 发送完毕 */
-	CRECVALL, /* 接收完毕 */
-	CSENDCD,  /* 发送cd命令结果 */
-	CMAX      /* 无效命令 */
+	CSEND = FMAX + 1, /* 发送数据 */
+	CRECV,    /* 接收数据         */
+	CSENDALL, /* 发送完毕         */
+	CRECVALL, /* 接收完毕         */
+	CSENDCD,  /* 发送cd命令结果   */
+	CMAX      /* 无效命令         */
 }protocol_cthread;
 #define  PROTOCOL_IS_CTHREAD(protocol) ((protocol) >= CSEND && (protocol) < CMAX)
 

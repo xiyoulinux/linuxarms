@@ -6,7 +6,6 @@
 #include "atthread.h"
 #include "thread.h"
 #include "afview.h"
-#define PATH_LEN  512
 enum {
 	OLDNAME,
 	NEWNAME

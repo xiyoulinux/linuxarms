@@ -8,7 +8,6 @@
 #include "hnet.h"
 
 #define FILE_INFO_COLUMNS 5
-#define FILE_NAME_LEN 256
 #define FILE_USER_LEN 20
 enum {
 	TYPE_DIR = 4,
@@ -37,8 +36,6 @@ struct hfview_recv {
 	unsigned int type;
 	char user[FILE_USER_LEN];
 	time_t mtime;
-
-	
 };
 boolean hfview_recv_init(struct hfview_recv *frecv);
 /*

@@ -13,8 +13,7 @@
 #include "login.h"
 #include "thread.h"
 
-#define HTTHREAD_PATH_LEN 80
-#define TRAS_SIZE 512
+#define HTTHREAD_TRANS_SIZE 512
 
 /*
  * htthread_mwidget	contain some GtkWidget which htthread will use
@@ -24,6 +23,7 @@ struct htthread_widget {
 	GtkWidget *menubar_download;
 	GtkWidget *toolbar_upload;
 	GtkWidget *toolbar_download;
+	GtkWidget *choose;
 };
 
 /*
@@ -33,48 +33,35 @@ struct htthread_widget {
  */
 struct htthread_trans {
 	protocol_fthread protocol;
-	char buffer[TRAS_SIZE];
+	char buffer[HTTHREAD_TRANS_SIZE];
 };
-
+boolean htthread_trans_init(struct htthread_trans *httrans);
+boolean htthread_trans_set_protocol(struct htthread_trans *httrans, protocol_fthread protocol);
+const char *htthread_trans_get_buf(struct htthread_trans *httrans);
+boolean htthread_trans_set_buf(struct htthread_trans *httrans, const char *buf);
 /*
+ * @select:          下载文件/上传文件
  * @file_size:       请求传输文件的大小
  * @savefile_size:   已经传输文件的大小
  */
 struct htthread_struct {
-	struct linuxarms_thread thread;
+	boolean competence;
 	protocol_fthread select;
-	long long file_size;
-	long long savefile_size;
-	struct user_struct user;
-	struct hnet_struct socket;
+	off_t size;
+	mode_t mode;
+	struct hnet_struct *socket;
 	struct htthread_widget widget;
 	struct htthread_trans trans;
-	char download_path[HTTHREAD_PATH_LEN];
-	char upload_path[HTTHREAD_PATH_LEN];
+	char path[PATH_LEN];
 
-	boolean (*get_download_file)(struct htthread_struct *htthread,
-													char *path);
-	boolean(*get_upload_file)(struct htthread_struct *htthread,
-													char *path);
-	boolean(*upload)(struct htthread_struct *htthread, 
-				struct htthread_trans *trans);
-	boolean(*download)(struct htthread_struct *htthread, 
-				struct htthread_trans *trans);
+	boolean (*set_protocol)(struct htthread_struct *htthread, protocol_fthread protocol);
 	boolean (*send)(struct htthread_struct *htthread);
 	boolean (*recv)(struct htthread_struct *htthread);
 };
 
-/* 初始化htthread_struct结构体 */
-int htthread_init(struct htthread_struct *htthread,
-	             struct user_struct *user,
-		     struct hnet_struct *socket,
-		     struct htthread_widget *widget);
-
-/* determine trans percent */
-int trans_percent(struct htthread_struct *htthread);
-
-
 /* 线程执行体 */
-gboolean htthread_thread(void *p);
-
+//boolean htthread_thread(void *p);
+boolean htthread_init(struct htthread_struct *htthread, struct hnet_struct *socket);
+boolean htthread_upload(struct htthread_struct *htthread);
+boolean htthread_download(struct htthread_struct *htthread);
 #endif

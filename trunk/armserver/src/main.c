@@ -119,7 +119,7 @@ int main(int args, char *argv[])
 			struct afthread_struct afthread;
 			/* afview->path = afthread->trans.path */
 			afview_init(&afview, afthread.trans.path, &afthread.socket);			
-			atthread_init(&atthread, &login.user);
+			atthread_init(&atthread, &afthread.socket);
 			afthread_init(&afthread, &afview, &atthread);
 			
 			/* 初始化asthread结构体 */			
@@ -155,6 +155,7 @@ int main(int args, char *argv[])
 		}
 	}
 err:
+	munmap(login_user, USER_NAME_LEN);
 	linuxarms_print("close armserver...\n");
 	delete_file_directory();
 	return 0;
