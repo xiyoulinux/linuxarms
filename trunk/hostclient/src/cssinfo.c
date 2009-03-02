@@ -78,7 +78,7 @@ boolean hssinfo_show_info(struct hssinfo_struct *hssinfo)
 	char buf[LABEL_TEXT_MAX];
 	int len;
 	//long bsize;
-	//unsigned long blocks, bfree;
+	unsigned long mtotal, mfree, mbuffers, mcached;
 	float bsize, blocks, bfree;
 	struct hssinfo_trans *hstrans;
 
@@ -119,10 +119,12 @@ boolean hssinfo_show_info(struct hssinfo_struct *hssinfo)
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.kernel), TRUE);
 
 	/* 内存  */
-	sscanf(hstrans->buffer[SYS_MEMTOTAL], "%s %s %s", tmp[0], tmp[1], tmp[2]);
-	sscanf(hstrans->buffer[SYS_MEMFREE], "%s %s %s", tmp[0], tmp[3], tmp[2]);
-	snprintf(buf,LABEL_TEXT_MAX,"<b>内存  总量: %d MB  | 空闲: %d MB</b>",
-		atoi(tmp[1]) / 1024, atoi(tmp[3]) / 1024);
+	mtotal = mfree = mbuffers = mcached = 0;
+	sscanf(hstrans->buffer[SYS_MEMTOTAL], "%s %lu %s", tmp[0], &mtotal, tmp[0]);
+	sscanf(hstrans->buffer[SYS_MEMFREE], "%s %lu %s\n%s %lu %s\n%s %lu", 
+			tmp[0], &mfree, tmp[0], tmp[0], &mbuffers, tmp[0], tmp[0], &mcached);
+	snprintf(buf,LABEL_TEXT_MAX,"<b>内存  总量: %lu MB  | 空闲: %lu MB</b>",
+		mtotal / 1024, (mfree + mbuffers + mcached) / 1024);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.memory),buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.memory), TRUE);
 
@@ -131,11 +133,11 @@ boolean hssinfo_show_info(struct hssinfo_struct *hssinfo)
 		tmp[0],tmp[0],tmp[0],tmp[0],tmp[0],
 		tmp[0],tmp[0],tmp[2]);
 	p = tmp[1] + strlen("eth0:");
-	snprintf(buf,LABEL_TEXT_MAX,"<b>接收: %ld KB</b>",atol(p) / 1024);
+	snprintf(buf,LABEL_TEXT_MAX,"<b>接收: %ld MB</b>",atol(p) / 1024 / 1024);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.netrecv),buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.netrecv), TRUE);
 
-	snprintf(buf,LABEL_TEXT_MAX,"<b>发送: %ld KB</b>",atol(tmp[2]) / 1024);
+	snprintf(buf,LABEL_TEXT_MAX,"<b>发送: %ld MB</b>",atol(tmp[2]) / 1024 / 1024);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.netsend),buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.netsend), TRUE);
 
@@ -152,9 +154,12 @@ boolean hssinfo_show_info(struct hssinfo_struct *hssinfo)
 	/* max cpu 6*/
 	len = sscanf(hstrans->buffer[SYS_CPUHZ], "%s %s", tmp[0],tmp[5]);
 	p = hstrans->buffer[SYS_CPUHZ] + strlen(tmp[0]) + strlen(tmp[5]) + len;
-	debug_print("CPU:  %s %s %s %s %s\n", tmp[0], tmp[1], tmp[2], tmp[3], p);
+	len = strlen(p);
+	if (p[len -1] == '\n')
+		p[len - 1] = ' ';
+	//debug_print("CPU:  %s %s %s %s %s\n", tmp[0], tmp[1], tmp[2], tmp[3], p);
 	float total = atof(tmp[1]) + atof(tmp[2]) + atof(tmp[3]);
-	snprintf(buf,LABEL_TEXT_MAX,"<b>cpu使用率： %.2f %s   主频%s Mz</b>",
+	snprintf(buf,LABEL_TEXT_MAX,"<b>cpu使用率： %.2f %s   主频:%s Mz</b>",
 		total * 100 / (total + atof(tmp[4])), "%", p);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.cpuused),buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.cpuused), TRUE);
