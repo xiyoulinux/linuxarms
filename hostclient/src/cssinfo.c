@@ -17,6 +17,10 @@
 #include "debug.h"
 #define LABEL_TEXT_MAX 128
 
+static unsigned long cpu_jiff_user_prev = 0, cpu_jiff_nice_prev = 0, 
+		     cpu_jiff_system_prev = 0, cpu_jiff_idle_prev = 0, cpu_jiff_prev = 0;
+static unsigned long cpu_jiff_user_new, cpu_jiff_nice_new, 
+		     cpu_jiff_system_new, cpu_jiff_idle_new, cpu_jiff_new;
 static boolean hssinfo_set_protocol(struct hssinfo_struct *hssinfo, protocol_sthread protocol);
 static boolean hssinfo_send(struct hssinfo_struct *hssinfo);
 static boolean hssinfo_recv(struct hssinfo_struct *hssinfo);
@@ -70,7 +74,6 @@ boolean hssinfo_trans_set_protocol(struct hssinfo_trans *hstrans, protocol_sthre
 	hstrans->protocol = protocol;
 	return TRUE;
 }
-
 boolean hssinfo_show_info(struct hssinfo_struct *hssinfo)
 {
 	char *p;
@@ -81,6 +84,7 @@ boolean hssinfo_show_info(struct hssinfo_struct *hssinfo)
 	unsigned long mtotal, mfree, mbuffers, mcached;
 	float bsize, blocks, bfree;
 	struct hssinfo_trans *hstrans;
+	float cpu_time;
 
 	LINUXARMS_POINTER(hssinfo);
 	hstrans = &hssinfo->trans;
@@ -150,7 +154,16 @@ boolean hssinfo_show_info(struct hssinfo_struct *hssinfo)
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.cpuinfo), TRUE);
 
 	/* cpu 使用  */
-	sscanf(hstrans->buffer[SYS_CPUUSED],"%s %s %s %s %s",tmp[0],tmp[1],tmp[2],tmp[3], tmp[4]);
+	sscanf(hstrans->buffer[SYS_CPUUSED],"%s %lu %lu %lu %lu",tmp[0], &cpu_jiff_user_new,
+	       &cpu_jiff_nice_new, &cpu_jiff_system_new, &cpu_jiff_idle_new);
+	cpu_jiff_prev = cpu_jiff_user_prev + cpu_jiff_nice_prev + cpu_jiff_system_prev;
+	cpu_jiff_new = cpu_jiff_user_new + cpu_jiff_nice_new + cpu_jiff_system_new;
+	cpu_time = (float)(cpu_jiff_new - cpu_jiff_prev) / 
+		   (float)((cpu_jiff_new + cpu_jiff_idle_new) - (cpu_jiff_prev + cpu_jiff_idle_prev)) * 100.0;
+	cpu_jiff_user_prev = cpu_jiff_user_new;
+	cpu_jiff_nice_prev = cpu_jiff_nice_new;
+	cpu_jiff_system_prev = cpu_jiff_system_new;
+	cpu_jiff_idle_prev = cpu_jiff_idle_new;
 	/* max cpu 6*/
 	len = sscanf(hstrans->buffer[SYS_CPUHZ], "%s %s", tmp[0],tmp[5]);
 	p = hstrans->buffer[SYS_CPUHZ] + strlen(tmp[0]) + strlen(tmp[5]) + len;
@@ -158,9 +171,8 @@ boolean hssinfo_show_info(struct hssinfo_struct *hssinfo)
 	if (p[len -1] == '\n')
 		p[len - 1] = ' ';
 	//debug_print("CPU:  %s %s %s %s %s\n", tmp[0], tmp[1], tmp[2], tmp[3], p);
-	float total = atof(tmp[1]) + atof(tmp[2]) + atof(tmp[3]);
-	snprintf(buf,LABEL_TEXT_MAX,"<b>cpu使用率： %.2f %s   主频:%s Mz</b>",
-		total * 100 / (total + atof(tmp[4])), "%", p);
+	snprintf(buf,LABEL_TEXT_MAX,"<b>cpu使用率： %.2f%s   主频:%s Mz</b>",
+		 cpu_time, "%", p);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.cpuused),buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.cpuused), TRUE);
 
