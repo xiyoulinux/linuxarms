@@ -1,3 +1,4 @@
+#include <gtk/gtk.h>
 #include "linuxarms.h"
 #include "thread.h"
 #include "error.h"
@@ -32,9 +33,11 @@ void linuxarms_thread_exit(struct linuxarms_thread *thread)
 {
 	//g_thread_join(thread);
 	LINUXARMS_THREAD_POINTER(thread);
+	//gtk_main_quit();
+	//g_thread_join(thread->id);
 	if (linuxarms_thread_trylock(thread))
 		linuxarms_thread_unlock(thread);
-	linuxarms_thread_lock_free(thread);
+	//linuxarms_thread_lock_free(thread);
 	thread->id = NULL;
 }
 

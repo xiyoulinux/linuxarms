@@ -16,6 +16,7 @@
 static boolean assinfo_set_protocol(struct assinfo_struct *assinfo, protocol_sthread protocol);
 static boolean assinfo_send(struct assinfo_struct *assinfo);
 static boolean assinfo_recv(struct assinfo_struct *assinfo);
+
 /* 静态数据 */
 static struct assinfo_file proc_files[ASSINFO_LINE] = {
 	{"nokeyword",  "/proc/sys/kernel/hostname", 0},
@@ -89,18 +90,13 @@ boolean assinfo_read_info(struct asthread_struct *asthread)
 
 	FILE *fp;
 	char temp[ASSINFO_MAX], *buff;
-	int count, countline;
+	int count, countline, len;
 	struct statfs disk;
-	enum error asyserror;
-
-	asyserror = ESUCCESS;
 	if((statfs("/", &disk) == -1)){
-		asyserror = ENOINIT;
 		goto out;
 	}	
 	
 	for (count = 0; count < ASSINFO_LINE; count++) {
-		asyserror = ESUCCESS;
 		if (proc->state != CONTINUE) {
 			goto out;
 		}
@@ -125,6 +121,17 @@ boolean assinfo_read_info(struct asthread_struct *asthread)
 			} 
 			fgets(temp,ASSINFO_MAX,fp);
 			buff = strstr(temp,proc_files[count].keyword);
+
+			/* read /proc/meminfo: Buffers Cached*/
+			if (count == 3 && buff) {
+				len = strlen(buff);
+				buff = buff + len;
+				fgets(buff, ASSINFO_MAX - len, fp);
+				len = strlen(buff);
+				buff = buff + len;
+				fgets(buff, ASSINFO_MAX - len, fp);
+				buff = temp;
+			}
 		}
 		strcpy(assinfo->trans.buffer[count], buff == NULL ? "获取信息错误" : buff);
 	}

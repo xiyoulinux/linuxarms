@@ -32,6 +32,7 @@ void linuxarms_thread_exit(struct linuxarms_thread *thread)
 {
 	//g_thread_join(thread);
 	LINUXARMS_THREAD_POINTER(thread);
+	g_thread_join(thread->id);
 	if (linuxarms_thread_trylock(thread))
 		linuxarms_thread_unlock(thread);
 	linuxarms_thread_lock_free(thread);
