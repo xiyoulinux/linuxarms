@@ -68,7 +68,7 @@ boolean read_proc(struct asthread_struct *asthread)
 	proc = &asthread->proc;
 	switch (proc->ctrl) {
 	case SSYSINFO:
-		//read_sysinfo(asthread);
+		assinfo_read_info(asthread);
 		break;
 	case SPROCESS:
 		debug_where();

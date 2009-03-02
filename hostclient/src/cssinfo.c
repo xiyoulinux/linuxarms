@@ -12,6 +12,7 @@
 #include "linuxarms.h"
 #include "ssinfo.h"
 #include "protocol.h"
+#include "fview.h"
 #include "error.h"
 #include "debug.h"
 #define LABEL_TEXT_MAX 128
@@ -70,85 +71,121 @@ boolean hssinfo_trans_set_protocol(struct hssinfo_trans *hstrans, protocol_sthre
 	return TRUE;
 }
 
-boolean hssinfo_show(struct hssinfo_struct *hssinfo)
+boolean hssinfo_show_info(struct hssinfo_struct *hssinfo)
 {
-	char **data, *p;
+	char *p;
 	char tmp[6][80];
 	char buf[LABEL_TEXT_MAX];
-	int i, len;
+	int len;
+	//long bsize;
+	//unsigned long blocks, bfree;
+	float bsize, blocks, bfree;
+	struct hssinfo_trans *hstrans;
 
 	LINUXARMS_POINTER(hssinfo);
-	data = (char **)hssinfo->trans.buffer;
-
+	hstrans = &hssinfo->trans;
+	if (!hssinfo->recv(hssinfo)) {
+		print_error(EWARNING, "显示系统信息中，接收数据错误");
+		return FALSE;
+	}
+	if (hstrans->protocol != SSUCCESS)
+		return FALSE;
+	debug_where();
 	/* 主机名 */
-	snprintf(buf,LABEL_TEXT_MAX,"<b>主机名: %s</b>",data[SYS_HOSTNAME]);
+	snprintf(buf,LABEL_TEXT_MAX,"<b>主机名: %s</b>",hstrans->buffer[SYS_HOSTNAME]);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.hostname),buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.hostname), TRUE);
 
 	/* 发行版本 */
-	len = strlen(data[SYS_RELEASE]);
-	for (i = 0; i < len; i ++)
-		if (data[SYS_RELEASE][i] == '\n' || data[SYS_RELEASE][i] == '\l')
-			data[SYS_RELEASE][i] = ' ';
-	snprintf(buf,LABEL_TEXT_MAX,"<b>发行版本: %s</b>",data[SYS_RELEASE]);
+	len = strlen(hstrans->buffer[SYS_RELEASE]);
+	p = strstr(hstrans->buffer[SYS_RELEASE], "\\n");
+	if (p) {
+		*p = ' ';
+		*(p + 1) = ' ';
+	}
+	p = strstr(hstrans->buffer[SYS_RELEASE], "\\l");
+	if (p) {
+		*p = ' ';
+		*(p + 1) = ' ';
+	}
+	snprintf(buf,LABEL_TEXT_MAX,"<b>发行版本: %s</b>",hstrans->buffer[SYS_RELEASE]);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.release), buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.release), TRUE);
 
 	/* 内核 */
-	sscanf(data[SYS_KERNEL],"%s %s %s", tmp[0], tmp[1], tmp[2]);
+	sscanf(hstrans->buffer[SYS_KERNEL],"%s %s %s", tmp[0], tmp[1], tmp[2]);
 	snprintf(buf, LABEL_TEXT_MAX, "<b>内核版本: %s %s</b>", "Kernel Linux", tmp[1]);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.kernel),buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.kernel), TRUE);
 
 	/* 内存  */
-	sscanf(data[SYS_MEMTOTAL], "%s %s %s", tmp[0], tmp[1], tmp[2]);
-	sscanf(data[SYS_MEMFREE], "%s %s %s", tmp[0], tmp[3], tmp[2]);
-	snprintf(buf,LABEL_TEXT_MAX,"<b>内存    总量(M): %d |空闲(M): %d</b>",
+	sscanf(hstrans->buffer[SYS_MEMTOTAL], "%s %s %s", tmp[0], tmp[1], tmp[2]);
+	sscanf(hstrans->buffer[SYS_MEMFREE], "%s %s %s", tmp[0], tmp[3], tmp[2]);
+	snprintf(buf,LABEL_TEXT_MAX,"<b>内存  总量: %d MB  | 空闲: %d MB</b>",
 		atoi(tmp[1]) / 1024, atoi(tmp[3]) / 1024);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.memory),buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.memory), TRUE);
 
 	/* 网络 */
-	sscanf(data[SYS_NET],"%s%s%s%s%s%s%s%s%s",tmp[1],
+	sscanf(hstrans->buffer[SYS_NET],"%s%s%s%s%s%s%s%s%s",tmp[1],
 		tmp[0],tmp[0],tmp[0],tmp[0],tmp[0],
 		tmp[0],tmp[0],tmp[2]);
-	snprintf(buf,LABEL_TEXT_MAX,"<b>接收(KB): %s</b>",tmp[1]);
+	p = tmp[1] + strlen("eth0:");
+	snprintf(buf,LABEL_TEXT_MAX,"<b>接收: %ld KB</b>",atol(p) / 1024);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.netrecv),buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.netrecv), TRUE);
 
-	snprintf(buf,LABEL_TEXT_MAX,"<b>发送(KB): %s</b>",tmp[2]);
+	snprintf(buf,LABEL_TEXT_MAX,"<b>发送: %ld KB</b>",atol(tmp[2]) / 1024);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.netsend),buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.netsend), TRUE);
 
 	/* cpu型号 */
-	len = sscanf(data[SYS_CPUINFO], "%s %s", tmp[0], tmp[1]);
-	p = data[SYS_CPUINFO] + strlen(tmp[0]) + strlen(tmp[1]) + len;
-	snprintf(buf,LABEL_TEXT_MAX,"<b>cpu型号%s</b>", p);
+	len = sscanf(hstrans->buffer[SYS_CPUINFO], "%s %s", tmp[0], tmp[1]);
+	p = hstrans->buffer[SYS_CPUINFO];
+	p = p + strlen(tmp[0]) + strlen(tmp[1]) + len;
+	snprintf(buf,LABEL_TEXT_MAX,"<b>cpu型号 %s</b>", p);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.cpuinfo), buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.cpuinfo), TRUE);
 
 	/* cpu 使用  */
-	sscanf(data[SYS_CPUUSED],"%s%s%s%s%s",tmp[0],tmp[1],tmp[2],tmp[3], tmp[4]);
+	sscanf(hstrans->buffer[SYS_CPUUSED],"%s %s %s %s %s",tmp[0],tmp[1],tmp[2],tmp[3], tmp[4]);
 	/* max cpu 6*/
-	sscanf(data[SYS_CPUMZ], "%s%s", tmp[0],tmp[5]);
-	int total = atoi(tmp[1]) + atoi(tmp[2]) + atoi(tmp[3]);
-	snprintf(buf,LABEL_TEXT_MAX,"<b>cpu使用率：(%s) %d   主频: %s</b>", "%",
-		total / (total + atoi(tmp[4])) * 100,tmp[5]);
+	len = sscanf(hstrans->buffer[SYS_CPUHZ], "%s %s", tmp[0],tmp[5]);
+	p = hstrans->buffer[SYS_CPUHZ] + strlen(tmp[0]) + strlen(tmp[5]) + len;
+	debug_print("CPU:  %s %s %s %s %s\n", tmp[0], tmp[1], tmp[2], tmp[3], p);
+	float total = atof(tmp[1]) + atof(tmp[2]) + atof(tmp[3]);
+	snprintf(buf,LABEL_TEXT_MAX,"<b>cpu使用率： %.2f %s   主频%s Mz</b>",
+		total * 100 / (total + atof(tmp[4])), "%", p);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.cpuused),buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.cpuused), TRUE);
 
 	/* cpu负载  */
-	sscanf(data[SYS_CPULOAD], "%s%s%s",tmp[0],tmp[1],tmp[2]);
+	sscanf(hstrans->buffer[SYS_CPULOAD], "%s%s%s",tmp[0],tmp[1],tmp[2]);
 	snprintf(buf,LABEL_TEXT_MAX,"<b>cpu负载: %s  %s  %s</b>",tmp[0],tmp[1],tmp[2]);
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.cpuload),buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.cpuload), TRUE);
 
 	/*  硬盘 */
-	snprintf(buf, LABEL_TEXT_MAX,"<b>硬盘    总容量(M): %s |空闲(M): %s</b>",
-			data[SYS_DISKTOTAL],data[SYS_DISKFREE]);
+	sscanf(hstrans->buffer[SYS_DISK], "%f %f %f", &bsize, &blocks, &bfree);
+	blocks = blocks * bsize;
+	bfree = bfree * bsize;
+	if (blocks < FSIZE_KB) {
+		snprintf(buf, LABEL_TEXT_MAX,"<b>硬盘 总容量: %.2f B |空闲: %.2f B</b>",
+			blocks, bfree);
+	} else if (blocks < FSIZE_MB) {
+		snprintf(buf, LABEL_TEXT_MAX,"<b>硬盘 总容量: %d.%d KB |空闲: %d.%d KB</b>",
+			_fsize_kb((int)blocks), __fsize_kb((int)blocks), 
+			_fsize_kb((int)bfree), __fsize_kb((int)bfree));
+	} else if (blocks < FSIZE_GB) {
+		snprintf(buf, LABEL_TEXT_MAX,"<b>硬盘 总容量: %d.%d MB |空闲: %d.%d MB</b>",
+			_fsize_mb((int)blocks), __fsize_mb((int)blocks), 
+			_fsize_mb((int)bfree), __fsize_mb((int)bfree));
+	} else if (blocks < FSIZE_GB * 1024.0) {
+		snprintf(buf, LABEL_TEXT_MAX,"<b>硬盘 总容量: %.0f.%.0f GB |空闲: %.0f.%.0f GB</b>",
+			_fsize_gb(blocks), __fsize_gb(blocks), _fsize_gb(bfree), __fsize_gb(bfree));
+	}
 	gtk_label_set_text(GTK_LABEL(hssinfo->widget.disk),buf);
 	gtk_label_set_use_markup(GTK_LABEL(hssinfo->widget.disk), TRUE);
-	
 	return TRUE;
 }
 

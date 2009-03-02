@@ -65,10 +65,6 @@ boolean amthread_thread(void *p)
 						amthread->trans.user.name);
 				request = FALSE;
 			}
-			/* 验证是否有用户已经登录，如果没有，则验证用户信息，
-			 * 否则发送错误信息(HASUSER)信息给hostclient端的请求
-			 * 者。
-			 */
 			
 			debug_where();
 			protocol = armserver_do_login(linuxarms);

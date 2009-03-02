@@ -7,6 +7,18 @@
 #include "protocol.h"
 #include "hnet.h"
 
+#define FSIZE_KB (1024)
+#define _fsize_kb(kb) ((kb) / FSIZE_KB)
+#define __fsize_kb(kb) ((kb) % FSIZE_KB / (int)(FSIZE_KB / 10))
+
+#define FSIZE_MB (FSIZE_KB * 1024)
+#define _fsize_mb(mb) ((mb) / FSIZE_MB)
+#define __fsize_mb(mb) ((mb) % FSIZE_MB / (int)(FSIZE_MB / 10))
+
+#define FSIZE_GB (FSIZE_MB * 1024)
+#define _fsize_gb(gb) ((gb) / (float)FSIZE_GB)
+#define __fsize_gb(gb) ((long long)(gb) % FSIZE_GB / (float)(FSIZE_GB / 10.0))
+
 #define FILE_INFO_COLUMNS 5
 #define FILE_USER_LEN 20
 enum {
@@ -21,6 +33,7 @@ enum {
 	COL_FUSER,
 	COL_FMTIME
 };
+
 /*
  * hfview_recv   文件浏览功能中接收的文件信息
  * @protocol:     控制状态

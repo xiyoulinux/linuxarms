@@ -6,7 +6,7 @@
 #include "anet.h"
 
 #define ASSINFO_MAX 80 /* 最大数 */
-#define ASSINFO_SENDLINE 12 /* 总的发送行数 */
+#define ASSINFO_SENDLINE 11 /* 总的发送行数 */
 
 struct assinfo_trans {
 	protocol_sthread protocol;

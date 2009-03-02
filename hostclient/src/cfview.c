@@ -17,16 +17,6 @@
 #include "message.h"
 #include "mwindow.h"
 
-#define FSIZE_KB (1024)
-#define _fsize_kb(kb) ((kb) / FSIZE_KB)
-#define __fsize_kb(kb) ((kb) % FSIZE_KB / (int)(FSIZE_KB / 10))
-
-#define FSIZE_MB (FSIZE_KB * 1024)
-#define _fsize_mb(mb) ((mb) / FSIZE_MB)
-#define __fsize_mb(mb) ((mb) % FSIZE_MB / (int)(FSIZE_MB / 10))
-
-#define FSIZE_GB (FSIZE_MB * 1024)
-
 static int prev_file_nums = 0;
 static boolean hfview_send_info(struct hfview_struct *hfview);
 static boolean hfview_recv_info(struct hfview_struct *hfview);

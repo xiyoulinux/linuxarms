@@ -43,7 +43,7 @@ boolean atthread_upload(struct atthread_struct *atthread)
 	int up, len;
 
 	if ((up = open(atthread->path, O_RDONLY)) == -1) {
-		atthread->set_protocol(atthread, FERR);
+		atthread->set_protocol(atthread, FERROR);
 		atthread->send(atthread);
 		return FALSE;
 	}
@@ -63,7 +63,7 @@ boolean atthread_download(struct atthread_struct *atthread)
 	int down;
 
 	if ((down = open(atthread->path, O_WRONLY | O_CREAT, atthread->mode)) == -1) {
-		atthread->set_protocol(atthread, FERR);
+		atthread->set_protocol(atthread, FERROR);
 		atthread->send(atthread);
 		return FALSE;
 	}

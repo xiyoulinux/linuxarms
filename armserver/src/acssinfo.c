@@ -10,7 +10,6 @@
 #include "error.h"
 #include "debug.h"
 
-#define ASSINFO_GB (1024*1024)
 #define ASSINFO_LINE 10 /* 总的行数 */
 #define ASSINFO_MOVLINE  4 /* 动态的行数 */
 #define INIT_NUM 10
@@ -26,9 +25,9 @@ static struct assinfo_file proc_files[ASSINFO_LINE] = {
 	{"MemTotal",   "/proc/meminfo", 0},
 	{"eth0",       "/proc/net/dev", INIT_NUM},
 	{"model name", "/proc/cpuinfo", INIT_NUM},
-	{"cpu",        "/proc/stat", INIT_NUM},
-	{"cpu MHz",    "/proc/cpuinfo", 0},
-	{"nokeyword",  "/proc/loadavg", INIT_NUM}
+	{"cpu",        "/proc/stat", 0},
+	{"cpu MHz",    "/proc/cpuinfo", INIT_NUM},
+	{"nokeyword",  "/proc/loadavg", 0}
 
 };
 boolean assinfo_init(struct assinfo_struct *assinfo, struct anet_struct *socket)
@@ -90,7 +89,7 @@ boolean assinfo_read_info(struct asthread_struct *asthread)
 
 	FILE *fp;
 	char temp[ASSINFO_MAX], *buff;
-	int count = 0, countline = 0;
+	int count, countline;
 	struct statfs disk;
 	enum error asyserror;
 
@@ -119,7 +118,7 @@ boolean assinfo_read_info(struct asthread_struct *asthread)
 				if (proc_files[count].line == INIT_NUM) {
 					buff = strstr(temp,proc_files[count].keyword);
 					if (buff) {
-						proc_files[count].line = INIT_NUM - countline;
+						proc_files[count].line = countline;
 						break;
 					}
 				}
@@ -130,14 +129,15 @@ boolean assinfo_read_info(struct asthread_struct *asthread)
 		strcpy(assinfo->trans.buffer[count], buff == NULL ? "获取信息错误" : buff);
 	}
 	fclose(fp);
-	snprintf(assinfo->trans.buffer[ASSINFO_LINE],ASSINFO_MAX,"%.2f",
-		(((float)disk.f_bsize * (float)disk.f_blocks) / ASSINFO_GB));
-	snprintf(assinfo->trans.buffer[ASSINFO_LINE + 1],ASSINFO_MAX,"%.2f",
-		(((float)disk.f_bsize * (float)disk.f_bfree) / ASSINFO_GB));
+	snprintf(assinfo->trans.buffer[ASSINFO_LINE],ASSINFO_MAX,
+		 "%d %lu %lu", disk.f_bsize, disk.f_blocks, disk.f_bfree);
 	
-	assinfo->set_protocol(assinfo, SSYSINFO);
+	assinfo->set_protocol(assinfo, SSUCCESS);
 	assinfo->send(assinfo);
-out:
 	return TRUE;
+out:
+	assinfo->set_protocol(assinfo, SERROR);
+	assinfo->send(assinfo);
+	return FALSE;
 }
 

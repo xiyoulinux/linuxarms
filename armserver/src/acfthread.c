@@ -81,7 +81,7 @@ boolean afthread_thread(void *p)
 				break;
 			}
 			if (stat(atthread->path, &buf) == -1) {
-				afthread->set_protocol(afthread, FERR);
+				afthread->set_protocol(afthread, FERROR);
 				afthread->send(afthread);
 				break;
 			}
