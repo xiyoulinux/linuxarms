@@ -15,6 +15,7 @@ struct hcthread_widget {
 	GtkWidget *textview_ctrl;
 	GtkWidget *entry_input;
 	GtkWidget *label_path;
+	GtkAdjustment *adjustment;
 };
 
 /*  
@@ -46,5 +47,6 @@ struct hcthread_struct {
 	boolean (*recv)(struct hcthread_struct *hcthread);
 };
 boolean hcthread_init(struct hcthread_struct *hcthread);
+boolean showinfo(struct hcthread_struct *hcthread);
 gboolean hcthread_thread(void *p);
 #endif

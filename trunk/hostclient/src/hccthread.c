@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <gtk/gtk.h>
 
 #include "hcthread.h"
 #include "linuxarms.h"
@@ -48,7 +49,7 @@ static boolean hcthread_recv(struct hcthread_struct *hcthread)
 			&hcthread->trans, sizeof(struct hcthread_trans));
 }
 
-static boolean showinfo(struct hcthread_struct *hcthread)
+boolean showinfo(struct hcthread_struct *hcthread)
 {
 	/* 显示信息 */
 	GtkWidget *textview = hcthread->widget.textview_ctrl;
@@ -73,6 +74,7 @@ gboolean hcthread_thread(void *p)
 {
 	struct hcthread_struct *hcthread = (struct hcthread_struct *)p;
 	char *result;
+	char label[128];
 	GtkWidget *entry_input = hcthread->widget.entry_input;
 
 	linuxarms_print("create hcthread thread...\n");
@@ -84,29 +86,38 @@ gboolean hcthread_thread(void *p)
 				hcthread->socket.tcp, hcthread->socket.port);	
 	while (hcthread->thread.id) {
 		do {
-			hcthread->recv(hcthread);        /* 接收从arm端输出过来的数据 */  
+			if (!hcthread->recv(hcthread)) 
+				return FALSE;        /* 接收从arm端输出过来的数据 */  
 			if(hcthread->trans.protocol == CSENDCD) {
 				hcthread_trans_set_protocol(&hcthread->trans, CRECV);
 				hcthread->send(hcthread);
 				if (strstr(hcthread->trans.buffer, "TRUE")) {
-					result = strchr(hcthread->trans.buffer, '#');
+					result = strchr(hcthread->trans.buffer, '#') +1 ;
+					sprintf(label, "<b>实时控制[root@EPC-8000:%s$]</b>",
+							result);
 					gtk_label_set_text(GTK_LABEL(
-						hcthread->widget.label_path), result);
+						hcthread->widget.label_path), label);
+					gtk_label_set_use_markup(GTK_LABEL
+							(hcthread->widget.label_path), TRUE);
 				} else {
 					showinfo(hcthread);
 				}
 			}
 			if(hcthread->trans.protocol == CSEND) {
+				debug_print("get result:%s\n", hcthread->trans.buffer);
 				showinfo(hcthread);     /* 显示所接受的数据 */
 				hcthread_trans_set_protocol(&hcthread->trans, CRECV);
 				hcthread->send(hcthread);/* 发送协议CRECV */
 			}
 		} while (hcthread->trans.protocol != CSENDALL);
+
 		hcthread_trans_set_protocol(&hcthread->trans, CRECVALL);
 		hcthread->send(hcthread);                 /* 发送协议CRECVALL */
-
-		gtk_entry_set_text(GTK_ENTRY(entry_input), "");
+		gtk_adjustment_set_value(hcthread->widget.adjustment, (double)G_MAXINT);
 		gtk_widget_set_sensitive(entry_input, TRUE);
+		gtk_entry_set_text(GTK_ENTRY(entry_input), "");
+//		GTK_WIDGET_SET_FLAGS(entry_input, GTK_CAN_FOCUS);
+//		GTK_WIDGET_SET_FLAGS(entry_input, GTK_HAS_FOCUS);
 	}
 	return TRUE;
 }
