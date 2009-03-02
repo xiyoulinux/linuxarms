@@ -14,7 +14,7 @@
 
 #define HSSINFO_MAX 80 /* 最大数 */
 #define HSSINFO_LINE 10 /* 总的行数 */
-#define HSSINFO_SENDLINE 12
+#define HSSINFO_SENDLINE 11
 
 struct hssinfo_trans {
 	protocol_sthread protocol;
@@ -31,10 +31,9 @@ enum {
 	SYS_NET,
 	SYS_CPUINFO,
 	SYS_CPUUSED,
-	SYS_CPUMZ,
+	SYS_CPUHZ,
 	SYS_CPULOAD,
-	SYS_DISKTOTAL,
-	SYS_DISKFREE
+	SYS_DISK
 };
 /*
  * 系统信息显示的相关控件
@@ -60,15 +59,13 @@ struct hssinfo_struct{
 	struct hssinfo_widget widget;
 	struct hnet_struct *socket;
 	struct hssinfo_trans trans;
-
 	
 	boolean (*set_protocol)(struct hssinfo_struct *hssinfo, protocol_sthread protocol);
 	boolean (*send)(struct hssinfo_struct *hssinfo);
 	boolean (*recv)(struct hssinfo_struct *hssinfo);	
-
 };
 
-boolean hssinfo_show(struct hssinfo_struct *hssinfo);
+boolean hssinfo_show_info(struct hssinfo_struct *hssinfo);
 boolean hssinfo_init(struct hssinfo_struct *hssinfo, struct hnet_struct *socket);
 GtkWidget *create_page_ssinfo(struct linuxarms_struct *linuxarms);
 

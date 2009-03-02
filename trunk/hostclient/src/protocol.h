@@ -34,7 +34,9 @@ typedef enum _Sthread {
 	SSENDALL,  /* 发送完毕               */
 	SRECVALL,  /* 接收完毕               */
 	SRECVSUC,  /* 成功接收               */
-	SRECVERR,  /* 接收错误               */ 
+	SRECVERR,  /* 接收错误               */
+	SSUCCESS,  /* 执行成功               */
+	SERROR,    /* 执行错误               */
 	SMAX       /* 无效命令               */
 }protocol_sthread;
 #define  PROTOCOL_IS_STHREAD(protocol) ((protocol) >= SSYSINFO && (protocol) < SMAX)
@@ -53,8 +55,8 @@ typedef enum _Fthread {
 	FDELETE,    /* 删除文件               */
 	FDELETESUC, /* 删除文件成功           */
 	FDELETEERR, /* 删除文件失败           */
-	FSUC,       /* 成功接收信息           */
-	FERR,       /* 接收信息失败           */
+	FSUCCESS,   /* 成功接收信息           */
+	FERROR,     /* 接收信息失败           */
 	FSEND,      /* 发送信息               */
 	FRECV,      /* 接收信息               */
 	FRECVALL,   /* 接收完毕               */

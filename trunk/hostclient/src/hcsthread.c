@@ -73,7 +73,7 @@ boolean hsthread_thread(void *p)
 				hsthread->socket.tcp, hsthread->socket.port);	
 
 	hsthread->set_protocol(hsthread, SSYSINFO);
-	//hsthread->send(hsthread);
+	hsthread->send(hsthread);
 	hsthread_create_timer(hsthread); 
 	while (hsthread->thread.id) {
 		if (!hsthread->recv(hsthread)) {
@@ -85,6 +85,7 @@ boolean hsthread_thread(void *p)
 		case SSYSINFO:
 			/*显示系统信息*/
 			debug_print("protocol->hsthread: 显示系统信息\n");
+			hssinfo_show_info(hsthread->hssinfo);
 			hsthread->set_protocol(hsthread, SSYSINFO);
 			break;
 		case SPROCESS:
