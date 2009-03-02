@@ -9,7 +9,7 @@
 #include "anet.h"
 #include "thread.h"
 
-#define TRANS_SIZE 512
+#define ACTHREAD_TRANS_SIZE 512
 #define TEMP_FILE "/tmp/result.txt"
 /*  
  * acthread_trans 实时控制时传送的数据
@@ -18,7 +18,7 @@
  */
 struct acthread_trans {
 	protocol_cthread protocol;
-	char buffer[TRANS_SIZE];
+	char buffer[ACTHREAD_TRANS_SIZE];
 };
 
 boolean acthread_trans_init(struct acthread_trans *trans);

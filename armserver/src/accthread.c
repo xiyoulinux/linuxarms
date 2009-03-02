@@ -21,48 +21,6 @@ static boolean acthread_recv(struct acthread_struct *acthread);
 static boolean acthread_handle(struct acthread_struct *acthread);
 
 /*
- *处理 cd 命令
- */
-void do_cd(struct acthread_struct *acthread)
-{
-	char dir[512];
-	int ret;
-	FILE *fp;
-	char cmd[100];
-	char result[10];
-
-	snprintf(cmd, 100, "%s", acthread->trans.buffer);
-	fp = fopen(TEMP_FILE, "a+");
-	if (fp == NULL) {
-		print_error(ESYSERR, "system call error\n");
-	}
-	if (strlen(cmd) == 2) {
-		sprintf(dir,"%s", getenv("HOME"));
-	} else if ((strlen(cmd) == 4) && (cmd[3] =='~')) {
-		sprintf(dir,"%s", getenv("HOME"));
-	} else if ((strlen(cmd) == 4) && (cmd[3] == '-')) {
-		sprintf(dir, "%s", getenv("OLDPWD"));
-	} else if((strlen(cmd) > 4) && (cmd[3] != '/')) {
-		sprintf(dir,"%s/%s", getenv("HOME"), &cmd[3]);
-	} else if((strlen(cmd) >4) && (cmd[3] == '~')) {
-		sprintf(dir,"%s%s", getenv("HOME"), &cmd[5]);
-	} else if((strlen(cmd) >4) && (cmd[3] == '/')) {
-		sprintf(dir, "%s", &cmd[3]);
-	}
-	ret = chdir(dir);
-	if (ret == 0) {
-		strcpy(result, "TRUE");
-	} else
-		strcpy(result, "FALSE");
-	fprintf(fp, "%s#%s", result, dir);
-	fclose(fp);
-	
-	acthread_trans_set_protocol(&acthread->trans, CSENDCD);
-	acthread->send(acthread);
-	
-	return;
-}
-/*
  * 初始化实时控制主数据结构
  *
  */
@@ -92,13 +50,56 @@ static boolean acthread_recv(struct acthread_struct *acthread)
 	return anet_recv(acthread->socket.tcp, &acthread->trans, 
 			sizeof(struct acthread_trans));
 }
+/*
+ *处理 cd 命令
+ */
+void do_cd(struct acthread_struct *acthread)
+{
+	char dir[128];
+	int ret;
+	char cmd[100];
+	char result[10];
+	char send[256];
+
+	snprintf(cmd, 100, "%s", acthread->trans.buffer);
+	if (strlen(cmd) == 2) {
+		sprintf(dir,"%s", getenv("HOME"));
+	} else if ((strlen(cmd) == 4) && (cmd[3] =='~')) {
+		sprintf(dir,"%s", getenv("HOME"));
+	} else if ((strlen(cmd) == 4) && (cmd[3] == '-')) {
+		sprintf(dir, "%s", getenv("OLDPWD"));
+	} else if((strlen(cmd) >4) && (cmd[3] == '~')) {
+		sprintf(dir,"%s%s", getenv("HOME"), &cmd[4]);
+	} else if((strlen(cmd) > 4) && (cmd[3] != '/')) {
+		sprintf(dir,"%s/%s", getenv("HOME"), &cmd[3]);
+	} else if((strlen(cmd) >=4) && (cmd[3] == '/')) {
+		sprintf(dir, "%s", &cmd[3]);
+	}
+	ret = chdir(dir);
+	if (ret == 0) {
+		strcpy(result, "TRUE");
+	} else
+		strcpy(result, "FALSE没有该文件或目录");
+	sprintf(send, "%s#%s", result, dir);
+	
+	acthread_trans_set_buf(&acthread->trans, send);
+	acthread_trans_set_protocol(&acthread->trans, CSENDCD);
+	acthread->send(acthread);
+	
+	return;
+}
+/*
+ * 处理命令
+ */
 static boolean acthread_handle(struct acthread_struct *acthread)
 {
 	int fd;
 	int ret;
+	FILE *fp;
 	
 	/* 进行重定向 */
-	fd = open(TEMP_FILE, (O_RDWR | O_CREAT), 0644);
+	fp = fopen(TEMP_FILE, "w");
+	fd = fileno(fp);
 	dup2(fd, 1);
 	close(fd);
 	/* 处理命令 */
@@ -108,6 +109,7 @@ static boolean acthread_handle(struct acthread_struct *acthread)
 	}
 	
 	ret = system(acthread->trans.buffer);
+//	printf("aaaaaaaaaaaaaaaaaaaaa");
 	if (ret == 127) {
 		printf("/bin/sh not available\n");
 	} else if (ret == -1) {
@@ -120,7 +122,7 @@ static boolean acthread_handle(struct acthread_struct *acthread)
 }
 /*
  *arm端实时控制线程
- *@p:  struct hcthread_struct
+ *@p:  struct hcthread_struct/
  */
 boolean acthread_thread(void *p)
 {
@@ -144,9 +146,10 @@ boolean acthread_thread(void *p)
 			acthread_handle(acthread); /* 处理数据 */
 		} else
 			continue;
-		fd = open(TEMP_FILE, O_RDWR);
+		fd = open(TEMP_FILE, O_RDONLY);
 		do {
-			if(read(fd, acthread->trans.buffer, TRANS_SIZE) != 0) {
+			memset(acthread->trans.buffer, '\0', sizeof(acthread->trans.buffer));
+			if(read(fd, acthread->trans.buffer, ACTHREAD_TRANS_SIZE) != 0) {
 				acthread_trans_set_protocol(&acthread->trans, CSEND);
 				acthread->send(acthread); /* 发送数据 */
 			} else {
@@ -156,7 +159,7 @@ boolean acthread_thread(void *p)
 			acthread->recv(acthread); /* 接受数据 */
 		} while (acthread->trans.protocol != CRECVALL);
 		close(fd);
-		remove(TEMP_FILE);
+//		unlink(TEMP_FILE);
 	}
 	return TRUE;
 }
@@ -164,7 +167,7 @@ boolean acthread_trans_init(struct acthread_trans *trans)
 {
 	LINUXARMS_POINTER(trans);
 	trans->protocol = CMAX;
-	memset(trans->buffer, '\0',TRANS_SIZE);
+	memset(trans->buffer, '\0',ACTHREAD_TRANS_SIZE);
 	return TRUE;
 }
 boolean acthread_trans_set_protocol(struct acthread_trans *trans,protocol_cthread protocol)
@@ -183,10 +186,10 @@ boolean acthread_trans_set_buf(struct acthread_trans *trans, const char *buf)
 {
 	LINUXARMS_POINTER(trans);
 	LINUXARMS_CHAR(buf);
-	if (strlen(buf) >= TRANS_SIZE) {
+	if (strlen(buf) >= ACTHREAD_TRANS_SIZE) {
 		debug_where();
 		print_error(EWARNING, "缓冲区溢出");
-		strncpy(trans->buffer, buf, TRANS_SIZE);
+		strncpy(trans->buffer, buf, ACTHREAD_TRANS_SIZE);
 		return FALSE;
 	}
 	strcpy(trans->buffer, buf);

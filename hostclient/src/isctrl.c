@@ -24,6 +24,7 @@ GtkWidget *create_ctrl_page(GtkWidget *vbox_main,
 	GtkWidget *alignment_frame;
 	GtkWidget *vbox_frame;
 	GtkWidget *scrolledwindow_frame;
+	GtkAdjustment *adjustment;
 	GtkWidget *textview_ctrl;
 	GtkWidget *entry_input;
 	GtkWidget *hbox_input;
@@ -48,8 +49,12 @@ GtkWidget *create_ctrl_page(GtkWidget *vbox_main,
 			GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow_frame), 
 						GTK_SHADOW_IN);
-	debug_where();
 
+	adjustment = GTK_ADJUSTMENT(gtk_adjustment_new(0.0, 0.0, (double)G_MAXINT, 0.0, 0.0, 0.0));
+	gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(scrolledwindow_frame),
+			adjustment);
+	debug_where();
+	
 	textview_ctrl = gtk_text_view_new();
 	debug_where();
 	gtk_widget_show(textview_ctrl);
@@ -88,6 +93,7 @@ GtkWidget *create_ctrl_page(GtkWidget *vbox_main,
 	debug_where();
 	hcthread->widget.entry_input   = entry_input;
 	hcthread->widget.label_path    = label_frame;
+	hcthread->widget.adjustment    = adjustment;
 	
 	debug_where();
 	g_signal_connect((gpointer)entry_input, "key_press_event",
