@@ -43,6 +43,8 @@ boolean amthread_thread(void *p)
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)p;
 	struct amthread_struct *amthread = linuxarms->amthread;
 	struct asthread_struct *asthread = linuxarms->asthread;
+	struct atthread_struct *atthread = linuxarms->afthread->atthread;
+
 	//struct login_struct *login = linuxarms->login;
 	protocol_mthread  protocol;
 	boolean request = TRUE;
@@ -118,6 +120,9 @@ boolean amthread_thread(void *p)
 			break;
 		case CCTHREAD:
 			debug_print("protocol->amthread: 控制实时控制线程\n");
+			break;
+		case QUITTRANS:
+			atthread->quit = TRUE;
 			break;
 		case CLOSECLIENT:
 			print_error(EWARNING,"客户端关闭...\n");

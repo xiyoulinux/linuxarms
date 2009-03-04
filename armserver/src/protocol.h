@@ -16,6 +16,7 @@ typedef enum _Mthread {
 	CLOSECLIENT, /* 关闭客户端                     */
         CSTHREAD,    /* 控制系统信息显示和实时监视线程 */
         CFTHREAD,    /* 控制文件浏览线程               */
+	QUITTRANS,   /* 放弃文件传输                   */
         CCTHREAD,    /* 控制实时控制线程               */
 	MSUCCESS,    /* 执行成功                       */
 	MERROR,      /* 执行错误                       */
