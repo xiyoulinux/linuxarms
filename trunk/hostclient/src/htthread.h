@@ -13,7 +13,7 @@
 #include "login.h"
 #include "thread.h"
 
-#define HTTHREAD_TRANS_SIZE 512
+#define HTTHREAD_TRANS_SIZE 4096
 
 /*
  * htthread_mwidget	contain some GtkWidget which htthread will use
@@ -24,6 +24,12 @@ struct htthread_widget {
 	GtkWidget *toolbar_upload;
 	GtkWidget *toolbar_download;
 	GtkWidget *choose;
+	GtkWidget *window_trans;
+	GtkWidget *progressbar;
+	GtkWidget *label_trans;
+	GtkWidget *label_total;
+	GtkWidget *label_src;
+	GtkWidget *label_dest;
 };
 
 /*
@@ -33,7 +39,7 @@ struct htthread_widget {
  */
 struct htthread_trans {
 	protocol_fthread protocol;
-	char buffer[HTTHREAD_TRANS_SIZE];
+	char buffer[HTTHREAD_TRANS_SIZE + 1];
 };
 boolean htthread_trans_init(struct htthread_trans *httrans);
 boolean htthread_trans_set_protocol(struct htthread_trans *httrans, protocol_fthread protocol);
@@ -45,18 +51,21 @@ boolean htthread_trans_set_buf(struct htthread_trans *httrans, const char *buf);
  * @savefile_size:   已经传输文件的大小
  */
 struct htthread_struct {
-	boolean competence;
-	protocol_fthread select;
-	off_t size;
 	mode_t mode;
 	struct hnet_struct *socket;
 	struct htthread_widget widget;
 	struct htthread_trans trans;
 	char path[PATH_LEN];
+	boolean competence;
+	protocol_fthread select;
+	off_t total_size;
+	off_t trans_size;
+	unsigned int clock;
+	boolean quit;
 
 	boolean (*set_protocol)(struct htthread_struct *htthread, protocol_fthread protocol);
-	boolean (*send)(struct htthread_struct *htthread);
-	boolean (*recv)(struct htthread_struct *htthread);
+	int (*send)(struct htthread_struct *htthread, int len);
+	int (*recv)(struct htthread_struct *htthread, int len);
 };
 
 /* 线程执行体 */

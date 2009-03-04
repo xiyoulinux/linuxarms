@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <glib.h>
 
 #include "filetrans.h"
 #include "message.h"
@@ -96,6 +97,8 @@ void cb_ftrans_button_ok_clicked(GtkButton *button, gpointer user_data)
 		hfthread_trans_set_path(&hfthread->trans,hfview_get_path(hfview));
 		hfthread->set_protocol(hfthread, FDOWN);
 		hfthread->send(hfthread);
+		debug_print("src path: %s", htthread->path);
+		debug_print("dest path: %s/%s", hfthread->trans.path, name);
 		break;
 	case FUP:
 		strcpy(path, gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(filechooserdialog)));
@@ -115,19 +118,58 @@ void cb_ftrans_button_ok_clicked(GtkButton *button, gpointer user_data)
 		list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(hfview->widget.treeview)));
 		select = gtk_list_store_iter_is_valid(list_store, iter);
 		if (select) {
-			char *name;
-			gtk_tree_model_get(GTK_TREE_MODEL(list_store), iter, COL_FNAME, &name, -1);
+			char *fname, *ssize, tmp[4];
+			//long size_hight, size_low;
+			float size;
+			gtk_tree_model_get(GTK_TREE_MODEL(list_store), iter, 
+					   COL_FNAME, &fname,
+					   COL_FSIZE, &ssize, -1);
 			hfthread_trans_set_path(&hfthread->trans, hfview_get_path(hfview));
-			hfthread_trans_set_rename(&hfthread->trans, name, "nomode");
-			snprintf(htthread->path, PATH_LEN, "%s/%s", path, name);
+			hfthread_trans_set_rename(&hfthread->trans, fname, "nomode");
+			snprintf(htthread->path, PATH_LEN, "%s/%s", path, fname);
+			create_window_trans(linuxarms);
+			snprintf(path, PATH_LEN, "%s/%s", hfview_get_path(hfview), fname);
+			gtk_label_set_text(GTK_LABEL(htthread->widget.label_src), path);
+			gtk_label_set_text(GTK_LABEL(htthread->widget.label_dest), htthread->path);
+			gtk_label_set_text(GTK_LABEL(htthread->widget.label_trans), "已传输：0 MB");
+			//sscanf(ssize, "%ld.%ld %s", &size_hight, &size_low, tmp);
+			sscanf(ssize, "%f %s", &size, tmp);
+			if (strcmp(tmp, "B") == 0) {
+				htthread->total_size = (off_t)size;
+			} else if (strcmp(tmp, "KB") == 0) {
+				htthread->total_size = (off_t)(size * FSIZE_KB);
+			} else if (strcmp(tmp, "MB") == 0) {
+				htthread->total_size = (off_t)(size * FSIZE_MB);
+			} else if (strcmp(tmp, "GB") == 0) {
+				htthread->total_size = FSIZE_GB;
+			}
+			debug_print("src path: %s/%s\n", hfthread->trans.path, fname);
+			debug_print("dest path: %s\n", htthread->path);
+			snprintf(path, PATH_LEN, "文件大小： %s", ssize);
+			gtk_label_set_text(GTK_LABEL(htthread->widget.label_total), ssize);
 			hfthread->set_protocol(hfthread, FUP);
 			hfthread->send(hfthread);
+			g_free(fname);
+			g_free(ssize);
 		}
 		break;
 	default:
 		goto out;
 	}
-	debug_print("get file name: %s\n", path);
 out:
   	gtk_widget_destroy(filechooserdialog);
+}
+
+void cb_window_trans_close(GtkWidget *widget, gpointer user_data)
+{
+	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
+	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
+	struct hmthread_struct *hmthread = linuxarms->hmthread;
+
+	hmthread->set_protocol(hmthread, QUITTRANS);
+	hmthread->send(hmthread);
+	gtk_timeout_remove(htthread->clock);
+	htthread->clock = 0;
+	htthread->quit = TRUE;
+	gtk_widget_destroy(htthread->widget.window_trans);
 }

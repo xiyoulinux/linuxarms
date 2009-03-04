@@ -85,10 +85,12 @@ boolean afthread_thread(void *p)
 				afthread->send(afthread);
 				break;
 			}
+			debug_print("mode   0x%x\n", buf.st_mode);
 			snprintf(mode, 10, "%d", buf.st_mode);
 			strcpy(afthread->trans.rename[NEWNAME], mode);
 			afthread->set_protocol(afthread, FUP);
 			afthread->send(afthread);
+			atthread->quit = FALSE;
 			atthread_upload(atthread);
 			break;
 		case FDOWN:
@@ -108,6 +110,7 @@ boolean afthread_thread(void *p)
 			atthread->mode = atoi(afthread->trans.rename[NEWNAME]);
 			afthread->set_protocol(afthread, FDOWN);
 			afthread->send(afthread);
+			atthread->quit = FALSE;
 			atthread_download(atthread);
 			break;
 		case FVIEW:

@@ -85,13 +85,13 @@ char *get_file_size(off_t size)
 {
 	static char fsize[30];
 	if (size < FSIZE_KB)
-		snprintf(fsize, 30, "%ld B", size);
+		snprintf(fsize, 30, "%ld.0 B", size);
 	else if (size < FSIZE_MB)
 		snprintf(fsize, 30, "%ld.%2ld KB", _fsize_kb(size), __fsize_kb(size));
 	else if (size < FSIZE_GB)
 		snprintf(fsize, 30, "%ld.%2ld MB", _fsize_mb(size), __fsize_mb(size));
 	else
-		snprintf(fsize, 30, "%s", "大于1GB");
+		snprintf(fsize, 30, "1 GB");
 	return fsize;
 }
 /*

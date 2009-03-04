@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include "hfthread.h"
 #include "htthread.h"
+#include "hmthread.h"
 #include "hnet.h"
 #include "fview.h"
 #include "filetrans.h"
@@ -58,6 +59,7 @@ gboolean hfthread_thread(void *p)
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)p;
 	struct hfthread_struct *hfthread = linuxarms->hfthread;
 	struct htthread_struct *htthread = hfthread->hftrans;
+	struct hmthread_struct *hmthread = linuxarms->hmthread;
 	struct hfview_struct *hfview = hfthread->hfview;
 	linuxarms_print("create hfthread thread...\n");
 	hfthread->thread.id = linuxarms_thread_self();
@@ -76,10 +78,17 @@ gboolean hfthread_thread(void *p)
 		hfthread->down_lock(hfthread);
 		switch (hfthread->trans.protocol) {
 		case FUP: /* 上传文件处理 */
-			htthread->mode = atoi(hfthread->trans.rename[NEWNAME]);
-			htthread_upload(htthread);
+			debug_print("hfthread->protocol 上传文件\n");
+			sscanf(hfthread->trans.rename[NEWNAME], "%d", &htthread->mode);
+			//htthread->mode = atoi(hfthread->trans.rename[NEWNAME]);
+			htthread->quit = FALSE;
+			if (!htthread_upload(htthread)) {
+				hmthread->set_protocol(hmthread, QUITTRANS);
+				hmthread->send(hmthread);
+			}
 			break;
 		case FDOWN: /* 下载文件处理 */
+			htthread->quit = FALSE;
 			htthread_download(htthread);
 			break;
 		case FVIEW: /* 文件浏览处理 */
