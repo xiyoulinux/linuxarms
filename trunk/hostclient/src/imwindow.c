@@ -91,7 +91,7 @@ void create_window_main(struct linuxarms_struct *linuxarms)
 	debug_where();
 	mwindow->frame = frame_main;
 	debug_where();
-	create_statusbar(vbox_main);
+	create_statusbar(vbox_main, tooltips, linuxarms);
 	debug_where();
 
 	g_signal_connect((gpointer)window_main, "destroy", 

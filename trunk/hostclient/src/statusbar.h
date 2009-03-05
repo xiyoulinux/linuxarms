@@ -20,7 +20,8 @@ struct statusbar_struct {
 	int clock_id;
 	int time;
 };
-GtkWidget *create_statusbar(GtkWidget *vbox_main);
+GtkWidget *create_statusbar(GtkWidget *vbox_main, GtkTooltips *tooltips, 
+			    struct linuxarms_struct *linuxarms);
 /* 显示系统信息 */
 boolean statusbar_set_text(char *text);
 boolean statusbar_init(GtkWidget *statusbar);

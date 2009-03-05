@@ -24,12 +24,9 @@ struct htthread_widget {
 	GtkWidget *toolbar_upload;
 	GtkWidget *toolbar_download;
 	GtkWidget *choose;
-	GtkWidget *window_trans;
 	GtkWidget *progressbar;
 	GtkWidget *label_trans;
-	GtkWidget *label_total;
-	GtkWidget *label_src;
-	GtkWidget *label_dest;
+	GtkTooltips *tooltips;
 };
 
 /*

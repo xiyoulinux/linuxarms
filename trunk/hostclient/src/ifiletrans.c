@@ -127,7 +127,7 @@ GtkWidget* create_filechooserdialog(struct linuxarms_struct *linuxarms)
 	gtk_widget_grab_default(button_ok);
 	return filechooserdialog;
 }
-
+/*
 void create_window_trans(struct linuxarms_struct *linuxarms)
 {
 	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
@@ -257,3 +257,4 @@ void create_window_trans(struct linuxarms_struct *linuxarms)
 	gtk_window_set_keep_above(GTK_WINDOW(window_trans), TRUE);
 	gtk_widget_show(window_trans);
 }
+*/

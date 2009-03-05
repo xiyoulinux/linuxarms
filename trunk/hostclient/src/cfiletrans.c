@@ -97,8 +97,8 @@ void cb_ftrans_button_ok_clicked(GtkButton *button, gpointer user_data)
 		hfthread_trans_set_path(&hfthread->trans,hfview_get_path(hfview));
 		hfthread->set_protocol(hfthread, FDOWN);
 		hfthread->send(hfthread);
-		debug_print("src path: %s", htthread->path);
-		debug_print("dest path: %s/%s", hfthread->trans.path, name);
+		debug_print("src path: %s\n", htthread->path);
+		debug_print("dest path: %s/%s\n", hfthread->trans.path, name);
 		break;
 	case FUP:
 		strcpy(path, gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(filechooserdialog)));
@@ -119,20 +119,23 @@ void cb_ftrans_button_ok_clicked(GtkButton *button, gpointer user_data)
 		select = gtk_list_store_iter_is_valid(list_store, iter);
 		if (select) {
 			char *fname, *ssize, tmp[4];
+			char tooltips[512];
 			//long size_hight, size_low;
 			float size;
 			gtk_tree_model_get(GTK_TREE_MODEL(list_store), iter, 
 					   COL_FNAME, &fname,
 					   COL_FSIZE, &ssize, -1);
-			hfthread_trans_set_path(&hfthread->trans, hfview_get_path(hfview));
-			hfthread_trans_set_rename(&hfthread->trans, fname, "nomode");
+
+			snprintf(tooltips, 512, "传输类型：上传(从arm系统上传文件到本机)\n"
+				 "文件名：%s\n"
+				 "文件大小：%s\n"
+				 "源地址：%s@%s\n"
+				 "目的地址：localhost@%s\n",
+				 fname, ssize, linuxarms->login->user.ip, 
+				 hfview_get_path(hfview), htthread->path);
+			gtk_tooltips_set_tip(htthread->widget.tooltips, 
+					     htthread->widget.progressbar, tooltips, NULL);
 			snprintf(htthread->path, PATH_LEN, "%s/%s", path, fname);
-			create_window_trans(linuxarms);
-			snprintf(path, PATH_LEN, "%s/%s", hfview_get_path(hfview), fname);
-			gtk_label_set_text(GTK_LABEL(htthread->widget.label_src), path);
-			gtk_label_set_text(GTK_LABEL(htthread->widget.label_dest), htthread->path);
-			gtk_label_set_text(GTK_LABEL(htthread->widget.label_trans), "已传输：0 MB");
-			//sscanf(ssize, "%ld.%ld %s", &size_hight, &size_low, tmp);
 			sscanf(ssize, "%f %s", &size, tmp);
 			if (strcmp(tmp, "B") == 0) {
 				htthread->total_size = (off_t)size;
@@ -145,8 +148,8 @@ void cb_ftrans_button_ok_clicked(GtkButton *button, gpointer user_data)
 			}
 			debug_print("src path: %s/%s\n", hfthread->trans.path, fname);
 			debug_print("dest path: %s\n", htthread->path);
-			snprintf(path, PATH_LEN, "文件大小： %s", ssize);
-			gtk_label_set_text(GTK_LABEL(htthread->widget.label_total), ssize);
+			hfthread_trans_set_path(&hfthread->trans, hfview_get_path(hfview));
+			hfthread_trans_set_rename(&hfthread->trans, fname, "nomode");
 			hfthread->set_protocol(hfthread, FUP);
 			hfthread->send(hfthread);
 			g_free(fname);
@@ -159,7 +162,7 @@ void cb_ftrans_button_ok_clicked(GtkButton *button, gpointer user_data)
 out:
   	gtk_widget_destroy(filechooserdialog);
 }
-
+/*
 void cb_window_trans_close(GtkWidget *widget, gpointer user_data)
 {
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
@@ -172,4 +175,4 @@ void cb_window_trans_close(GtkWidget *widget, gpointer user_data)
 	htthread->clock = 0;
 	htthread->quit = TRUE;
 	gtk_widget_destroy(htthread->widget.window_trans);
-}
+}*/
