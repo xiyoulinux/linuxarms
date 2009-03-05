@@ -11,8 +11,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-       #include <sys/types.h>
-       #include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 
 #include <stdio.h>
 #include "htthread.h"
@@ -22,6 +22,11 @@
 #include "hnet.h"
 #include "error.h"
 #include "message.h"
+#define PROMPT_TIMEOUT (100)
+#define PROMPT_STATE (1000 / PROMPT_TIMEOUT * 3)
+static int file_trans_prompt = 0;
+static int label_show_timeout = 0;
+static boolean label_show = FALSE;
 
 static boolean htthread_set_protocol(struct htthread_struct *httread, protocol_fthread protocol);
 static int htthread_send(struct htthread_struct *htthread, int len);
@@ -77,9 +82,26 @@ static boolean window_trans_timer(gpointer p)
 {
 	struct htthread_struct *htthread = (struct htthread_struct *)p;
 	double val = 0;
+
+	label_show_timeout++;
+	if (label_show_timeout == 2000 / PROMPT_TIMEOUT) {
+		if (file_trans_prompt > 0)
+			gtk_label_set_text(GTK_LABEL(htthread->widget.label_trans),"文件传输完成");
+		else if (label_show) {
+			gtk_label_set_text(GTK_LABEL(htthread->widget.label_trans),"");
+			label_show = FALSE;
+		} else {
+			gtk_label_set_text(GTK_LABEL(htthread->widget.label_trans),"文件传输中");
+			label_show = FALSE;
+		}
+	}
 	if (htthread->total_size <= htthread->trans_size) {
+		if (file_trans_prompt++ <= PROMPT_STATE)
+			return TRUE;
+		label_show = FALSE;
+		file_trans_prompt = 0;
 		htthread->trans_size = htthread->total_size = 0;
-		gtk_widget_destroy(htthread->widget.window_trans);
+		gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(htthread->widget.progressbar), 0.0);
 		return FALSE;
 	}
 	val = (double)htthread->trans_size / (double)htthread->total_size;
@@ -91,7 +113,6 @@ boolean htthread_upload(struct htthread_struct *htthread)
 	LINUXARMS_POINTER(htthread);
 	int up;
 	char msg[256];
-	int i =0;
 	int len;
 	debug_where();
 	debug_print("path: %s %x\n", htthread->path, htthread->mode);
@@ -103,7 +124,7 @@ boolean htthread_upload(struct htthread_struct *htthread)
 		htthread->send(htthread, 0);
 		return FALSE;
 	}
-	htthread->clock = gtk_timeout_add(100, window_trans_timer, (gpointer)htthread);
+	htthread->clock = gtk_timeout_add(PROMPT_TIMEOUT, window_trans_timer, (gpointer)htthread);
 	do {
 		len = htthread->recv(htthread, HTTHREAD_TRANS_SIZE);
 		if (len <= 0)
