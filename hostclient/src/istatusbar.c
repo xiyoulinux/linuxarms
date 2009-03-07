@@ -12,14 +12,16 @@
 #include "hfthread.h"
 #include "htthread.h"
 
-GtkWidget *create_statusbar(GtkWidget *vbox_main, GtkTooltips *tooltips, struct linuxarms_struct *linuxarms)
+GtkWidget *create_statusbar(GtkWidget *vbox_main, GtkTooltips *tooltips, 
+			    struct linuxarms_struct *linuxarms)
 {
 	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
 	GtkWidget *hbox18;
 	GtkWidget *statusbar;
 	GtkWidget *label_trans;
 	GtkWidget *progressbar;
-	GtkWidget *fixed13;	
+	GtkWidget *fixed13;
+	GdkColor color;
 	
 	hbox18 = gtk_hbox_new(FALSE, 0);
 	gtk_widget_show(hbox18);
@@ -33,6 +35,8 @@ GtkWidget *create_statusbar(GtkWidget *vbox_main, GtkTooltips *tooltips, struct 
 	gtk_widget_show(label_trans);
 	gtk_box_pack_start(GTK_BOX(hbox18), label_trans, FALSE, FALSE, 0);
 	gtk_widget_set_size_request(label_trans, 80, -1);
+	gdk_color_parse("red", &color);
+	gtk_widget_modify_fg(label_trans,GTK_STATE_NORMAL,&color);
 
 	progressbar = gtk_progress_bar_new();
 	gtk_widget_show(progressbar);

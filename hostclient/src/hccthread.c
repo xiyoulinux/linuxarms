@@ -86,8 +86,10 @@ gboolean hcthread_thread(void *p)
 				hcthread->socket.tcp, hcthread->socket.port);	
 	while (hcthread->thread.id) {
 		do {
-			if (!hcthread->recv(hcthread)) 
-				return FALSE;        /* 接收从arm端输出过来的数据 */  
+			if (!hcthread->recv(hcthread)) {       /* 接收从arm端输出过来的数据 */  
+				linuxarms_print("hcthread recive data error\n");
+				goto out;
+			}
 			if(hcthread->trans.protocol == CSENDCD) {
 				hcthread_trans_set_protocol(&hcthread->trans, CRECV);
 				hcthread->send(hcthread);
@@ -119,6 +121,7 @@ gboolean hcthread_thread(void *p)
 //		GTK_WIDGET_SET_FLAGS(entry_input, GTK_CAN_FOCUS);
 //		GTK_WIDGET_SET_FLAGS(entry_input, GTK_HAS_FOCUS);
 	}
+out:
 	return TRUE;
 }
 boolean hcthread_trans_init(struct hcthread_trans *trans)

@@ -82,7 +82,8 @@ boolean close_tcp_client(struct hnet_struct *hnet)
 		return FALSE;
 	}
 	if (hnet->tcp != -1)
-		close(hnet->tcp);
+		shutdown(hnet->tcp, SHUT_RDWR);
+		//close(hnet->tcp);
 	hnet->tcp = -1;
 	return TRUE;
 }

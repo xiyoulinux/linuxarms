@@ -31,8 +31,7 @@ struct afview_send {
 
 boolean afview_send_init(struct afview_send *fsend);
 boolean afview_send_set_protocol(struct afview_send *fsend, protocol_fthread protocol);
-boolean afview_send_set_data(struct afview_send *fsend, unsigned int type, 
-				const char *name, const char *path);
+boolean afview_send_set_data(struct afview_send *fsend, const char *name, unsigned int type);
 /*
  * afview_recv 文件浏览功能中接收到的hostlcient的反馈信息
  * @protocol:      接收到的反馈信息
