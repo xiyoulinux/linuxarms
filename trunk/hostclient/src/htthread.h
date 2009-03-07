@@ -13,12 +13,16 @@
 #include "login.h"
 #include "thread.h"
 
-#define HTTHREAD_TRANS_SIZE 4096
+#define HTTHREAD_TRANS_SIZE 4095
+#define HTTHREAD_PROTOCOL 1 
 
+#define PROMPT_TIMEOUT (100)
+#define PROMPT_STATE (1000 / PROMPT_TIMEOUT * 3)
 /*
  * htthread_mwidget	contain some GtkWidget which htthread will use
  */
 struct htthread_widget {
+	GtkWidget *window_main;
 	GtkWidget *menubar_upload;
 	GtkWidget *menubar_download;
 	GtkWidget *toolbar_upload;
@@ -36,12 +40,11 @@ struct htthread_widget {
  */
 struct htthread_trans {
 	protocol_fthread protocol;
-	char buffer[HTTHREAD_TRANS_SIZE + 1];
+	char buffer[HTTHREAD_TRANS_SIZE + HTTHREAD_PROTOCOL];
 };
 boolean htthread_trans_init(struct htthread_trans *httrans);
 boolean htthread_trans_set_protocol(struct htthread_trans *httrans, protocol_fthread protocol);
 const char *htthread_trans_get_buf(struct htthread_trans *httrans);
-boolean htthread_trans_set_buf(struct htthread_trans *httrans, const char *buf);
 /*
  * @select:          下载文件/上传文件
  * @file_size:       请求传输文件的大小
@@ -58,7 +61,6 @@ struct htthread_struct {
 	off_t total_size;
 	off_t trans_size;
 	unsigned int clock;
-	boolean quit;
 
 	boolean (*set_protocol)(struct htthread_struct *htthread, protocol_fthread protocol);
 	int (*send)(struct htthread_struct *htthread, int len);
@@ -70,4 +72,5 @@ struct htthread_struct {
 boolean htthread_init(struct htthread_struct *htthread, struct hnet_struct *socket);
 boolean htthread_upload(struct htthread_struct *htthread);
 boolean htthread_download(struct htthread_struct *htthread);
+boolean window_trans_timer(gpointer p);
 #endif

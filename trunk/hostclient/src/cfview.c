@@ -108,11 +108,11 @@ boolean do_file_view(struct hfview_struct *hfview)
 	GtkListStore *list_store;
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
-	GtkTreeIter iter, last;
+	GtkTreeIter iter;
 	GdkPixbuf *directory;
 	GdkPixbuf *file;
 	int file_nums;
-	boolean valid, change;
+	boolean valid;
 
 	debug_where();
 	LINUXARMS_POINTER(hfview);
@@ -123,11 +123,13 @@ boolean do_file_view(struct hfview_struct *hfview)
 	directory = gdk_pixbuf_new_from_file_at_size(find_file("gtk-directory.png"), 16, 16, NULL);
 	file = gdk_pixbuf_new_from_file_at_size(find_file("gtk-file.png"), 16, 16, NULL);
 	debug_where();
-
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget->treeview));
+	valid = gtk_tree_selection_get_selected(selection, &model, &iter);
+	if (valid) 
+		gtk_tree_selection_unselect_iter(selection, &iter);
+	
 	valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list_store), &iter);
 	file_nums = 0;
-	last = iter;
-	change = FALSE;
 	while (TRUE) {
 		if (!hfview->recv(hfview)) {
 			debug_print("接收文件信息失败\n");
@@ -136,16 +138,11 @@ boolean do_file_view(struct hfview_struct *hfview)
 		//debug_print("%-30s\t%-8ld\t%-4d\t%s\n", frecv->name, frecv->size, frecv->type, frecv->user);
 		switch (frecv->protocol) {
 		case FSENDALL:
-			debug_print("接收进程信息结束\n");
+			debug_print("接收文件信息结束\n");
 			goto out;
 		case FVIEW:
 			if (!valid) {
 				gtk_list_store_append(list_store, &iter);
-			}
-			if (frecv->type == TYPE_DIR) {
-				last = iter;
-				change = gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &last);
-				gtk_list_store_move_after(list_store, &iter, NULL);
 			}
 			file_nums++;
 			stime = ctime(&frecv->mtime);
@@ -158,15 +155,8 @@ boolean do_file_view(struct hfview_struct *hfview)
 				COL_FUSER, frecv->user,
 				COL_FMTIME,stime,
 				-1);
-			if (!valid)
-				break;
-			if (change) {
-				iter = last;
-				change = FALSE;
-				valid = TRUE;
-			} else {
+			if (valid)
 				valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter);
-			}
 			break;
 		default:
 			break;
@@ -191,10 +181,10 @@ out:
 	}
 	prev_file_nums = file_nums;
 	gtk_adjustment_set_value(GTK_ADJUSTMENT(widget->vadjustment), 0);
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget->treeview));
-	valid = gtk_tree_selection_get_selected(selection, &model, &iter);
-	if (valid) 
-		gtk_tree_selection_unselect_iter(selection, &iter);
+	//gdk_threads_enter();  
+	//gtk_widget_queue_draw(widget->treeview);
+	while (g_main_iteration(FALSE));  
+	//gdk_threads_leave();
 	return TRUE;
 }
 void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data)

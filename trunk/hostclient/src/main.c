@@ -1,5 +1,6 @@
 //#define __DEBUG__
 #include <gtk/gtk.h>
+#include <gdk/gdk.h>
 #include <locale.h>
 #include "linuxarms.h"
 #include "login.h"
@@ -45,6 +46,7 @@ int main(int argc, char *argv[])
 
 	if (!g_thread_supported())
 		g_thread_init(NULL);
+	//gdk_threads_init();
 	//setlocale (LC_ALL, "");
 	gtk_set_locale();
 	gtk_init(&argc, &argv);
@@ -97,10 +99,12 @@ int main(int argc, char *argv[])
 	hsthread_create_timer(&hsthread);
 #else
 	linuxarms_print("create login window...\n");
+	//gdk_threads_enter();
 	create_window_login(&linuxarms);
 	gtk_timeout_add(50, create_window_main_timeout, (gpointer)&linuxarms);
 #endif
 	gtk_main();
+	//gdk_threads_leave();
 	//hostclient_close_all_thread(&linuxarms);
 	return 0;
 }

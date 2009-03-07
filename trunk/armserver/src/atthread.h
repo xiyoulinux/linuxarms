@@ -10,7 +10,8 @@
 #include "login.h"
 #include "linuxarms.h"
 
-#define ATTHREAD_TRANS_SIZE 4096
+#define ATTHREAD_TRANS_SIZE 4095
+#define ATTHREAD_PROTOCOL 1
 
 /*
  * @atthread_trans     文件传输的数据
@@ -19,7 +20,7 @@
  */
 struct atthread_trans {
 	protocol_fthread protocol;
-	char buffer[ATTHREAD_TRANS_SIZE + 1];
+	char buffer[ATTHREAD_TRANS_SIZE + ATTHREAD_PROTOCOL];
 };
 boolean atthread_trans_init(struct atthread_trans *attrans);
 const char *atthread_trans_get_buf(struct atthread_trans *attrans);
@@ -36,7 +37,6 @@ struct atthread_struct {
 	protocol_fthread select;
 	off_t size;
 	mode_t mode;
-	boolean quit;
 
 	boolean (*set_protocol)(struct atthread_struct *atthread, protocol_fthread protocol);
 	int (*send)(struct atthread_struct *atthread, int len);

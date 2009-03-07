@@ -102,10 +102,10 @@ boolean login_set_env(struct login_struct *login)
 	} else {
 		setenv("HOME", pwd->pw_dir, 1);
 	}
-	if (chdir(getenv("HOME")) == -1 ) {
+	/*if (chdir(getenv("HOME")) == -1 ) {
 		debug_where();
 		print_error(EWARNING, "chdir: error");
-	}
+	}*/
 	setgid(pwd->pw_gid);
 	setuid(pwd->pw_uid);
 	

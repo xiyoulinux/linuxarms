@@ -52,6 +52,8 @@ boolean afthread_thread(void *p)
 	struct afthread_struct *afthread = (struct afthread_struct *)p;
 	struct afview_struct *afview = afthread->afview;
 	struct atthread_struct *atthread = afthread->atthread;
+	struct stat buf;
+	char mode[10];
 	linuxarms_print("create afthread thread...\n");
 
 	afthread->thread.id = linuxarms_thread_self();
@@ -71,8 +73,6 @@ boolean afthread_thread(void *p)
 		switch (afthread->trans.protocol) {
 		case FUP:
 			debug_print("protocol->afthread: 上传文件\n");
-			struct stat buf;
-			char mode[10];
 			snprintf(atthread->path, PATH_LEN, "%s/%s", 
 				 afthread->trans.path, afthread->trans.rename[OLDNAME]);
 			if (access(atthread->path, F_OK) == -1) {
@@ -88,9 +88,10 @@ boolean afthread_thread(void *p)
 			debug_print("mode   0x%x\n", buf.st_mode);
 			snprintf(mode, 10, "%d", buf.st_mode);
 			strcpy(afthread->trans.rename[NEWNAME], mode);
+			snprintf(mode, 10, "%ld", buf.st_size);
+			strcpy(afthread->trans.rename[OLDNAME], mode);
 			afthread->set_protocol(afthread, FUP);
 			afthread->send(afthread);
-			atthread->quit = FALSE;
 			atthread_upload(atthread);
 			break;
 		case FDOWN:
@@ -107,10 +108,10 @@ boolean afthread_thread(void *p)
 				afthread->send(afthread);
 				break;
 			}
-			atthread->mode = atoi(afthread->trans.rename[NEWNAME]);
+			sscanf(afthread->trans.rename[NEWNAME], "%d %ld", 
+			       &atthread->mode, &atthread->size);
 			afthread->set_protocol(afthread, FDOWN);
 			afthread->send(afthread);
-			atthread->quit = FALSE;
 			atthread_download(atthread);
 			break;
 		case FVIEW:

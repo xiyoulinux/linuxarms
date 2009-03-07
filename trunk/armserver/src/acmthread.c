@@ -121,9 +121,6 @@ boolean amthread_thread(void *p)
 		case CCTHREAD:
 			debug_print("protocol->amthread: 控制实时控制线程\n");
 			break;
-		case QUITTRANS:
-			atthread->quit = TRUE;
-			break;
 		case CLOSECLIENT:
 			print_error(EWARNING,"客户端关闭...\n");
 			armserver_do_logout(linuxarms);

@@ -59,7 +59,6 @@ gboolean hfthread_thread(void *p)
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)p;
 	struct hfthread_struct *hfthread = linuxarms->hfthread;
 	struct htthread_struct *htthread = hfthread->hftrans;
-	struct hmthread_struct *hmthread = linuxarms->hmthread;
 	struct hfview_struct *hfview = hfthread->hfview;
 	linuxarms_print("create hfthread thread...\n");
 	hfthread->thread.id = linuxarms_thread_self();
@@ -80,15 +79,14 @@ gboolean hfthread_thread(void *p)
 		case FUP: /* 上传文件处理 */
 			debug_print("hfthread->protocol 上传文件\n");
 			sscanf(hfthread->trans.rename[NEWNAME], "%d", &htthread->mode);
-			//htthread->mode = atoi(hfthread->trans.rename[NEWNAME]);
-			htthread->quit = FALSE;
-			if (!htthread_upload(htthread)) {
-				hmthread->set_protocol(hmthread, QUITTRANS);
-				hmthread->send(hmthread);
-			}
+			sscanf(hfthread->trans.rename[OLDNAME], "%ld", &htthread->total_size);
+			htthread->trans_size = 0;
+			htthread->clock = gtk_timeout_add(PROMPT_TIMEOUT, window_trans_timer, (gpointer)linuxarms);
+			htthread_upload(htthread);
 			break;
 		case FDOWN: /* 下载文件处理 */
-			htthread->quit = FALSE;
+			htthread->trans_size = 0;
+			htthread->clock = gtk_timeout_add(PROMPT_TIMEOUT, window_trans_timer, (gpointer)linuxarms);		
 			htthread_download(htthread);
 			break;
 		case FVIEW: /* 文件浏览处理 */

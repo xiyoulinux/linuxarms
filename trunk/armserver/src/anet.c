@@ -97,7 +97,8 @@ boolean close_tcp_server(struct anet_struct *anet)
 		return FALSE;
 	}
 	if (anet->tcp != -1)
-		close(anet->tcp);
+		shutdown(anet->tcp, SHUT_RDWR);
+		//close(anet->tcp);
 	return TRUE;
 }
 

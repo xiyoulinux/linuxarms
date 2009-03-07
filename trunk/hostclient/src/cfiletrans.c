@@ -80,7 +80,8 @@ void cb_ftrans_button_ok_clicked(GtkButton *button, gpointer user_data)
 	char path[PATH_LEN], *name;
 	char login_user[USER_NAME_LEN], *home;
 	struct stat buf;
-	char mode[10];
+	char mode_size[20];
+	char tooltips[512];
 
 	switch (htthread->select) {
 	case FDOWN:
@@ -92,13 +93,25 @@ void cb_ftrans_button_ok_clicked(GtkButton *button, gpointer user_data)
 		strcpy(htthread->path, path);
 		name = strrchr(path, '/');
 		name = name + 1;
-		snprintf(mode, 10, "%d", buf.st_mode);
-		hfthread_trans_set_rename(&hfthread->trans, name, mode);
+		snprintf(mode_size, 20, "%d %ld", buf.st_mode, buf.st_size);
+		hfthread_trans_set_rename(&hfthread->trans, name, mode_size);
 		hfthread_trans_set_path(&hfthread->trans,hfview_get_path(hfview));
-		hfthread->set_protocol(hfthread, FDOWN);
-		hfthread->send(hfthread);
+		htthread->total_size = buf.st_size;
 		debug_print("src path: %s\n", htthread->path);
 		debug_print("dest path: %s/%s\n", hfthread->trans.path, name);
+		*(name - 1) = '\0';
+		snprintf(tooltips, 512, "传输类型：下载(从本机下载文件到arm系统)\n"
+				 "文件名：%s MB\n"
+				 "文件大小：%ld.%ld\n"
+				 "源地址：localhost@%s\n"
+				 "目的地址：%s@%s\n",
+				 name, _fsize_mb(buf.st_size),__fsize_mb(buf.st_size),
+				 path, linuxarms->login->user.ip, 
+				 hfview_get_path(hfview));
+		gtk_tooltips_set_tip(htthread->widget.tooltips, 
+				     htthread->widget.progressbar, tooltips, NULL);
+		hfthread->set_protocol(hfthread, FDOWN);
+		hfthread->send(hfthread);
 		break;
 	case FUP:
 		strcpy(path, gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(filechooserdialog)));
@@ -118,34 +131,28 @@ void cb_ftrans_button_ok_clicked(GtkButton *button, gpointer user_data)
 		list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(hfview->widget.treeview)));
 		select = gtk_list_store_iter_is_valid(list_store, iter);
 		if (select) {
-			char *fname, *ssize, tmp[4];
-			char tooltips[512];
-			//long size_hight, size_low;
-			float size;
+			char *fname, *ssize;
 			gtk_tree_model_get(GTK_TREE_MODEL(list_store), iter, 
 					   COL_FNAME, &fname,
 					   COL_FSIZE, &ssize, -1);
-
+			snprintf(htthread->path, PATH_LEN, "%s/%s", path, fname);
+			if (access(htthread->path, F_OK) == 0) {
+				snprintf(tooltips, 512, "警告：文件 %s\n"
+					 "已经存在，如果继续上传，将覆盖该文件，\n"
+					 "确定继续上传？", htthread->path);
+				if (!message_box_choose(linuxarms->mwindow->window, 
+						GTK_MESSAGE_WARNING,tooltips))
+					return;
+			}
 			snprintf(tooltips, 512, "传输类型：上传(从arm系统上传文件到本机)\n"
 				 "文件名：%s\n"
 				 "文件大小：%s\n"
 				 "源地址：%s@%s\n"
 				 "目的地址：localhost@%s\n",
 				 fname, ssize, linuxarms->login->user.ip, 
-				 hfview_get_path(hfview), htthread->path);
+				 hfview_get_path(hfview), path);
 			gtk_tooltips_set_tip(htthread->widget.tooltips, 
 					     htthread->widget.progressbar, tooltips, NULL);
-			snprintf(htthread->path, PATH_LEN, "%s/%s", path, fname);
-			sscanf(ssize, "%f %s", &size, tmp);
-			if (strcmp(tmp, "B") == 0) {
-				htthread->total_size = (off_t)size;
-			} else if (strcmp(tmp, "KB") == 0) {
-				htthread->total_size = (off_t)(size * FSIZE_KB);
-			} else if (strcmp(tmp, "MB") == 0) {
-				htthread->total_size = (off_t)(size * FSIZE_MB);
-			} else if (strcmp(tmp, "GB") == 0) {
-				htthread->total_size = FSIZE_GB;
-			}
 			debug_print("src path: %s/%s\n", hfthread->trans.path, fname);
 			debug_print("dest path: %s\n", htthread->path);
 			hfthread_trans_set_path(&hfthread->trans, hfview_get_path(hfview));
@@ -162,17 +169,3 @@ void cb_ftrans_button_ok_clicked(GtkButton *button, gpointer user_data)
 out:
   	gtk_widget_destroy(filechooserdialog);
 }
-/*
-void cb_window_trans_close(GtkWidget *widget, gpointer user_data)
-{
-	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
-	struct htthread_struct *htthread = linuxarms->hfthread->hftrans;
-	struct hmthread_struct *hmthread = linuxarms->hmthread;
-
-	hmthread->set_protocol(hmthread, QUITTRANS);
-	hmthread->send(hmthread);
-	gtk_timeout_remove(htthread->clock);
-	htthread->clock = 0;
-	htthread->quit = TRUE;
-	gtk_widget_destroy(htthread->widget.window_trans);
-}*/

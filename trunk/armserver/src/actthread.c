@@ -32,7 +32,6 @@ boolean atthread_init(struct atthread_struct *atthread,
 	atthread->select = FMAX;
 	atthread->mode = 0;
 	atthread->socket = socket;
-	atthread->quit = TRUE;
 
 	atthread_trans_init(&atthread->trans);
 	atthread->set_protocol = atthread_set_protocol;
@@ -44,114 +43,122 @@ boolean atthread_upload(struct atthread_struct *atthread)
 {
 	LINUXARMS_POINTER(atthread);
 	int up, len;
-	int i =0;
-
+	char *p;
+	fd_set rfd_set, wfd_set;
+	int flag, ret;
+	struct timeval timeout;
 	if ((up = open(atthread->path, O_RDONLY)) == -1) {
 		atthread->set_protocol(atthread, FERROR);
-		atthread->send(atthread, 0);
+		memset(atthread->trans.buffer, FERROR, sizeof(atthread->trans.buffer));
+		atthread->send(atthread, sizeof(atthread->trans.buffer));
 		return FALSE;
 	}
+	p = atthread->trans.buffer + ATTHREAD_PROTOCOL;
 	debug_where();
+	fcntl(atthread->socket->tcp,F_SETFD,O_NONBLOCK);
 	do {
-		len = read(up, atthread->trans.buffer, ATTHREAD_TRANS_SIZE);
-		atthread->trans.buffer[len] = '\0';
-		atthread->send(atthread, len);
-	} while (len);
-	atthread->send(atthread, 0);
-	close(up);
-	debug_where();
-	return TRUE;
-	/*
-	do {
-		if (atthread->quit)
-			break;
-		len = read(up, atthread->trans.buffer, ATTHREAD_TRANS_SIZE);
-		if (len <= 0)
-			break;
-		atthread->trans.buffer[len] = '\0';
-		atthread->set_protocol(atthread, FSEND);
-		if (!atthread->send(atthread))
-			break;
-		//sleep(1);
-		atthread->recv(atthread);
-		if (atthread->trans.protocol != FRECV) {
-			debug_print("客户端接收文件信息错误\n");
-			break;
+		FD_ZERO(&rfd_set);
+		FD_ZERO(&wfd_set);
+		FD_SET(0, &rfd_set);
+		FD_SET(0, &wfd_set);
+		FD_SET(atthread->socket->tcp, &rfd_set);
+		FD_SET(atthread->socket->tcp, &wfd_set);
+		timeout.tv_sec = 1;
+		timeout.tv_usec = 0;		
+			
+		len = read(up, p , ATTHREAD_TRANS_SIZE);
+		p[len] = '\0';
+		atthread->trans.buffer[0] = (char)FSEND;
+		atthread->send(atthread, len + ATTHREAD_PROTOCOL);
+		
+		if((ret = select(atthread->socket->tcp + 1, &rfd_set, &wfd_set, NULL, &timeout)) == 0)
+			continue;
+		if(ret < 0) {
+			print_error(EWARNING, "传输文件错误\n");
+			goto out;
 		}
-		i++;
-	} while (TRUE);
-	close(up);
-	debug_print("i = %d\n", i);
-	atthread->set_protocol(atthread, FSENDALL);
-	atthread->send(atthread);
-	debug_print("sendall = %d\n", FSENDALL);
-
+		if(FD_ISSET(0,&rfd_set)) {
+			atthread->recv(atthread, sizeof(atthread->trans.buffer));
+			if (atthread->trans.buffer[0] == FERROR)
+				goto out;
+		}
+	} while (len);
+	memset(atthread->trans.buffer, (char)FSENDALL, sizeof(atthread->trans.buffer));
+	atthread->send(atthread, sizeof(atthread->trans.buffer));
+	debug_print("文件上传结束\n");
 out:
-	atthread->quit = FALSE;
+	flag = fcntl(atthread->socket->tcp, F_GETFD, 0);
+	flag &= ~O_NONBLOCK;
+	fcntl(atthread->socket->tcp,F_SETFD,flag);	
+	close(up);
+	debug_where();
 	return TRUE;
-	*/
 }
 boolean atthread_download(struct atthread_struct *atthread)
 {
 	LINUXARMS_POINTER(atthread);
 	int down;
 	int len;
+	char *p;
+	protocol_fthread protocol;
+	long long plen;
+
 	if ((down = open(atthread->path, O_WRONLY | O_CREAT, atthread->mode)) == -1) {
-		atthread->set_protocol(atthread, FERROR);
-		atthread->send(atthread, 0);
+		memset(atthread->trans.buffer, (char)FERROR, sizeof(atthread->trans.buffer));
+		atthread->send(atthread, sizeof(atthread->trans.buffer));
 		return FALSE;
 	}
-	do {
-		len = atthread->recv(atthread, ATTHREAD_TRANS_SIZE);
-		if (len <= 0)
-			break;
-		write(down, atthread->trans.buffer, len);
-	} while (TRUE);
-	close(down);
-	return TRUE;
+		
+	debug_where();
+	debug_print("file size %ld\n", atthread->size);
+	p = atthread->trans.buffer + ATTHREAD_PROTOCOL;
 
-	/*
+	plen = atthread->size;
 	do {
-		if (atthread->quit) {
-			close(down);
-			unlink(atthread->path);
-			return FALSE;
-		}
-		if (!atthread->recv(atthread)) {
-			print_error(EWARNING, "下载文件发生错误");
-			return FALSE;
-		}
-		switch (atthread->trans.protocol) {
+		len = atthread->recv(atthread,sizeof(atthread->trans.buffer));
+		protocol = (protocol_fthread)atthread->trans.buffer[0];
+		switch (protocol) {
 		case FSEND:
-			write(down, atthread->trans.buffer,strlen(atthread->trans.buffer));
+			plen = plen - len + 1;
+			if (plen < 0) {
+				plen = plen + len - 1;
+				write(down, p, plen);
+				len = 0;
+				break;
+			}
+			write(down, p, len - 1);
 			break;
+		case FSENDALL:
+			debug_print("文件传输结束\n");
+			len = 0;
+			break;
+		case FERROR:
 		default:
+			linuxarms_print("传输文件错误\n");
 			goto out;
-
 		}
-	} while (TRUE);
-out:
+	} while (len);
 	close(down);
+	atthread->size = 0;
+	debug_print("从文件传输返回\n");
 	return TRUE;
-	*/
+out:
+	unlink(atthread->path);
+	atthread->size = 0;
+	debug_where();
+	return TRUE;
 }
 
 static int atthread_send(struct atthread_struct *atthread, int len)
 {
 	LINUXARMS_POINTER(atthread);
-	//return anet_send(atthread->socket->tcp, (void *)&atthread->trans, 
-	//		 sizeof(struct atthread_trans));
 	return send(atthread->socket->tcp, atthread->trans.buffer, len, 0);
-
 }
 
 static int atthread_recv(struct atthread_struct *atthread, int len)
 {
 	LINUXARMS_POINTER(atthread);
-	//return anet_recv(atthread->socket->tcp, (void *)&atthread->trans, 
-	//		 sizeof(struct atthread_trans));
 	return recv(atthread->socket->tcp, atthread->trans.buffer, len, 0);
-
 }
 boolean atthread_trans_init(struct atthread_trans *attrans)
 {

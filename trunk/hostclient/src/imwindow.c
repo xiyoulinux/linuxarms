@@ -23,6 +23,7 @@
 #include "hsthread.h"
 #include "hcthread.h"
 #include "hfthread.h"
+#include "htthread.h"
 
 /*
  * 创建主窗口
@@ -55,6 +56,7 @@ void create_window_main(struct linuxarms_struct *linuxarms)
 	gtk_window_set_default_size(GTK_WINDOW(window_main), 800, 650);
 
 	linuxarms->mwindow->window = window_main; 
+	linuxarms->hfthread->hftrans->widget.window_main = window_main;
 	
 	debug_where();
 	vbox_main = gtk_vbox_new(FALSE, 0);

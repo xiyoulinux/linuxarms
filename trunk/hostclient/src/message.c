@@ -18,6 +18,18 @@ void message_box_error(GtkWidget *window, char *msg)
 	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);	
 }
+boolean message_box_choose(GtkWidget *window, GtkMessageType type, char *msg)
+{
+	GtkWidget *dialog;
+	int choose;
+	dialog = gtk_message_dialog_new(GTK_WINDOW(window), 0,
+				type, GTK_BUTTONS_OK_CANCEL, msg,NULL);
+	choose = gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+	if (choose == GTK_RESPONSE_OK)
+		return TRUE;
+	return FALSE;
+}
 void message_box_info(GtkWidget *window,char *msg)
 {
 	GtkWidget *dialog;
@@ -48,6 +60,7 @@ void create_window_dialog(const char *message)
 	char buf[256];
 
 	window_dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_position(GTK_WINDOW(window_dialog),  GTK_WIN_POS_CENTER);
 	gtk_widget_set_size_request(window_dialog, 250, 200);
 	gtk_window_set_title(GTK_WINDOW(window_dialog), _("提示信息"));
 	gtk_window_set_resizable(GTK_WINDOW(window_dialog), FALSE);
