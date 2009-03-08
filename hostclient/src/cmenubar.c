@@ -161,13 +161,19 @@ void cb_process_show_all_activate(GtkMenuItem *menuitem, gpointer user_data)
 
 void cb_help_topic_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
+ 	GtkWidget *help;
+ 	if (help_window_created)
+ 		return;
+ 	help = (GtkWidget *)create_dialog_help(user_data);
+	help_window_created = TRUE;
+ 	/*
         GtkWidget *textview;
         GtkTextBuffer *buffer;
         gint len;
         gchar tmp[80],*p=NULL;
         FILE *fp_help;
 
-        textview=(GtkWidget *)create_window_help();
+        textview=(GtkWidget *)create_window_help(user_data);
 	buffer=gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
 	p=find_file("helpmain");
 	if(p== NULL) {
@@ -188,7 +194,7 @@ void cb_help_topic_activate(GtkMenuItem *menuitem, gpointer user_data)
 		fclose(fp_help);
 	}   
 	debug_where();
-
+	*/
 }
 
 

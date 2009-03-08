@@ -25,16 +25,17 @@ int main(int args, char *argv[])
 		debug_where();
 		/* create a process to handle this request. */
 		child = fork();
-		switch (child) {
-		case -1: /* create process error, close armserver */
+		if (child == -1) {
+			/* create process error, close armserver */
 			kill(getpid(), SIGINT);
-			break;
-		case 0: /* in child process, create a session to response request */
+		} else if (child == 0) {
+			/* in child process, create a session to response request */
 			create_session(user);
-			break;
-		default: /* in father process, close connection,  and continue to wait for user connections*/
+		} else {
+			/* in father process, close connection,  
+			 * and continue to wait for user connections
+			 */
 			close(user);
-			break;
 		}
 	}
 	return 0;

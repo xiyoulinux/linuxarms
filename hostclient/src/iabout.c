@@ -42,7 +42,7 @@ GtkWidget* create_window_about(void)
 	gtk_window_set_position(GTK_WINDOW(window_about), GTK_WIN_POS_CENTER);
 	gtk_window_set_modal(GTK_WINDOW(window_about), TRUE);
 	gtk_window_set_resizable(GTK_WINDOW(window_about), FALSE);
-	window_about_icon_pixbuf = create_pixbuf(ABOUT_ICO);
+	window_about_icon_pixbuf = create_pixbuf(ICON_ABOUT);
 	if(window_about_icon_pixbuf){
 		gtk_window_set_icon(GTK_WINDOW(window_about),
 				window_about_icon_pixbuf);

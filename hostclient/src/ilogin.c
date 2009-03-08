@@ -46,6 +46,7 @@ void create_window_login(struct linuxarms_struct *linuxarms)
 	GtkWidget *image323;
 	GtkWidget *label5;
 	GtkAccelGroup *accel_group;
+	GdkPixbuf *login_icon_pixbuf;
 
 	accel_group = gtk_accel_group_new ();
 
@@ -58,7 +59,13 @@ void create_window_login(struct linuxarms_struct *linuxarms)
 	gtk_window_set_resizable(GTK_WINDOW(window_login), FALSE);
 	gtk_window_set_decorated(GTK_WINDOW(window_login),TRUE);
 	
-
+	login_icon_pixbuf = create_pixbuf(ICON_LOGIN);
+	if(login_icon_pixbuf){
+		gtk_window_set_icon(GTK_WINDOW(window_login),
+				login_icon_pixbuf);
+		gdk_pixbuf_unref(login_icon_pixbuf);
+	}
+	
 	vbox_login = gtk_vbox_new(FALSE, 0);
 	gtk_widget_show(vbox_login);
 	gtk_container_add(GTK_CONTAINER(window_login), vbox_login);
