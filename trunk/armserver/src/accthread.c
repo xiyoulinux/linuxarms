@@ -124,7 +124,7 @@ static boolean acthread_handle(struct acthread_struct *acthread)
  *arm端实时控制线程
  *@p:  struct hcthread_struct/
  */
-boolean acthread_thread(void *p)
+void *acthread_thread(void *p)
 {
 	struct acthread_struct *acthread = (struct acthread_struct *)p;
 	int fd;
@@ -161,7 +161,7 @@ boolean acthread_thread(void *p)
 		close(fd);
 //		unlink(TEMP_FILE);
 	}
-	return TRUE;
+	return NULL;
 }
 boolean acthread_trans_init(struct acthread_trans *trans)
 {

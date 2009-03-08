@@ -61,7 +61,7 @@ struct hmthread_struct {
 /* 初始化hmthread_struct结构体 */
 boolean hmthread_init(struct hmthread_struct *hmthread, struct user_struct *user);
 /* 主线程执行体 */
-boolean hmthread_thread(void *p);
+void *hmthread_thread(void *p);
 gboolean create_window_main_timeout(gpointer user_data);
 void hostclient_close_all_thread(struct linuxarms_struct *linuxarms);
 #endif

@@ -58,7 +58,7 @@ boolean hsthread_init(struct hsthread_struct *hsthread,
  * 进程的时候，传输杀死进程所需信息
  * @return:  如果该函数执行返回，则线程执行结束
  */
-boolean hsthread_thread(void *p)
+void *hsthread_thread(void *p)
 {
 	struct hsthread_struct *hsthread = (struct hsthread_struct *)p;
 	
@@ -67,7 +67,7 @@ boolean hsthread_thread(void *p)
 	hnet_init(&hsthread->socket, get_armserver_ip(), get_sthread_port());
 	if (!create_tcp_client(&hsthread->socket)) {
 		print_error(ESYSERR,"create tcp error");
-		return FALSE;
+		return NULL;
 	}
 	debug_print("hsthread socket ip : %s tcp: %d port: %d\n", hsthread->socket.ip,
 				hsthread->socket.tcp, hsthread->socket.port);	
@@ -117,7 +117,7 @@ boolean hsthread_thread(void *p)
 		}
 		hsthread->up_lock(hsthread);
 	}
-	return TRUE;
+	return NULL;
 }
 /*
  * 设置要传输的数据
@@ -195,7 +195,7 @@ gboolean hsthread_timer(gpointer data)
 boolean hsthread_timer_init(struct hsthread_timer *hstimer)
 {
 	LINUXARMS_POINTER(hstimer);
-	hstimer->time = TM_FIVE *1000;
+	hstimer->time = TM_THREE *1000;
 	hstimer->timer = -1;
 	return TRUE;
 }

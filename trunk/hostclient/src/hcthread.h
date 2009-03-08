@@ -48,5 +48,5 @@ struct hcthread_struct {
 };
 boolean hcthread_init(struct hcthread_struct *hcthread);
 boolean showinfo(struct hcthread_struct *hcthread);
-gboolean hcthread_thread(void *p);
+void *hcthread_thread(void *p);
 #endif

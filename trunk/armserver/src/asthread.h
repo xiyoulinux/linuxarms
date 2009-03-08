@@ -56,6 +56,6 @@ boolean asthread_init(struct asthread_struct *asthread,
 		      struct asprocess_struct *asprocess);
 boolean asthread_set_trans(struct asthread_struct *asthread,
 				protocol_sthread protocol, int kill);
-boolean asthread_thread(void *p);
+void *asthread_thread(void *p);
 boolean asthread_kill_process(int pid);
 #endif

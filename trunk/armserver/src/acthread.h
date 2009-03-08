@@ -39,5 +39,5 @@ struct acthread_struct {
 	boolean (*recv)(struct acthread_struct *acthread);
 };
 boolean acthread_init(struct acthread_struct *acthread);
-boolean acthread_thread(void *p);
+void *acthread_thread(void *p);
 #endif

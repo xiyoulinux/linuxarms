@@ -70,7 +70,7 @@ boolean showinfo(struct hcthread_struct *hcthread)
  *实时控制主线程执行体
  *@p:  struct hcthread_struct
  */ 
-gboolean hcthread_thread(void *p)
+void *hcthread_thread(void *p)
 {
 	struct hcthread_struct *hcthread = (struct hcthread_struct *)p;
 	char *result;
@@ -122,7 +122,7 @@ gboolean hcthread_thread(void *p)
 //		GTK_WIDGET_SET_FLAGS(entry_input, GTK_HAS_FOCUS);
 	}
 out:
-	return TRUE;
+	return NULL;
 }
 boolean hcthread_trans_init(struct hcthread_trans *trans)
 {

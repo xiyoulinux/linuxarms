@@ -54,7 +54,7 @@ boolean hfthread_init(struct hfthread_struct *hfthread,
  * 文件浏览和文件传输主线程执行体
  * @p:  struct hfthread_struct
  */
-gboolean hfthread_thread(void *p)
+void *hfthread_thread(void *p)
 {
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)p;
 	struct hfthread_struct *hfthread = linuxarms->hfthread;
@@ -65,7 +65,7 @@ gboolean hfthread_thread(void *p)
 	hnet_init(&hfthread->socket, get_armserver_ip(), get_fthread_port());
 	if (!create_tcp_client(&hfthread->socket)) {
 		print_error(ESYSERR,"建立文件浏览和文件传输网络连接错误");
-		return FALSE;
+		return NULL;
 	}
 	debug_print("hfthread socket ip : %s tcp: %d port: %d\n", hfthread->socket.ip,
 				hfthread->socket.tcp, hfthread->socket.port);
@@ -81,12 +81,14 @@ gboolean hfthread_thread(void *p)
 			sscanf(hfthread->trans.rename[NEWNAME], "%d", &htthread->mode);
 			sscanf(hfthread->trans.rename[OLDNAME], "%ld", &htthread->total_size);
 			htthread->trans_size = 0;
-			htthread->clock = gtk_timeout_add(PROMPT_TIMEOUT, window_trans_timer, (gpointer)linuxarms);
+			htthread->clock = gtk_timeout_add(PROMPT_TIMEOUT, 
+					window_trans_timer, (gpointer)linuxarms);
 			htthread_upload(htthread);
 			break;
 		case FDOWN: /* 下载文件处理 */
 			htthread->trans_size = 0;
-			htthread->clock = gtk_timeout_add(PROMPT_TIMEOUT, window_trans_timer, (gpointer)linuxarms);		
+			htthread->clock = gtk_timeout_add(PROMPT_TIMEOUT, 
+					window_trans_timer, (gpointer)linuxarms);		
 			htthread_download(htthread);
 			break;
 		case FVIEW: /* 文件浏览处理 */
@@ -120,7 +122,7 @@ gboolean hfthread_thread(void *p)
 		hfthread->set_protocol(hfthread, FMAX);
 		hfthread->up_lock(hfthread);
 	}
-	return TRUE;
+	return NULL;
 }
 
 static void hfthread_down_lock(struct hfthread_struct *hfthread)

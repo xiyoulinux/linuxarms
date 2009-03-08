@@ -47,7 +47,7 @@ boolean asthread_init(struct asthread_struct *asthread,
 /*
  * 线程主执行体
  */
-boolean asthread_thread(void *p)
+void *asthread_thread(void *p)
 {
 	struct asthread_struct *asthread = (struct asthread_struct *)p;
 	
@@ -57,7 +57,7 @@ boolean asthread_thread(void *p)
 	anet_init(&asthread->socket, get_localhost_ip(), get_sthread_port());
 	if (!create_tcp_server(&asthread->socket)) {
 		print_error(ESYSERR,"create tcp error");
-		return FALSE;
+		exit(1);
 	}
 	debug_print("asthread socket ip : %s tcp: %d port: %d\n", asthread->socket.ip,
 				asthread->socket.tcp, asthread->socket.port);
@@ -94,7 +94,7 @@ boolean asthread_thread(void *p)
 			break;
 		}
 	}
-	return TRUE;
+	return NULL;
 }
 
 boolean asthread_set_trans(struct asthread_struct *asthread, protocol_sthread protocol, int kill)
