@@ -50,7 +50,6 @@ boolean asthread_init(struct asthread_struct *asthread,
 boolean asthread_thread(void *p)
 {
 	struct asthread_struct *asthread = (struct asthread_struct *)p;
-	struct asprocess_struct *asprocess = asthread->asprocess;
 	
 	linuxarms_print("create asthread_thread...\n");
 	asthread->thread.id = linuxarms_thread_self();

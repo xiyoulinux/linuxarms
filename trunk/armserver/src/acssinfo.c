@@ -9,7 +9,6 @@
 #include "asthread.h"
 #include "error.h"
 #include "debug.h"
-
 #define ASSINFO_LINE 10 /* 总的行数 */
 #define ASSINFO_MOVLINE  4 /* 动态的行数 */
 #define INIT_NUM 10
