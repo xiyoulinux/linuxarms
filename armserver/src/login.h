@@ -43,5 +43,4 @@ boolean login_init(struct login_struct *login, struct anet_struct *socket);
 boolean login_check_user(struct login_struct *login);
 boolean login_set_env(struct login_struct *login);
 boolean login_user_competence(struct login_struct *login);
-
 #endif

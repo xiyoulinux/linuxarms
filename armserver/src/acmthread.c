@@ -43,9 +43,6 @@ boolean amthread_thread(void *p)
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)p;
 	struct amthread_struct *amthread = linuxarms->amthread;
 	struct asthread_struct *asthread = linuxarms->asthread;
-	struct atthread_struct *atthread = linuxarms->afthread->atthread;
-
-	//struct login_struct *login = linuxarms->login;
 	protocol_mthread  protocol;
 	boolean request = TRUE;
 
@@ -324,7 +321,6 @@ void armserver_login_result(struct linuxarms_struct *linuxarms, protocol_mthread
 		break;
 	case LOGERR:
 		linuxarms_print("create thread error, end login session...\n");
-		memset(login_user, '\0', USER_NAME_LEN);
 		armserver_close_all_thread(linuxarms);
 		exit(1);
 		break;
@@ -336,7 +332,6 @@ void armserver_login_result(struct linuxarms_struct *linuxarms, protocol_mthread
 	case CHECKMULT:
 		linuxarms_print("try to login count == %d, end login session...\n",
 				LOGIN_CHECK_TIMEOUT);
-		memset(login_user, '\0', USER_NAME_LEN);
 		armserver_close_all_thread(linuxarms);
 		exit(1);
 		break;
@@ -350,6 +345,5 @@ void armserver_login_result(struct linuxarms_struct *linuxarms, protocol_mthread
 
 void armserver_do_logout(struct linuxarms_struct *linuxarms)
 {
-	memset(login_user, '\0', USER_NAME_LEN);
 	armserver_close_all_thread(linuxarms);
 }
