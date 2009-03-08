@@ -1,7 +1,7 @@
 #ifndef _ABOUT_H
 #define _ABOUT_H
 #define LICENCE_FILE "licence"
-#define ABOUT_ICO "ico-about.png"
+#define ICON_ABOUT "ico-about.png"
 void cb_window_destroy(GtkObject *object, gpointer user_data);
 void cb_button_close_clicked(GtkButton *button, gpointer user_data);                                        
 

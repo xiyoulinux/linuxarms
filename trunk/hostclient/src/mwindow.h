@@ -3,7 +3,7 @@
 
 #include <gtk/gtk.h>
 #include "linuxarms.h"
-
+#define ICON_WINDOW "ico-window.png"
 struct mwindow_struct {
 	GtkWidget *window;
 	GtkWidget *notebook;

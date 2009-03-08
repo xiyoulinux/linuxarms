@@ -348,7 +348,7 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)help_topic, "activate",
 			 G_CALLBACK(cb_help_topic_activate),
-			 NULL);
+			 (gpointer)linuxarms->mwindow->window);
 	g_signal_connect((gpointer)help_about, "activate",
 			 G_CALLBACK(cb_help_about_activate),
 			 NULL);

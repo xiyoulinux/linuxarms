@@ -17,7 +17,7 @@
 #define PASSWD_LEN 20
 #define CONFIG_BUF_SIZE 256
 #define INFO_SIZE 80
-
+#define ICON_LOGIN "ico-window.png"
 
 /*
  * user_struct  用于存放获取的用户信息

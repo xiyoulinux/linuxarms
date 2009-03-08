@@ -41,6 +41,7 @@ void create_window_main(struct linuxarms_struct *linuxarms)
 	GtkWidget *notebook_main;
 	GtkAccelGroup *accel_group;
 	GtkTooltips *tooltips;
+	GdkPixbuf *window_icon_pixbuf;
 	
 	GtkListStore *list_store_process;
 	GtkListStore *list_store_fview;
@@ -54,7 +55,12 @@ void create_window_main(struct linuxarms_struct *linuxarms)
 	gtk_window_set_title(GTK_WINDOW(window_main), _("Linux ARMS"));
 	gtk_window_set_position(GTK_WINDOW(window_main), GTK_WIN_POS_CENTER);
 	gtk_window_set_default_size(GTK_WINDOW(window_main), 800, 650);
-
+	window_icon_pixbuf = create_pixbuf(ICON_WINDOW);
+	if(window_icon_pixbuf){
+		gtk_window_set_icon(GTK_WINDOW(window_main),
+				window_icon_pixbuf);
+		gdk_pixbuf_unref(window_icon_pixbuf);
+	}
 	linuxarms->mwindow->window = window_main; 
 	linuxarms->hfthread->hftrans->widget.window_main = window_main;
 	
