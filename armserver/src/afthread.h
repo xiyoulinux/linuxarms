@@ -54,7 +54,7 @@ struct afthread_struct {
 boolean afthread_init(struct afthread_struct *afthread, 
 		      struct afview_struct *afview,
 		      struct atthread_struct *atthread);
-boolean afthread_thread(void *p);
+void *afthread_thread(void *p);
 
 boolean afthread_rename(struct afthread_struct *afthread);
 boolean afthread_delete(struct afthread_struct *afthread);

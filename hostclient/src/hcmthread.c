@@ -133,7 +133,7 @@ LOGOUT_RESTART_SHUTDOWN:
 /*
  * hmthread_thread  main thread
  */
-boolean hmthread_thread(void *p)
+void *hmthread_thread(void *p)
 {
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)p;
 	struct hmthread_struct *hmthread = linuxarms->hmthread;
@@ -159,7 +159,7 @@ boolean hmthread_thread(void *p)
 		hmthread->down_lock(hmthread);
 		hmthread->protocol = hmthread->trans.protocol;
 	}
-	return TRUE;
+	return NULL;
 }
 
 

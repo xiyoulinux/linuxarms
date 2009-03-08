@@ -1,4 +1,4 @@
-#include <gtk/gtk.h>
+#include <stdlib.h>
 #include "linuxarms.h"
 #include "thread.h"
 #include "error.h"
@@ -20,9 +20,11 @@ void linuxarms_thread_init(struct linuxarms_thread *thread)
 
 #ifdef GTK_THREAD
 
-linuxarms_thread_t *linuxarms_thread_create(THREADFUNC func, void *arg)
+boolean linuxarms_thread_create(THREADFUNC func, void *arg)
 {
-	return g_thread_create((void *)func, arg, TRUE, NULL);
+	if ( g_thread_create((void *)func, arg, TRUE, NULL) == NULL)
+		return FALSE;
+	return TRUE;
 }
 
 linuxarms_thread_t *linuxarms_thread_self()
@@ -33,11 +35,10 @@ void linuxarms_thread_exit(struct linuxarms_thread *thread)
 {
 	//g_thread_join(thread);
 	LINUXARMS_THREAD_POINTER(thread);
-	//gtk_main_quit();
-	//g_thread_join(thread->id);
+	g_thread_join(thread->id);
 	if (linuxarms_thread_trylock(thread))
 		linuxarms_thread_unlock(thread);
-	//linuxarms_thread_lock_free(thread);
+	linuxarms_thread_lock_free(thread);
 	thread->id = NULL;
 }
 
@@ -70,18 +71,20 @@ void linuxarms_thread_lock_free(struct linuxarms_thread *thread)
 }
 #else
 static void *pthread_ret;
-linuxarms_thread_t *linuxarms_thread_create(THREADFUNC func, void *arg)
+boolean linuxarms_thread_create(THREADFUNC func, void *arg)
 {
-	pthread_t *pthread;
-	pthread = (pthread *)malloc(sizeof(pthread_t));
-	if (pthread_create(pthread, NULL, func, arg) == -1) {
-		return NULL;
+	pthread_t pthread;
+	if (pthread_create(&pthread, NULL, func, arg) == -1) {
+		return FALSE;
 	}
-	return pthread;
+	return TRUE;
 }
 linuxarms_thread_t *linuxarms_thread_self()
 {
-	return &pthread_self();
+	pthread_t *pthread;
+	pthread = (pthread_t *)malloc(sizeof(pthread_t));
+	*pthread = pthread_self();
+	return pthread;
 }
 void linuxarms_thread_exit(struct linuxarms_thread *thread)
 {
@@ -117,7 +120,7 @@ boolean linuxarms_thread_trylock(struct linuxarms_thread *thread)
 		return TRUE;
 	return thread->state;
 }
-void linuxarms_thread_lock_free(linuxarms_thread_lock_t *lock)
+void linuxarms_thread_lock_free(struct linuxarms_thread *thread)
 {
 	LINUXARMS_THREAD_POINTER(thread);
 	free(thread->lock);

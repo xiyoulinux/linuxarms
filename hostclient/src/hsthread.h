@@ -75,7 +75,7 @@ boolean hsthread_init(struct hsthread_struct *hsthread,
 		      struct hssinfo_struct *hssinfo,
 		      struct hsprocess_struct *hsprocess);
 /* 系统信息显示和进程信息显示线程执行体 */
-boolean hsthread_thread(void *p);
+void *hsthread_thread(void *p);
 /* 
  * 发送一个信息给armserver，其中kill为要杀死的进程的id，
  * 如果不是杀死进程，则忽略该参数(设置为-1).

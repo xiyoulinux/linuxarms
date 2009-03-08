@@ -7,7 +7,7 @@ CROSS =
 ARMGTK = 
 endif
 
-GTK_THREAD = 1
+#GTK_THREAD = 1
 ifdef GTK_THREAD
 THREAD_LINK = -lgthread-2.0
 else

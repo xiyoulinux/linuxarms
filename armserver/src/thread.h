@@ -2,9 +2,9 @@
 #define _LINUXARMS_THREAD_H
 #include "linuxarms.h"
 
-#define GTK_THREAD
+//#define GTK_THREAD
 
-typedef boolean (*THREADFUNC)(void *);
+typedef void *(*THREADFUNC)(void *);
 
 #ifdef GTK_THREAD
 	#include <glib.h>
@@ -23,7 +23,7 @@ struct linuxarms_thread {
 };
 
 void linuxarms_thread_init(struct linuxarms_thread *thread);
-linuxarms_thread_t *linuxarms_thread_create(THREADFUNC func, void *arg);
+boolean linuxarms_thread_create(THREADFUNC func, void *arg);
 void linuxarms_thread_exit(struct linuxarms_thread *thread);
 linuxarms_thread_t *linuxarms_thread_self();
 

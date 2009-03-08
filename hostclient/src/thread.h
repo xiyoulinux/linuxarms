@@ -4,7 +4,7 @@
 
 #define GTK_THREAD
 
-typedef boolean (*THREADFUNC)(void *);
+typedef void *(*THREADFUNC)(void *);
 
 #ifdef GTK_THREAD
 	#include <glib.h>
@@ -21,8 +21,9 @@ struct linuxarms_thread {
 	linuxarms_thread_lock_t *lock;
 	linuxarms_thread_t *id;
 };
+
 void linuxarms_thread_init(struct linuxarms_thread *thread);
-linuxarms_thread_t *linuxarms_thread_create(THREADFUNC func, void *arg);
+boolean linuxarms_thread_create(THREADFUNC func, void *arg);
 void linuxarms_thread_exit(struct linuxarms_thread *thread);
 linuxarms_thread_t *linuxarms_thread_self();
 
@@ -32,4 +33,5 @@ void linuxarms_thread_lock_free(struct linuxarms_thread *thread);
 void linuxarms_thread_lock(struct linuxarms_thread *thread);
 void linuxarms_thread_unlock(struct linuxarms_thread *thread);
 boolean linuxarms_thread_trylock(struct linuxarms_thread *thread);
+
 #endif

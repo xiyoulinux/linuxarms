@@ -73,5 +73,5 @@ boolean hfthread_init(struct hfthread_struct *hfthread,
 boolean hfthread_set_trans(struct hfthread_struct *hfthread, 
 			   protocol_fthread protocol,
 			   char *path, char *oldname, char *newname);
-gboolean hfthread_thread(void *p);
+void * hfthread_thread(void *p);
 #endif

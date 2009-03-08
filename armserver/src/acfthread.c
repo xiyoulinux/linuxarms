@@ -47,7 +47,7 @@ boolean afthread_init(struct afthread_struct *afthread,
  * 文件浏览和文件传输主线程执行体
  * @p:  struct afthread_struct
  */
-boolean afthread_thread(void *p)
+void *afthread_thread(void *p)
 {
 	struct afthread_struct *afthread = (struct afthread_struct *)p;
 	struct afview_struct *afview = afthread->afview;
@@ -61,7 +61,7 @@ boolean afthread_thread(void *p)
 	anet_init(&afthread->socket, get_localhost_ip(),get_fthread_port());
 	if (!create_tcp_server(&afthread->socket)) {
 		print_error(ESYSERR,"建立文件浏览和文件传输网络连接错误");
-		return FALSE;
+		exit(1);
 	}
 	debug_print("afthread socket ip : %s tcp: %d port: %d\n", afthread->socket.ip,
 				afthread->socket.tcp, afthread->socket.port);
@@ -138,7 +138,7 @@ boolean afthread_thread(void *p)
 			break;
 		}
 	}
-	return TRUE;
+	return NULL;
 }
 
 static boolean afthread_send(struct afthread_struct *afthread)
