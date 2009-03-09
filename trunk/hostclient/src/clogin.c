@@ -11,6 +11,9 @@
 #include "message.h"
 #include "mwindow.h"
 #include "hmthread.h"
+#include "hsthread.h"
+#include "hfthread.h"
+#include "hcthread.h"
 #include "thread.h"
 
 static void set_button_ok_state(struct login_struct *login)
@@ -88,11 +91,15 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 {
 	struct linuxarms_struct *linuxarms =(struct linuxarms_struct *)user_data;
 	struct hmthread_struct *hmthread = linuxarms->hmthread;
+	struct hsthread_struct *hsthread = linuxarms->hsthread;
+	struct hfthread_struct *hfthread = linuxarms->hfthread;
+	struct hcthread_struct *hcthread = linuxarms->hcthread;
 	struct login_struct *login = linuxarms->login;
 	struct user_struct *user = &login->user;
 	struct hnet_struct *socket = login->socket;
 	char buf[80];
-
+	int tcps[TCP_CONNECT_NUMS];
+	
 	if (socket->tcp != -1) {
 		user_struct_set(&hmthread->trans.user, user->ip, user->name, user->passwd);
 		hmthread->set_protocol(hmthread, LOGIN);
@@ -110,6 +117,15 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 		socket->tcp = -1;
 		return;
 	}
+	
+	if (!create_tcp_connect(tcps)) {
+		message_box_error(login->widget.window_login, "建立tcp连接发生错误");
+		gtk_main_quit();
+	} else {
+		hsthread->socket.tcp = tcps[HSTHREAD_TCP_FD];
+		hfthread->socket.tcp = tcps[HFTHREAD_TCP_FD];
+		hcthread->socket.tcp = tcps[HCTHREAD_TCP_FD];
+	}
 	strcpy(armserver_ip, user->ip);
 	if (strcmp("root", user->name) == 0)
 		login->competence = TRUE;
@@ -119,6 +135,10 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 	if (hmthread->thread.id == NULL) {
 		debug_print("create mthread \n");
 		linuxarms_thread_create(hmthread_thread, linuxarms);
+	} else {
+		user_struct_set(&hmthread->trans.user, user->ip, user->name, user->passwd);
+		hmthread->set_protocol(hmthread, LOGIN);
+		hmthread->send(hmthread);
 	}
 	debug_where();
 }

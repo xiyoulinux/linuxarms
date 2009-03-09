@@ -115,8 +115,29 @@ int wait_user_connect(void)
 		print_error(ESYSERR, "accept");
 	return user;
 }
+boolean have_login_user(int tcp)
+{
+	struct amthread_trans amtrans;
 
-void create_session(int user)
+	if (strlen(login_user) > 0) {
+		anet_recv(tcp, &amtrans, sizeof(struct amthread_trans));
+		amthread_trans_set_protocol(&amtrans, HAVEUSER);
+		anet_send(tcp, &amtrans, sizeof(struct amthread_trans));
+		return TRUE;
+	}
+	return FALSE;
+}
+boolean create_tcp_connect(int fds[TCP_CONNECT_NUMS])
+{
+	if ((fds[1] = wait_user_connect()) == -1)
+		return FALSE;
+	if ((fds[2] = wait_user_connect()) == -1)
+		return FALSE;
+	if ((fds[3] = wait_user_connect()) == -1)
+		return FALSE;
+	return TRUE;
+}
+void create_session(int tcps[TCP_CONNECT_NUMS])
 {
 	linuxarms_print("one client request,we create "
 			"process %d to handle it...\n", getpid());
@@ -124,6 +145,16 @@ void create_session(int user)
 	struct login_struct login;
 	struct amthread_struct amthread;
 	struct linuxarms_struct linuxarms;
+
+	/* 初始化asthread结构体 */	
+	struct assinfo_struct assinfo;
+	struct asprocess_struct asprocess;
+	struct asthread_struct asthread;	
+	/* asprocess.kill = &asthread->trans.kill */
+	asprocess_init(&asprocess, &asthread.trans.kill, &asthread.socket);
+	assinfo_init(&assinfo, &asthread.socket);
+	asthread_init(&asthread, &assinfo, &asprocess);
+	asthread.socket.tcp = tcps[ASTHREAD_TCP_FD];
 
 	/* 初始化afthread结构体 */
 	struct afview_struct afview;
@@ -133,26 +164,20 @@ void create_session(int user)
 	afview_init(&afview, afthread.trans.path, &afthread.socket);	
 	atthread_init(&atthread, &afthread.socket);
 	afthread_init(&afthread, &afview, &atthread);
+	afthread.socket.tcp = tcps[AFTHREAD_TCP_FD];
 	
-	/* 初始化asthread结构体 */	
-	struct assinfo_struct assinfo;
-	struct asprocess_struct asprocess;
-	struct asthread_struct asthread;	
-	/* asprocess.kill = &asthread->trans.kill */
-	asprocess_init(&asprocess, &asthread.trans.kill, &asthread.socket);
-	assinfo_init(&assinfo, &asthread.socket);
-	asthread_init(&asthread, &assinfo, &asprocess);
 
 	/* 初始化acthread结构体 */
 	struct acthread_struct acthread;
 	acthread_init(&acthread);
+	acthread.socket.tcp = tcps[ACTHREAD_TCP_FD];
 	
 	/* 初始化amthread结构体 */
 	login_init(&login, &amthread.socket);
 	user_struct_init(&login.user);
 	amthread_init(&amthread, &login.user);
 	anet_init(&amthread.socket, get_localhost_ip(), get_mthread_port());
-	amthread.socket.tcp = user;
+	amthread.socket.tcp = tcps[AMTHREAD_TCP_FD];
 
 	linuxarms.login = &login;
 	linuxarms.amthread = &amthread;

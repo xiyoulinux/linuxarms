@@ -2,6 +2,7 @@
 #include "support.h"
 #include "linuxarms.h"
 #include "message.h"
+boolean checkmult = FALSE;
 void message_box_warning(GtkWidget *window, char *msg)
 {
 	GtkWidget *dialog;
@@ -16,7 +17,9 @@ void message_box_error(GtkWidget *window, char *msg)
 	dialog = gtk_message_dialog_new(GTK_WINDOW(window), 0,
 				GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, msg,NULL);
 	gtk_dialog_run(GTK_DIALOG(dialog));
-	gtk_widget_destroy(dialog);	
+	gtk_widget_destroy(dialog);
+	if (checkmult)
+		gtk_main_quit();
 }
 boolean message_box_choose(GtkWidget *window, GtkMessageType type, char *msg)
 {
@@ -39,7 +42,7 @@ void message_box_info(GtkWidget *window,char *msg)
 	gtk_widget_destroy(dialog);	
 }
 
-
+/*
 gboolean cb_window_dialog_delete_event(GtkWidget *widget, 
 			GdkEvent *event, gpointer user_data);
 void cb_button_exit_clicked(GtkButton *button, gpointer user_data);
@@ -122,7 +125,6 @@ void create_window_dialog(const char *message)
 
 	gtk_widget_show(window_dialog);
 }
-boolean checkmult = FALSE;
 gboolean cb_window_dialog_delete_event(GtkWidget *widget, 
 			GdkEvent *event, gpointer user_data)
 {
@@ -138,4 +140,4 @@ void cb_button_exit_clicked(GtkButton *button, gpointer user_data)
 	gtk_widget_destroy(GTK_WIDGET(user_data));
 	if (checkmult)
 		gtk_main_quit();
-}
+}*/

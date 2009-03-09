@@ -22,6 +22,7 @@
 #include "debug.h"
 /*initialized in clogin.c, function: cb_login_ok_clicked*/
 char armserver_ip[IP_LEN];
+static struct sockaddr_in serv_addr;
 /*
  * 初始化struct hnet_struct 结构。如果参数hnet或者ip为空，则返回错误
  * @hnet:  要初始化的数据结构
@@ -46,7 +47,6 @@ boolean hnet_init(struct hnet_struct *hnet, const char *ip, int port)
 boolean create_tcp_client(struct hnet_struct *hnet)
 {
 	int sin_size;
-	struct sockaddr_in serv_addr;
 	
 	if ((hnet->tcp = (socket(AF_INET, SOCK_STREAM, 0))) == -1) {
 		print_error(ESYSERR,"socket");
@@ -70,6 +70,27 @@ boolean create_tcp_client(struct hnet_struct *hnet)
 out:	/* 无效的网络连接描述符 */
 	hnet->tcp = -1;
 	return FALSE;
+}
+static int wait_create_connect(void)
+{
+	size_t sin_size;
+	int tcp = -1;
+	if ((tcp = (socket(AF_INET, SOCK_STREAM, 0))) == -1)
+		return -1;
+	sin_size = sizeof(struct sockaddr);
+	if (connect(tcp, (struct sockaddr *)&serv_addr, sin_size) == -1)
+		return -1;
+	return tcp;
+}
+boolean create_tcp_connect(int tcps[TCP_CONNECT_NUMS])
+{
+	if ((tcps[HSTHREAD_TCP_FD] = wait_create_connect()) == -1)
+		return FALSE;
+	if ((tcps[HFTHREAD_TCP_FD] = wait_create_connect()) == -1)
+		return FALSE;
+	if ((tcps[HCTHREAD_TCP_FD] = wait_create_connect()) == -1)
+		return FALSE;
+	return TRUE;
 }
 /*
  * 关闭网络连接

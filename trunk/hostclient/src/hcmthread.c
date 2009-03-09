@@ -23,7 +23,8 @@
 #include "config.h"
 #include "message.h"
 #include "thread.h"
-
+/* hnet.c */
+//extern struct sockaddr_in serv_addr;
 static boolean hmthread_send(struct hmthread_struct *hmthread);
 static boolean hmthread_recv(struct hmthread_struct *hmthread);
 static void hmthread_down_lock(struct hmthread_struct *hmthread);
@@ -50,24 +51,25 @@ boolean create_window_main_timeout(gpointer user_data)
 			linuxarms_print("user login success, user name is %s\n", hmthread->user->name);
 			debug_print("protocol->hmthread :用户登录成功....\n");
 			login_config_write(login);
-			debug_where();
+			login_config_free(login->config);
 			hmthread->competence = login_user_competence(login);
 			hsthread->competence = login_user_competence(login);
 			hfthread->competence = login_user_competence(login);
 			hcthread->competence = login_user_competence(login);
 			htthread->competence = login_user_competence(login);
 			debug_where();
-			login_config_free(login->config);
-			debug_where();
 			gtk_widget_destroy(login->widget.window_login);
 			create_window_main(linuxarms);
 			debug_where();
 			gtk_window_main_set_sensitive(linuxarms);
 			debug_where();
+
 			linuxarms_thread_create(hsthread_thread, hsthread);
 			debug_where();
+
 			linuxarms_thread_create(hfthread_thread, linuxarms);
 			debug_where();
+
 			linuxarms_thread_create(hcthread_thread, hcthread);
 			snprintf(buf, 40, "Linux ARMS[登录用户：%s]", hmthread->user->name);
 			debug_where();
@@ -91,22 +93,23 @@ LOGOUT_RESTART_SHUTDOWN:
 			break;
 		case HAVEUSER: /* one user have login */
 			debug_print("protocol->hmthread :已经有一个用户登录...\n");
-			create_window_dialog("登录失败：已经有一个用户");
+			message_box_error(login->widget.window_login, "登录失败：已经有一个用户");
+			close_tcp_client(&hmthread->socket);
 			break;
 		case CHECKERR:  /* check user information error */
 			debug_print("protocol->hmthread :登录验证用户信息失败...\n");
-			create_window_dialog("登录失败：验证用户信息错误\n"
+			message_box_error(login->widget.window_login, "登录失败：验证用户信息错误\n"
 					     "可能的原因是没有用户或者密码错误");
 			break;
 		case LOGERR:
 			debug_print("protocol->hmthread :登录创建服务线程失败...\n");
-			create_window_dialog("登录失败：可能的原因是创建\n"
+			message_box_error(login->widget.window_login, "登录失败：可能的原因是创建\n"
 					"服务线程失败");
 			break;
 		case CHECKMULT:
 			debug_print("protocol->hmthread：尝试登录次数过多...\n");
 			checkmult = TRUE;
-			create_window_dialog("尝试登录次数过多...\n");
+			message_box_error(login->widget.window_login, "尝试登录次数过多...\n");
 			break;
 		case MERROR:
 			debug_print("protocol->hmthread :执行命令失败\n");
@@ -142,6 +145,7 @@ void *hmthread_thread(void *p)
 	
 	linuxarms_print("create hmthread thread...\n");	
 	hmthread->thread.id = linuxarms_thread_self();
+
 	user_struct_set(&hmthread->trans.user, user->ip, user->name, user->passwd);
 	/* 发送登录请求 */
 	hmthread->set_protocol(hmthread, LOGIN);
