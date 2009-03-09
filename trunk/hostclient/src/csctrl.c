@@ -1,6 +1,7 @@
 #define __DEBUG__
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+#include <unistd.h>
 #include <string.h>
 #include "sctrl.h"
 #include "debug.h"
@@ -16,6 +17,10 @@ boolean handle_command(struct hcthread_struct *hcthread)
 		debug_print("sorry~your command be limited\n");
 		/* 显示到状态提示栏 */
 		statusbar_set_text("sorry~!your command be limited");
+		gtk_entry_set_text(GTK_ENTRY(hcthread->widget.entry_input), "");
+		return FALSE;
+	}
+	if (strstr(command, "cd ./") || strstr(command, "cd .")) {
 		gtk_entry_set_text(GTK_ENTRY(hcthread->widget.entry_input), "");
 		return FALSE;
 	}
@@ -42,6 +47,7 @@ gboolean cb_ctrl_input_key_press(GtkWidget *widget,
 	struct hcthread_struct *hcthread = 
 		(struct hcthread_struct *)user_data;
 	const gchar *input;
+	const gchar *label;
 	char info[128];
 
 	if (event->keyval == GDK_Return) {
@@ -56,7 +62,8 @@ gboolean cb_ctrl_input_key_press(GtkWidget *widget,
 		hcthread_trans_set_protocol(&hcthread->trans, CSEND);
 		hcthread->send(hcthread);
 
-		sprintf(info, "实时控制[root@EPC-8000:$%s\n", input);
+		label = gtk_label_get_text(GTK_LABEL(hcthread->widget.label_path));
+		sprintf(info, "%s %s\n", label, input);
 		hcthread_trans_set_buf(&hcthread->trans, info);
 		showinfo(hcthread);
 		return TRUE;
