@@ -54,8 +54,15 @@ boolean showinfo(struct hcthread_struct *hcthread)
 	/* 显示信息 */
 	GtkWidget *textview = hcthread->widget.textview_ctrl;
 	GtkTextBuffer *buffer;
+	int line;
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
+	line = gtk_text_buffer_get_line_count(buffer);
+	if(line >= GTK_BUFFER_MAX_LINE) {
+		GtkTextIter start, end;
+		gtk_text_buffer_get_bounds (buffer, &start, &end);
+		gtk_text_buffer_delete (buffer, &start, &end);           
+	}
 	if (hcthread->trans.buffer) {
 		gtk_widget_set_sensitive(hcthread->widget.entry_input, FALSE);
 		gtk_text_buffer_insert_at_cursor(GTK_TEXT_BUFFER(buffer), 
@@ -94,7 +101,8 @@ void *hcthread_thread(void *p)
 				hcthread_trans_set_protocol(&hcthread->trans, CRECV);
 				hcthread->send(hcthread);
 				if (strstr(hcthread->trans.buffer, "TRUE")) {
-					result = strchr(hcthread->trans.buffer, '#') +1 ;
+					result = strchr(hcthread->trans.buffer, '#') +1;
+					debug_print("the result is %s\n", result);
 					sprintf(label, "<b>实时控制[root@EPC-8000:%s$]</b>",
 							result);
 					gtk_label_set_text(GTK_LABEL(

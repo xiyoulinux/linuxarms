@@ -10,6 +10,7 @@
 #include "thread.h"
 #include <gtk/gtk.h>
 #define TRANS_SIZE 512
+#define GTK_BUFFER_MAX_LINE 100
 /* 界面结构体 */
 struct hcthread_widget {
 	GtkWidget *textview_ctrl;

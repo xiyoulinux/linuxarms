@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
+#include <error.h>
 
 #include "acthread.h"
 #include "linuxarms.h"
@@ -13,7 +14,7 @@
 #include "debug.h"
 #include "error.h"
 #include "login.h"
-#include "config.h"
+#include "fconfig.h"
 #include "thread.h"
 
 static boolean acthread_send(struct acthread_struct *acthread);
@@ -57,11 +58,11 @@ void do_cd(struct acthread_struct *acthread)
 {
 	char dir[128];
 	int ret;
-	char cmd[100];
-	char result[10];
+	char cmd[128];
+	char result[128];
 	char send[256];
 
-	snprintf(cmd, 100, "%s", acthread->trans.buffer);
+	snprintf(cmd, 128, "%s", acthread->trans.buffer);
 	if (strlen(cmd) == 2) {
 		sprintf(dir,"%s", getenv("HOME"));
 	} else if ((strlen(cmd) == 4) && (cmd[3] =='~')) {
@@ -71,15 +72,19 @@ void do_cd(struct acthread_struct *acthread)
 	} else if((strlen(cmd) >4) && (cmd[3] == '~')) {
 		sprintf(dir,"%s%s", getenv("HOME"), &cmd[4]);
 	} else if((strlen(cmd) > 4) && (cmd[3] != '/')) {
-		sprintf(dir,"%s/%s", getenv("HOME"), &cmd[3]);
+		char buf[80];
+		getcwd(buf, sizeof(buf));
+		sprintf(dir,"%s/%s", buf, &cmd[3]);
 	} else if((strlen(cmd) >=4) && (cmd[3] == '/')) {
 		sprintf(dir, "%s", &cmd[3]);
 	}
+	debug_print("dir is:%s\n", dir);
 	ret = chdir(dir);
 	if (ret == 0) {
 		strcpy(result, "TRUE");
 	} else
 		strcpy(result, "FALSE没有该文件或目录");
+	memset(send, 256, '\0');
 	sprintf(send, "%s#%s", result, dir);
 	
 	acthread_trans_set_buf(&acthread->trans, send);
@@ -93,29 +98,24 @@ void do_cd(struct acthread_struct *acthread)
  */
 static boolean acthread_handle(struct acthread_struct *acthread)
 {
-	int fd;
 	int ret;
 	FILE *fp;
+	char command[256];
 	
-	/* 进行重定向 */
 	fp = fopen(TEMP_FILE, "w");
-	fd = fileno(fp);
-	dup2(fd, 1);
-	close(fd);
+	fclose(fp);
 	/* 处理命令 */
 	if(strstr(acthread->trans.buffer, "cd")) {
 		do_cd(acthread);
 		return TRUE;
 	}
-	
-	ret = system(acthread->trans.buffer);
-//	printf("aaaaaaaaaaaaaaaaaaaaa");
+	snprintf(command, 256, "%s > %s", acthread->trans.buffer, TEMP_FILE);
+	debug_print("the command is:%s\n", command);
+	ret = system(command);
 	if (ret == 127) {
 		printf("/bin/sh not available\n");
-	} else if (ret == -1) {
-		printf("there are some errors...\n");
 	} else if (ret != 0) {
-		printf("command not found\n");
+		printf("there are some errors\n");
 	} 
 	
 	return TRUE;

@@ -1,3 +1,4 @@
+#define __DEBUG__
 #include <gtk/gtk.h>
 #include <string.h>
 #include "linuxarms.h"
