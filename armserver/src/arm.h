@@ -8,14 +8,10 @@
 #include "config.h"
 #include "beepdrv.h"
 #include "leddrv.h"
-/*
- * if the armserver run in EPC-8000(which is developed by
- * ZLG http://www.zlgmcu.com/),you can use the led or beep 
- * to clew user login or file transfer success.you should 
- * define EPC8000 to use it.In other arm syatem,you should
- * not define it.
- */
-#define EPC8000
+
+#ifdef HAS_EPC8000
+#  define EPC8000
+#endif
 void init_led_beep();
 void close_led_beep();
 void led_clew_open();

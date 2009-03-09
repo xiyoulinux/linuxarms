@@ -1,6 +1,14 @@
 #ifndef _ANET_H
 #define _ANET_H
 #include "linuxarms.h"
+
+
+#define TCP_CONNECT_NUMS 4
+#define AMTHREAD_TCP_FD 0
+#define ASTHREAD_TCP_FD 1
+#define AFTHREAD_TCP_FD 2
+#define ACTHREAD_TCP_FD 3
+
 #define IP_LEN 16
 /*
  * 用于建立网络连接

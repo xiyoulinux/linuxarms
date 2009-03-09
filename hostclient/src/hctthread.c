@@ -86,7 +86,16 @@ boolean window_trans_timer(gpointer p)
 	char tval[10];
 
 	if (file_trans_error) {
-		message_box_error(htthread->widget.window_main, "文件传输错误\n");
+		char msg[256];
+		snprintf(msg, 256, "文件传输错误，可能的原因是在创建\n"
+				   "要上传的文件或者打开要下载的\n"
+				   "文件: \n%s\n"
+				   "时发生错误,可能的原因是没有权限\n"
+				   "创建或者给出的路径错误", htthread->path);
+		memset(htthread->trans.buffer, (char)FERROR, sizeof(htthread->trans.buffer));
+		htthread->send(htthread, sizeof(htthread->trans.buffer));
+		htthread->trans_size = htthread->total_size = 0;
+		message_box_error(htthread->widget.window_main, msg);
 		file_trans_error = FALSE;
 		gtk_label_set_text(GTK_LABEL(htthread->widget.label_trans),"");
 		return FALSE;
@@ -145,7 +154,6 @@ boolean htthread_upload(struct htthread_struct *htthread)
 {
 	LINUXARMS_POINTER(htthread);
 	int up;
-	char msg[256];
 	int len;
 	char *p;
 	protocol_fthread protocol;
@@ -154,14 +162,7 @@ boolean htthread_upload(struct htthread_struct *htthread)
 	debug_where();
 	debug_print("file size %ld\n", htthread->total_size);
 	if ((up = open(htthread->path, O_WRONLY | O_CREAT, htthread->mode)) == -1) {
-		snprintf(msg, 256, "在创建要上传的文件: \n%s\n"
-				   "时发生错误,可能的原因是没有权限\n"
-				   "创建或者给出的路径错误", htthread->path);
-		create_window_dialog(msg);
-		gtk_timeout_remove(htthread->clock);		
-		memset(htthread->trans.buffer, (char)FERROR, sizeof(htthread->trans.buffer));
-		htthread->send(htthread, sizeof(htthread->trans.buffer));
-		htthread->trans_size = htthread->total_size = 0;
+		file_trans_error = TRUE;
 		return FALSE;
 	}
 	p = htthread->trans.buffer + HTTHREAD_PROTOCOL;
@@ -206,21 +207,13 @@ boolean htthread_download(struct htthread_struct *htthread)
 {
 	LINUXARMS_POINTER(htthread);
 	int down, len;
-	char msg[256];
 	char *p;
 	fd_set rfd_set, wfd_set;
 	int flag, ret;
 	struct timeval timeout;
 
 	if ((down = open(htthread->path, O_RDONLY)) == -1) {
-		snprintf(msg, 256, "在打开要下载的文件: \n%s\n"
-				   "时发生错误,可能的原因是没有权限\n"
-				   "打开或者给出的路径错误", htthread->path);
-		create_window_dialog(msg);
-		gtk_timeout_remove(htthread->clock);
-		memset(htthread->trans.buffer, (char)FERROR, sizeof (htthread->trans.buffer));
-		htthread->send(htthread, sizeof (htthread->trans.buffer));
-		htthread->trans_size = htthread->total_size = 0;
+		file_trans_error = TRUE;
 		return FALSE;
 	}
 

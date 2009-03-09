@@ -1,5 +1,5 @@
-#ifndef _CONFIG_H
-#define _CONFIG_H
+#ifndef _FCONFIG_H
+#define _FCONFIG_H
 
 #include "linuxarms.h"
 /*

@@ -1,8 +1,11 @@
 #ifndef _LINUXARMS_THREAD_H
 #define _LINUXARMS_THREAD_H
 #include "linuxarms.h"
+#include "config.h"
 
-//#define GTK_THREAD
+#ifdef HAVE_GLIB
+# define GTK_THREAD
+#endif
 
 typedef void *(*THREADFUNC)(void *);
 

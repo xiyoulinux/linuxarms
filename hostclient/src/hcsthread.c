@@ -64,11 +64,11 @@ void *hsthread_thread(void *p)
 	
 	linuxarms_print("create hsthread thread...\n");
 	hsthread->thread.id = linuxarms_thread_self();
-	hnet_init(&hsthread->socket, get_armserver_ip(), get_sthread_port());
+	/*hnet_init(&hsthread->socket, get_armserver_ip(), get_sthread_port());
 	if (!create_tcp_client(&hsthread->socket)) {
 		print_error(ESYSERR,"create tcp error");
 		return NULL;
-	}
+	}*/
 	debug_print("hsthread socket ip : %s tcp: %d port: %d\n", hsthread->socket.ip,
 				hsthread->socket.tcp, hsthread->socket.port);	
 
