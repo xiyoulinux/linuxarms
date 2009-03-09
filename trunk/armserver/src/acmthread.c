@@ -15,7 +15,7 @@
 #include "protocol.h"
 #include "error.h"
 #include "debug.h"
-#include "config.h"
+#include "fconfig.h"
 #include "login.h"
 #include "anet.h"
 #include "afview.h"

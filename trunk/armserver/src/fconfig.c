@@ -3,7 +3,7 @@
  * 读取配置文件(文件位置见PORT_CONFIG_FILE)
  * Niu Tao<niutao0602@gmail.com>
  */
-#include "config.h"
+#include "fconfig.h"
 #include "error.h"
 #include "linuxarms.h"
 #include <stdio.h>

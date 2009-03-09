@@ -11,7 +11,7 @@
 #include "atthread.h"
 #include "debug.h"
 #include "error.h"
-#include "config.h"
+#include "fconfig.h"
 
 static boolean afthread_set_protocol(struct afthread_struct *afthread, 
 					protocol_fthread protocol);

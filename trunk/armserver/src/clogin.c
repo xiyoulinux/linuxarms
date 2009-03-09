@@ -2,18 +2,21 @@
  * linuxarms/armserver/src/clogin.c
  * Copyright (C) 2008 lizeliang<lizeliang.linux@gmail.com>
  */
+#include "config.h"
 #include <sys/types.h>
 #include <pwd.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <shadow.h>
+#ifdef HAVE_SHADOW
+# include <shadow.h>
+#endif
 
 #include "login.h"
 #include "debug.h"
 #include "error.h"
-#include "config.h"
 #include "anet.h"
+#include "fconfig.h"
 
 boolean login_init(struct login_struct *login,
 		   struct anet_struct *socket)
@@ -54,7 +57,11 @@ boolean user_struct_set(struct user_struct *user, char *ip, char *name, char *pa
 boolean login_check_user(struct login_struct *login)
 {
 	struct user_struct *user;
-	struct spwd *spwd;
+#ifdef HAVE_SHADOW
+	struct spwd *pwd;
+#else
+	struct passwd *pwd;
+#endif
 	char *current, *encrypted, *unencrypted;
 	
 	LINUXARMS_POINTER(login);
@@ -63,14 +70,24 @@ boolean login_check_user(struct login_struct *login)
 	if (strcmp(user->name, "root") == 0)
 		login->competence = TRUE;
 	else
-		login->competence = FALSE;			
-	spwd = getspnam(user->name);
-	if (!spwd) {
+		login->competence = FALSE;
+#ifdef HAVE_SHADOW
+	pwd = getspnam(user->name);
+	if (!pwd) {
 		print_error(EWARNING, "the user is not found");
 		return FALSE;
 	}
 	endspent ();
-	current = spwd->sp_pwdp;
+	current = pwd->sp_pwdp;
+#else
+	pwd = getpwnam(user->name);
+	if (!pwd) {
+		print_error(EWARNING, "the user is not found");
+		return FALSE;
+	}
+	current = pwd->pw_passwd;
+#endif
+
 	encrypted = (char *)crypt(unencrypted, current);
 	if (strcmp(encrypted, current) != 0)
 		return FALSE;
