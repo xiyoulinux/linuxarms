@@ -5,6 +5,7 @@
 
 #ifndef _EPC_ARM_H
 #define _EPC_ARM_H
+#include "config.h"
 #include "beepdrv.h"
 #include "leddrv.h"
 /*
@@ -13,7 +14,7 @@
  * to clew user login or file transfer success.you should 
  * define EPC8000 to use it.In other arm syatem,you should
  * not define it.
- */ 
+ */
 #define EPC8000
 void init_led_beep();
 void close_led_beep();

@@ -11,7 +11,7 @@
 #include "anet.h"
 #include "error.h"
 #include "debug.h"
-#include "config.h"
+#include "fconfig.h"
 #include "assinfo.h"
 #include "asprocess.h"
 #include "proc.h"

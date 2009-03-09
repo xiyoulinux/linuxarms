@@ -23,7 +23,7 @@
 #include "atthread.h"
 #include "login.h"
 #include "support.h"
-#include "config.h"
+#include "fconfig.h"
 #include "debug.h"
 #include "error.h"
 #include "anet.h"
