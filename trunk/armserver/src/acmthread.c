@@ -48,8 +48,6 @@ boolean amthread_thread(void *p)
 
 	linuxarms_print("create amthread thread...\n");
 	amthread->thread.id = linuxarms_thread_self();
-	debug_print("amthread socket ip : %s tcp: %d port: %d\n", amthread->socket.ip,
-				amthread->socket.tcp, amthread->socket.port);
 	while (amthread->thread.id) {
 		if (!amthread->recv(amthread)) {
 			linuxarms_print("amthread recv data error,exit....\n");

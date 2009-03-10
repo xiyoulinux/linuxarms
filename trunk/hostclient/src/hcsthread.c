@@ -69,8 +69,6 @@ void *hsthread_thread(void *p)
 		print_error(ESYSERR,"create tcp error");
 		return NULL;
 	}*/
-	debug_print("hsthread socket ip : %s tcp: %d port: %d\n", hsthread->socket.ip,
-				hsthread->socket.tcp, hsthread->socket.port);	
 
 	hsthread->set_protocol(hsthread, SSYSINFO);
 	hsthread->send(hsthread);

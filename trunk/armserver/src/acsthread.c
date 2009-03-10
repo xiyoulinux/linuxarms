@@ -39,7 +39,7 @@ boolean asthread_init(struct asthread_struct *asthread,
 	asthread->competence = FALSE;
 
 	asthread_trans_init(&asthread->trans);
-	anet_init(&asthread->socket, get_localhost_ip(), get_sthread_port());
+	anet_init(&asthread->socket, get_localhost_ip(), get_armserver_port());
 	proc_init(&asthread->proc, STOP, SMAX);
 
 	return TRUE;
@@ -54,13 +54,6 @@ void *asthread_thread(void *p)
 	linuxarms_print("create asthread_thread...\n");
 	asthread->thread.id = linuxarms_thread_self();
 
-	/*anet_init(&asthread->socket, get_localhost_ip(), get_sthread_port());
-	if (!create_tcp_server(&asthread->socket)) {
-		print_error(ESYSERR,"create tcp error");
-		exit(1);
-	}*/
-	debug_print("asthread socket ip : %s tcp: %d port: %d\n", asthread->socket.ip,
-				asthread->socket.tcp, asthread->socket.port);
 	while (asthread->thread.id) {
 		if (!asthread->recv(asthread)) {
 			linuxarms_print("asthread recv data error,exit....\n");

@@ -15,8 +15,8 @@ int main(int args, char *argv[])
 	int user;
 	int tcps[TCP_CONNECT_NUMS];
 	check_user_permission();
-	signal(SIGINT, armserver_siganl_handle);
-	signal(SIGCHLD, armserver_siganl_handle);
+	signal(SIGINT, armserver_signal_handle);
+	signal(SIGCHLD, armserver_signal_handle);
 	armserver_init();
 	
 	linuxarms_print("create main tcp server to accept tcp request...\n");
@@ -29,6 +29,7 @@ int main(int args, char *argv[])
 			close(user);
 			continue;
 		}
+		tcp_set_login_address();
 		if (!create_tcp_connect(tcps)) {
 			print_error(EWARNING, "建立连接错误");
 			continue;
@@ -42,6 +43,7 @@ int main(int args, char *argv[])
 			kill(getpid(), SIGINT);
 		} else if (child == 0) {
 			/* in child process, create a session to response request */
+			signal(SIGTERM, armserver_signal_handle);
 			create_session(tcps);
 		} else {
 			/* in father process, close connection,  

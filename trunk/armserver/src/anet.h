@@ -2,7 +2,6 @@
 #define _ANET_H
 #include "linuxarms.h"
 
-
 #define TCP_CONNECT_NUMS 4
 #define AMTHREAD_TCP_FD 0
 #define ASTHREAD_TCP_FD 1

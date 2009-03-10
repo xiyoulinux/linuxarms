@@ -1,3 +1,4 @@
+#define __DEBUG__
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/ioctl.h>
@@ -35,8 +36,8 @@
 #include <glib.h>
 #endif
 
-#define LISTEN_NUMS 2
-static struct sockaddr_in serv_addr,client_addr;
+#define LISTEN_NUMS 10
+static struct sockaddr_in serv_addr, login_addr, client_addr;
 static int sockfd = -1;
 char *login_user;
 
@@ -83,7 +84,7 @@ void armserver_init(void)
 		goto err;
 	}
 	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons(get_mthread_port());
+	serv_addr.sin_port = htons(get_armserver_port());
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	bzero(&(serv_addr.sin_zero), 8);
 	size = sizeof(struct sockaddr);
@@ -115,6 +116,10 @@ int wait_user_connect(void)
 		print_error(ESYSERR, "accept");
 	return user;
 }
+void tcp_set_login_address()
+{
+	login_addr = client_addr;
+}
 boolean have_login_user(int tcp)
 {
 	struct amthread_trans amtrans;
@@ -131,9 +136,15 @@ boolean create_tcp_connect(int fds[TCP_CONNECT_NUMS])
 {
 	if ((fds[1] = wait_user_connect()) == -1)
 		return FALSE;
+	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
+		return FALSE;
 	if ((fds[2] = wait_user_connect()) == -1)
 		return FALSE;
+	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
+		return FALSE;
 	if ((fds[3] = wait_user_connect()) == -1)
+		return FALSE;
+	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
 		return FALSE;
 	return TRUE;
 }
@@ -176,7 +187,7 @@ void create_session(int tcps[TCP_CONNECT_NUMS])
 	login_init(&login, &amthread.socket);
 	user_struct_init(&login.user);
 	amthread_init(&amthread, &login.user);
-	anet_init(&amthread.socket, get_localhost_ip(), get_mthread_port());
+	anet_init(&amthread.socket, get_localhost_ip(), get_armserver_port());
 	amthread.socket.tcp = tcps[AMTHREAD_TCP_FD];
 
 	linuxarms.login = &login;
@@ -188,7 +199,7 @@ void create_session(int tcps[TCP_CONNECT_NUMS])
 	amthread_thread(&linuxarms);
 }
 
-void armserver_siganl_handle(int sig)
+void armserver_signal_handle(int sig)
 {
 	int childret;
 	switch (sig) {
@@ -197,6 +208,7 @@ void armserver_siganl_handle(int sig)
 		linuxarms_print("close armserver...\n");
 		delete_file_directory();
 		close(sockfd);
+		kill(0, SIGTERM);
 		exit(1);
 		break;
 	case SIGCHLD:
@@ -204,5 +216,10 @@ void armserver_siganl_handle(int sig)
 		linuxarms_print("login user %s exit...\n", login_user);
 		memset(login_user, '\0', USER_NAME_LEN);
 		break;
+	case SIGTERM:
+		linuxarms_print("close session\n");
+		exit(0);
+		break;
 	}
 }
+

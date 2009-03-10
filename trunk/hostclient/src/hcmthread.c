@@ -152,8 +152,6 @@ void *hmthread_thread(void *p)
 	hmthread->send(hmthread);
 	hmthread->set_protocol(hmthread, MMAX);
 	debug_where();
-	debug_print("hmthread socket ip : %s tcp: %d port: %d\n", hmthread->socket.ip,
-				hmthread->socket.tcp, hmthread->socket.port);
 	while (hmthread->thread.id) {
 		if (!hmthread->recv(hmthread)) {
 			linuxarms_print("hmthread recive data error\n");
@@ -182,7 +180,7 @@ boolean hmthread_init(struct hmthread_struct *hmthread, struct user_struct *user
 
 	linuxarms_thread_init(&hmthread->thread);
 	hmthread->user = user;
-	hnet_init(&hmthread->socket, NULL, get_mthread_port());
+	hnet_init(&hmthread->socket, NULL, get_armserver_port());
 	hmthread->trans.user = *user;
 	hmthread->trans.protocol = MMAX;
 	hmthread->protocol = MMAX;

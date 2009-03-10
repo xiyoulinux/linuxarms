@@ -67,8 +67,6 @@ void *hfthread_thread(void *p)
 		print_error(ESYSERR,"建立文件浏览和文件传输网络连接错误");
 		return NULL;
 	}*/
-	debug_print("hfthread socket ip : %s tcp: %d port: %d\n", hfthread->socket.ip,
-				hfthread->socket.tcp, hfthread->socket.port);
 	while (hfthread->thread.id) {
 		if (!hfthread->recv(hfthread)) {
 			linuxarms_print("hfthread recive data error\n");
