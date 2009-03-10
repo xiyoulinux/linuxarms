@@ -3,6 +3,7 @@
  * 读取端口配置文件(文件位置见PORT_CONFIG_FILE)
  * Niu Tao<niutao0602@gmail.com>
  */
+#define __DEBUG__
 #include "config.h"
 #include "error.h"
 #include "linuxarms.h"

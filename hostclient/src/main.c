@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 	if (!g_thread_supported())
 		g_thread_init(NULL);
 	//gdk_threads_init();
-	//setlocale (LC_ALL, "");
+	setlocale (LC_ALL, "");
 	gtk_set_locale();
 	gtk_init(&argc, &argv);
 	add_file_directory("/usr/share/linuxarms-hostclient/pixmaps");

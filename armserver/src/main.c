@@ -44,6 +44,7 @@ int main(int args, char *argv[])
 		} else if (child == 0) {
 			/* in child process, create a session to response request */
 			signal(SIGTERM, armserver_signal_handle);
+			signal(SIGCHLD, NULL);
 			create_session(tcps);
 		} else {
 			/* in father process, close connection,  
