@@ -74,7 +74,10 @@ void do_cd(struct acthread_struct *acthread)
 	} else if((strlen(cmd) > 4) && (cmd[3] != '/')) {
 		char buf[80];
 		getcwd(buf, sizeof(buf));
-		sprintf(dir,"%s/%s", buf, &cmd[3]);
+		if (strlen(buf) == 1)
+			sprintf(dir,"%s%s", buf, &cmd[3]);
+		else
+			sprintf(dir,"%s/%s", buf, &cmd[3]);
 	} else if((strlen(cmd) >=4) && (cmd[3] == '/')) {
 		sprintf(dir, "%s", &cmd[3]);
 	}
@@ -101,23 +104,28 @@ static boolean acthread_handle(struct acthread_struct *acthread)
 	int ret;
 	FILE *fp;
 	char command[256];
+	char *buffer = acthread->trans.buffer;
 	
 	fp = fopen(TEMP_FILE, "w");
-	fclose(fp);
 	/* 处理命令 */
-	if(strstr(acthread->trans.buffer, "cd")) {
+	if(strstr(buffer, "cd ") || 
+			((strlen(buffer) == 2)&&strstr(buffer, "cd"))) {
 		do_cd(acthread);
+		fclose(fp);
 		return TRUE;
 	}
 	snprintf(command, 256, "%s > %s", acthread->trans.buffer, TEMP_FILE);
 	debug_print("the command is:%s\n", command);
 	ret = system(command);
-	if (ret == 127) {
-		printf("/bin/sh not available\n");
-	} else if (ret != 0) {
-		printf("there are some errors\n");
-	} 
-	
+	debug_print("the result is:%d\n", ret);
+	if (ret == COMMAND_NOT_FOUND) {
+		fprintf(fp, "/bin/sh:%s not found!\n", 
+				acthread->trans.buffer);
+	} /*else if (ret != 0) {
+		fprintf(fp, "there are some errors\n");
+	} */
+	fclose(fp);
+
 	return TRUE;
 }
 /*

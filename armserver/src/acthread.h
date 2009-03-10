@@ -10,6 +10,7 @@
 #include "thread.h"
 
 #define ACTHREAD_TRANS_SIZE 512
+#define COMMAND_NOT_FOUND 32512
 #define TEMP_FILE "/tmp/result.txt"
 /*  
  * acthread_trans 实时控制时传送的数据
