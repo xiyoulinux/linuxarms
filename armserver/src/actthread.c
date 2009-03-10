@@ -73,10 +73,6 @@ boolean atthread_upload(struct atthread_struct *atthread)
 		
 		if((ret = select(atthread->socket->tcp + 1, &rfd_set, &wfd_set, NULL, &timeout)) == 0)
 			continue;
-		if(ret < 0) {
-			print_error(EWARNING, "传输文件错误\n");
-			goto out;
-		}
 		if(FD_ISSET(0,&rfd_set)) {
 			atthread->recv(atthread, sizeof(atthread->trans.buffer));
 			if (atthread->trans.buffer[0] == FERROR)

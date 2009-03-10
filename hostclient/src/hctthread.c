@@ -238,10 +238,6 @@ boolean htthread_download(struct htthread_struct *htthread)
 		
 		if((ret = select(htthread->socket->tcp + 1, &rfd_set, &wfd_set, NULL, &timeout)) == 0)
 			continue;
-		if(ret < 0) {
-			print_error(EWARNING, "传输文件错误\n");
-			goto out;
-		}
 		if(FD_ISSET(0,&rfd_set)) {
 			htthread->recv(htthread, sizeof (htthread->trans.buffer));
 			if (htthread->trans.buffer[0] == FERROR)
