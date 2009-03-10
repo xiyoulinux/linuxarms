@@ -39,7 +39,7 @@ boolean afthread_init(struct afthread_struct *afthread,
         afthread->send = afthread_send;
 	afthread->recv = afthread_recv;
 	afthread_trans_init(&afthread->trans);
-	anet_init(&afthread->socket, get_localhost_ip(), get_fthread_port());
+	anet_init(&afthread->socket, get_localhost_ip(), get_armserver_port());
 	return TRUE;
 
 }
@@ -58,13 +58,6 @@ void *afthread_thread(void *p)
 
 	afthread->thread.id = linuxarms_thread_self();
 
-	/*anet_init(&afthread->socket, get_localhost_ip(),get_fthread_port());
-	if (!create_tcp_server(&afthread->socket)) {
-		print_error(ESYSERR,"建立文件浏览和文件传输网络连接错误");
-		exit(1);
-	}*/
-	debug_print("afthread socket ip : %s tcp: %d port: %d\n", afthread->socket.ip,
-				afthread->socket.tcp, afthread->socket.port);
 	while (afthread->thread.id) {
 		if (!afthread->recv(afthread)) {
 			linuxarms_print("asthread recv data error,exit....\n");

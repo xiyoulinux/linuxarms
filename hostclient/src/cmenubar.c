@@ -34,7 +34,7 @@ void cb_login_activate(GtkMenuItem *menuitem, gpointer user_data)
 	/***************init_login*****************************/
 	login_config_init(login->config);
 	login_config_read(login->config);
-	hnet_init(login->socket, NULL, get_mthread_port());
+	hnet_init(login->socket, NULL, get_armserver_port());
 	login_init(login, login->config, login->socket);
 
 	/***************init_hmthread**************************/

@@ -11,8 +11,6 @@
 #include <net/if.h>
 #include <netinet/in.h>
 #include <net/if_arp.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
 #include <unistd.h>

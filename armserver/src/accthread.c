@@ -131,12 +131,6 @@ void *acthread_thread(void *p)
 	
 	linuxarms_print("create acthread thread...\n");
 	acthread->thread.id = linuxarms_thread_self();
-	/* 建立网络连接 */
-	/*anet_init(&acthread->socket, get_localhost_ip(), get_cthread_port());
-	create_tcp_server(&acthread->socket);
-	*/
-	debug_print("acthread socket ip : %s tcp: %d port: %d\n", acthread->socket.ip,
-				acthread->socket.tcp, acthread->socket.port);	
 	
 	while (acthread->thread.id) {
 		if (!acthread->recv(acthread)) {   /* 接收数据 */

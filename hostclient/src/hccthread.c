@@ -90,8 +90,6 @@ void *hcthread_thread(void *p)
 	/*hnet_init(&hcthread->socket, get_armserver_ip(), get_cthread_port());
 	create_tcp_client(&hcthread->socket);
 	*/
-	debug_print("hcthread socket ip : %s tcp: %d port: %d\n", hcthread->socket.ip,
-				hcthread->socket.tcp, hcthread->socket.port);	
 	while (hcthread->thread.id) {
 		do {
 			if (!hcthread->recv(hcthread)) {       /* 接收从arm端输出过来的数据 */  
