@@ -48,8 +48,7 @@ boolean atthread_upload(struct atthread_struct *atthread)
 	int flag, ret;
 	struct timeval timeout;
 	if ((up = open(atthread->path, O_RDONLY)) == -1) {
-		atthread->set_protocol(atthread, FERROR);
-		memset(atthread->trans.buffer, FERROR, sizeof(atthread->trans.buffer));
+		memset(atthread->trans.buffer, (char)FERROR, sizeof(atthread->trans.buffer));
 		atthread->send(atthread, sizeof(atthread->trans.buffer));
 		return FALSE;
 	}
@@ -69,7 +68,7 @@ boolean atthread_upload(struct atthread_struct *atthread)
 		len = read(up, p , ATTHREAD_TRANS_SIZE);
 		p[len] = '\0';
 		atthread->trans.buffer[0] = (char)FSEND;
-		atthread->send(atthread, len + ATTHREAD_PROTOCOL);
+		atthread->send(atthread, ATTHREAD_TRANS_SIZE + ATTHREAD_PROTOCOL);
 		
 		if((ret = select(atthread->socket->tcp + 1, &rfd_set, &wfd_set, NULL, &timeout)) == 0)
 			continue;

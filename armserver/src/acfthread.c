@@ -59,15 +59,15 @@ void *afthread_thread(void *p)
 
 	afthread->thread.id = linuxarms_thread_self();
 
-	/*anet_init(&afthread->socket, get_localhost_ip(), get_afthread_port());
+	anet_init(&afthread->socket, get_localhost_ip(), get_afthread_port());
 	if (!create_tcp_server(&afthread->socket)) {
 		print_error(EWARNING, "create afthread tcp connect error\n");
 		exit(1);
-	}*/
-	if((afthread->socket.tcp = wait_afthread_connect()) == -1) {
+	}
+	/*if((afthread->socket.tcp = wait_afthread_connect()) == -1) {
 		print_error(EWARNING, "create afthread tcp connect error\n");
 		exit(1);
-	}
+	}*/
 
 	while (afthread->thread.id) {
 		if (!afthread->recv(afthread)) {
