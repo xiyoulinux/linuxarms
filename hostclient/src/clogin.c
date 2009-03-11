@@ -124,7 +124,7 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 		gtk_main_quit();
 	} else {
 		hsthread->socket.tcp = tcps[HSTHREAD_TCP_FD];
-		hfthread->socket.tcp = tcps[HFTHREAD_TCP_FD];
+		//hfthread->socket.tcp = tcps[HFTHREAD_TCP_FD];
 		hcthread->socket.tcp = tcps[HCTHREAD_TCP_FD];
 	}
 	if (strcmp("root", user->name) == 0)

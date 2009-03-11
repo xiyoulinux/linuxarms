@@ -143,6 +143,15 @@ err:
 	return FALSE;
 
 }
+int wait_afthread_connect()
+{
+	int user;
+	size_t size;
+	size = sizeof(struct sockaddr);
+	if ((user = accept(fthread_fd, (struct sockaddr *)&client_addr, (socklen_t *)&size)) == -1)
+		print_error(ESYSERR, "accept");
+	return user;
+}
 int wait_user_connect(void)
 {
 	int user;
@@ -175,10 +184,10 @@ boolean create_tcp_connect(int fds[TCP_CONNECT_NUMS])
 		return FALSE;
 	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
 		return FALSE;
-	if ((fds[AFTHREAD_TCP_FD] = wait_user_connect()) == -1)
+	/*if ((fds[AFTHREAD_TCP_FD] = wait_afthread_connect()) == -1)
 		return FALSE;
 	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
-		return FALSE;
+		return FALSE;*/
 	debug_where();
 	if ((fds[ACTHREAD_TCP_FD] = wait_user_connect()) == -1)
 		return FALSE;

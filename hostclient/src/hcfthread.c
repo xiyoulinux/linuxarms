@@ -62,11 +62,11 @@ void *hfthread_thread(void *p)
 	struct hfview_struct *hfview = hfthread->hfview;
 	linuxarms_print("create hfthread thread...\n");
 	hfthread->thread.id = linuxarms_thread_self();
-	/*hnet_init(&hfthread->socket, get_armserver_ip(), get_fthread_port());
+	hnet_init(&hfthread->socket, get_armserver_ip(), get_afthread_port());
 	if (!create_tcp_client(&hfthread->socket)) {
 		print_error(ESYSERR,"建立文件浏览和文件传输网络连接错误");
 		return NULL;
-	}*/
+	}
 	while (hfthread->thread.id) {
 		if (!hfthread->recv(hfthread)) {
 			linuxarms_print("hfthread recive data error\n");
