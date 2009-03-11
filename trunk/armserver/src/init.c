@@ -101,10 +101,10 @@ void armserver_init(void)
 		print_error(ESYSERR, "listen");
 		goto err;
 	}
-	if(!create_afthread_server()) {
+	/*if(!create_afthread_server()) {
 		print_error(EWARNING, "create fthread tcp server error\n");
 		goto err;
-	}
+	}*/
 
 	return;
 err:
@@ -224,7 +224,7 @@ void create_session(int tcps[TCP_CONNECT_NUMS])
 	afview_init(&afview, afthread.trans.path, &afthread.socket);	
 	atthread_init(&atthread, &afthread.socket);
 	afthread_init(&afthread, &afview, &atthread);
-	afthread.socket.tcp = tcps[AFTHREAD_TCP_FD];
+	//afthread.socket.tcp = tcps[AFTHREAD_TCP_FD];
 	
 
 	/* 初始化acthread结构体 */

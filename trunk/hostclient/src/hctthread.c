@@ -162,6 +162,8 @@ boolean htthread_upload(struct htthread_struct *htthread)
 	debug_where();
 	debug_print("file size %ld\n", htthread->total_size);
 	if ((up = open(htthread->path, O_WRONLY | O_CREAT, htthread->mode)) == -1) {
+		memset(htthread->trans.buffer, (char)FERROR, sizeof(htthread->trans.buffer));
+		htthread->send(htthread, sizeof(htthread->trans.buffer));
 		file_trans_error = TRUE;
 		return FALSE;
 	}
@@ -199,7 +201,7 @@ boolean htthread_upload(struct htthread_struct *htthread)
 	return TRUE;
 out:
 	unlink(htthread->path);
-	htthread->trans_size = htthread->total_size;
+	file_trans_error = TRUE;
 	debug_where();
 	return TRUE;
 }
