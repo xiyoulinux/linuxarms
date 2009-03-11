@@ -3,6 +3,7 @@
  * 建立网络客户端
  * Niu Tao<niutao0602@gmail.com>
  */
+#define __DEBUG__
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
@@ -20,6 +21,7 @@
 #include "linuxarms.h"
 #include "error.h"
 #include "debug.h"
+#include "config.h"
 /*initialized in clogin.c, function: cb_login_ok_clicked*/
 char armserver_ip[IP_LEN];
 static struct sockaddr_in serv_addr;
@@ -84,12 +86,20 @@ static int wait_create_connect(void)
 }
 boolean create_tcp_connect(int tcps[TCP_CONNECT_NUMS])
 {
+	struct hnet_struct hnet;
+	debug_where();
 	if ((tcps[HSTHREAD_TCP_FD] = wait_create_connect()) == -1)
 		return FALSE;
-	if ((tcps[HFTHREAD_TCP_FD] = wait_create_connect()) == -1)
-		return FALSE;
+	debug_where();
+	//if ((tcps[HFTHREAD_TCP_FD] = wait_create_connect()) == -1)
+	//	return FALSE;
 	if ((tcps[HCTHREAD_TCP_FD] = wait_create_connect()) == -1)
 		return FALSE;
+	hnet_init(&hnet, get_armserver_ip(), get_afthread_port());
+	if(!create_tcp_client(&hnet))
+		return FALSE;
+	debug_where();
+	tcps[HFTHREAD_TCP_FD] = hnet.tcp;
 	return TRUE;
 }
 /*

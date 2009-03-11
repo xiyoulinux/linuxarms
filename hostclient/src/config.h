@@ -9,11 +9,13 @@
  */
 struct config_struct {
 	int armserver_port;
+	int afthread_port;
 	boolean init;
 };
 /* 初始化配置文件 */
 boolean config_init();
 int get_armserver_port();
+int get_afthread_port();
 
 
 #define CONFIG_FILE_PATH_LEN 128
