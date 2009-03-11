@@ -13,4 +13,5 @@ void armserver_signal_handle(int sig);
 void create_session(int tcps[TCP_CONNECT_NUMS]);
 void tcp_set_login_address();
 extern char *login_user;
+int wait_afthread_connect();
 #endif
