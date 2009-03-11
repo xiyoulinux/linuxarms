@@ -134,22 +134,34 @@ boolean have_login_user(int tcp)
 }
 boolean create_tcp_connect(int fds[TCP_CONNECT_NUMS])
 {
-	if ((fds[1] = wait_user_connect()) == -1)
+	struct anet_struct anet;
+	debug_where();
+	if ((fds[ASTHREAD_TCP_FD] = wait_user_connect()) == -1)
 		return FALSE;
 	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
 		return FALSE;
-	if ((fds[2] = wait_user_connect()) == -1)
+	debug_where();
+	if ((fds[ACTHREAD_TCP_FD] = wait_user_connect()) == -1)
 		return FALSE;
 	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
 		return FALSE;
-	if ((fds[3] = wait_user_connect()) == -1)
+	debug_where();
+	anet_init(&anet, get_localhost_ip(), get_afthread_port());
+	if(!create_tcp_server(&anet))
+		return FALSE;
+	debug_where();
+	fds[AFTHREAD_TCP_FD] = anet.tcp;
+	/*if ((fds[3] = wait_user_connect()) == -1)
 		return FALSE;
 	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
 		return FALSE;
+	*/
+	debug_where();
 	return TRUE;
 }
 void create_session(int tcps[TCP_CONNECT_NUMS])
 {
+	debug_where();
 	linuxarms_print("one client request,we create "
 			"process %d to handle it...\n", getpid());
 	strcpy(hostclient_ip, inet_ntoa(client_addr.sin_addr));

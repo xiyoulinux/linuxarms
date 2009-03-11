@@ -18,7 +18,6 @@ struct hnet_struct {
 	char ip[IP_LEN];
 	int port;
 	int tcp;
-//	struct sockaddr_in sockaddr;
 };
 /* 初始化hnet_struct结构 */
 boolean hnet_init(struct hnet_struct *hnet, const char *ip, int port);

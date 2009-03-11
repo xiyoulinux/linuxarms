@@ -57,6 +57,7 @@ static boolean config_read(char *config_file)
 		return FALSE;
 	}
 	ret = fscanf(fp, "%s %d\n", tmp, &config.armserver_port);
+	ret = fscanf(fp, "%s %d\n", tmp, &config.afthread_port);
 	ret = fscanf(fp, "%s", path);
 	config.path = path + 5;
 	fclose(fp);
@@ -67,6 +68,12 @@ int get_armserver_port()
 {
 	if (config.init)
 		return config.armserver_port;
+	return -1;
+}
+int get_afthread_port()
+{
+	if (config.init)
+		return config.afthread_port;
 	return -1;
 }
 char *get_path_env()

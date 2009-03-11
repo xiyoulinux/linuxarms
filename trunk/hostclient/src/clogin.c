@@ -110,6 +110,7 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 	}
 
 	strcpy(socket->ip, user->ip);
+	strcpy(armserver_ip, user->ip);
 	debug_print("create mthread tcp conection\n");
 	if (create_tcp_client(socket) == FALSE) {
 		snprintf(buf, 80, "无法连接服务器 %s :请\n确保ip地址格式正确并且有效!", socket->ip);
@@ -126,7 +127,6 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 		hfthread->socket.tcp = tcps[HFTHREAD_TCP_FD];
 		hcthread->socket.tcp = tcps[HCTHREAD_TCP_FD];
 	}
-	strcpy(armserver_ip, user->ip);
 	if (strcmp("root", user->name) == 0)
 		login->competence = TRUE;
 	else

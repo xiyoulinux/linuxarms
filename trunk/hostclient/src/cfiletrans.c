@@ -101,8 +101,8 @@ void cb_ftrans_button_ok_clicked(GtkButton *button, gpointer user_data)
 		debug_print("dest path: %s/%s\n", hfthread->trans.path, name);
 		*(name - 1) = '\0';
 		snprintf(tooltips, 512, "传输类型：下载(从本机下载文件到arm系统)\n"
-				 "文件名：%s MB\n"
-				 "文件大小：%ld.%ld\n"
+				 "文件名：%s\n"
+				 "文件大小：%ld.%ld MB\n"
 				 "源地址：localhost@%s\n"
 				 "目的地址：%s@%s\n",
 				 name, _fsize_mb(buf.st_size),__fsize_mb(buf.st_size),

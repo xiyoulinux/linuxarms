@@ -25,11 +25,13 @@
  */
 struct config_struct {
 	int armserver_port;
+	int afthread_port;
 	char *path;
 	boolean init;
 };
 /* 初始化配置文件 */
 boolean config_init();
 int get_armserver_port();
+int get_afthread_port();
 char *get_path_env();
 #endif

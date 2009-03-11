@@ -67,6 +67,7 @@ static boolean config_read(char *config_file)
 		return FALSE;
 	}
 	ret = fscanf(fp, "%s %d\n", tmp, &config.armserver_port);
+	ret = fscanf(fp, "%s %d\n", tmp, &config.afthread_port);
 	fclose(fp);
 	
 	return ret == -1 ? FALSE : TRUE;
@@ -76,6 +77,10 @@ int get_armserver_port()
 	return config.init ? config.armserver_port : -1;
 }
 
+int get_afthread_port()
+{
+	return config.init ? config.afthread_port : -1;
+}
 
 char *get_user_home();
 static boolean login_config_set_path(struct login_config_struct *config);
