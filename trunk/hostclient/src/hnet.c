@@ -91,15 +91,10 @@ boolean create_tcp_connect(int tcps[TCP_CONNECT_NUMS])
 	if ((tcps[HSTHREAD_TCP_FD] = wait_create_connect()) == -1)
 		return FALSE;
 	debug_where();
-	//if ((tcps[HFTHREAD_TCP_FD] = wait_create_connect()) == -1)
-	//	return FALSE;
+	if ((tcps[HFTHREAD_TCP_FD] = wait_create_connect()) == -1)
+		return FALSE;
 	if ((tcps[HCTHREAD_TCP_FD] = wait_create_connect()) == -1)
 		return FALSE;
-	hnet_init(&hnet, get_armserver_ip(), get_afthread_port());
-	if(!create_tcp_client(&hnet))
-		return FALSE;
-	debug_where();
-	tcps[HFTHREAD_TCP_FD] = hnet.tcp;
 	return TRUE;
 }
 /*
