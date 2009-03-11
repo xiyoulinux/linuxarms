@@ -37,10 +37,11 @@
 #endif
 
 #define LISTEN_NUMS 10
-static struct sockaddr_in serv_addr, login_addr, client_addr;
-static int sockfd = -1;
+static struct sockaddr_in serv_addr, login_addr, client_addr, fthread_addr;
+static int sockfd = -1, fthread_fd = -1;
 char *login_user;
 
+static boolean create_afthread_server();
 void check_user_permission(void)
 {
 	if (getuid() != 0) {
@@ -100,13 +101,48 @@ void armserver_init(void)
 		print_error(ESYSERR, "listen");
 		goto err;
 	}
+	if(!create_afthread_server()) {
+		print_error(EWARNING, "create fthread tcp server error\n");
+		goto err;
+	}
+
 	return;
 err:
 	munmap(login_user, USER_NAME_LEN);
 	linuxarms_print("close armserver...\n");
 	delete_file_directory();
+	exit(1);
 }
+static boolean create_afthread_server()
+{
+	int size;
+	int bind_ret = 1;
+	if ((fthread_fd = (socket(AF_INET, SOCK_STREAM, 0))) == -1) {
+		print_error(ESYSERR,"socket");
+		goto err;
+	}
+	fthread_addr.sin_family = AF_INET;
+	fthread_addr.sin_port = htons(get_afthread_port());
+	fthread_addr.sin_addr.s_addr = INADDR_ANY;
+	bzero(&(fthread_addr.sin_zero), 8);
+	size = sizeof(struct sockaddr);
+	if (setsockopt(fthread_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&bind_ret, sizeof(bind_ret)) == -1) {
+		print_error(ESYSERR, "setsockopt");
+		goto err;
+	}
+	if (bind(fthread_fd, (struct sockaddr *)&fthread_addr, size) == -1) {
+		print_error(ESYSERR, "bind");
+		goto err;
+	}
+	if (listen(fthread_fd, 1) == -1) {
+		print_error(ESYSERR, "listen");
+		goto err;
+	}
+	return TRUE;
+err:
+	return FALSE;
 
+}
 int wait_user_connect(void)
 {
 	int user;
@@ -134,9 +170,12 @@ boolean have_login_user(int tcp)
 }
 boolean create_tcp_connect(int fds[TCP_CONNECT_NUMS])
 {
-	struct anet_struct anet;
 	debug_where();
 	if ((fds[ASTHREAD_TCP_FD] = wait_user_connect()) == -1)
+		return FALSE;
+	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
+		return FALSE;
+	if ((fds[AFTHREAD_TCP_FD] = wait_user_connect()) == -1)
 		return FALSE;
 	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
 		return FALSE;
@@ -145,17 +184,6 @@ boolean create_tcp_connect(int fds[TCP_CONNECT_NUMS])
 		return FALSE;
 	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
 		return FALSE;
-	debug_where();
-	anet_init(&anet, get_localhost_ip(), get_afthread_port());
-	if(!create_tcp_server(&anet))
-		return FALSE;
-	debug_where();
-	fds[AFTHREAD_TCP_FD] = anet.tcp;
-	/*if ((fds[3] = wait_user_connect()) == -1)
-		return FALSE;
-	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
-		return FALSE;
-	*/
 	debug_where();
 	return TRUE;
 }
