@@ -62,11 +62,11 @@ void *hfthread_thread(void *p)
 	struct hfview_struct *hfview = hfthread->hfview;
 	linuxarms_print("create hfthread thread...\n");
 	hfthread->thread.id = linuxarms_thread_self();
-	hnet_init(&hfthread->socket, get_armserver_ip(), get_afthread_port());
+	/*hnet_init(&hfthread->socket, get_armserver_ip(), get_afthread_port());
 	if (!create_tcp_client(&hfthread->socket)) {
 		print_error(ESYSERR,"建立文件浏览和文件传输网络连接错误");
 		return NULL;
-	}
+	}*/
 	while (hfthread->thread.id) {
 		if (!hfthread->recv(hfthread)) {
 			linuxarms_print("hfthread recive data error\n");
@@ -81,13 +81,15 @@ void *hfthread_thread(void *p)
 			htthread->trans_size = 0;
 			htthread->clock = gtk_timeout_add(PROMPT_TIMEOUT, 
 					window_trans_timer, (gpointer)linuxarms);
-			htthread_upload(htthread);
+			linuxarms_thread_create(htthread_upload, htthread);
+			//htthread_upload(htthread);
 			break;
 		case FDOWN: /* 下载文件处理 */
 			htthread->trans_size = 0;
 			htthread->clock = gtk_timeout_add(PROMPT_TIMEOUT, 
 					window_trans_timer, (gpointer)linuxarms);		
-			htthread_download(htthread);
+			linuxarms_thread_create(htthread_upload, htthread);
+			//htthread_download(htthread);
 			break;
 		case FVIEW: /* 文件浏览处理 */
 			do_file_view(hfthread->hfview);

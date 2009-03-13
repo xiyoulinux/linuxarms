@@ -101,10 +101,10 @@ void armserver_init(void)
 		print_error(ESYSERR, "listen");
 		goto err;
 	}
-	/*if(!create_afthread_server()) {
+	if(!create_afthread_server()) {
 		print_error(EWARNING, "create fthread tcp server error\n");
 		goto err;
-	}*/
+	}
 
 	return;
 err:
@@ -184,10 +184,10 @@ boolean create_tcp_connect(int fds[TCP_CONNECT_NUMS])
 		return FALSE;
 	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
 		return FALSE;
-	/*if ((fds[AFTHREAD_TCP_FD] = wait_afthread_connect()) == -1)
+	if ((fds[AFTHREAD_TCP_FD] = wait_user_connect()) == -1)
 		return FALSE;
 	if (strcmp(inet_ntoa(login_addr.sin_addr), inet_ntoa(client_addr.sin_addr)) != 0)
-		return FALSE;*/
+		return FALSE;
 	debug_where();
 	if ((fds[ACTHREAD_TCP_FD] = wait_user_connect()) == -1)
 		return FALSE;
@@ -222,9 +222,9 @@ void create_session(int tcps[TCP_CONNECT_NUMS])
 	struct afthread_struct afthread;
 	/* afview->path = afthread->trans.path */
 	afview_init(&afview, afthread.trans.path, &afthread.socket);	
-	atthread_init(&atthread, &afthread.socket);
+	atthread_init(&atthread);
 	afthread_init(&afthread, &afview, &atthread);
-	//afthread.socket.tcp = tcps[AFTHREAD_TCP_FD];
+	afthread.socket.tcp = tcps[AFTHREAD_TCP_FD];
 	
 
 	/* 初始化acthread结构体 */

@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 	hsthread_init(&hsthread, &hssinfo, &hsprocess);
 	/***************init hfthread**************************/
 	hfview_init(&hfview, hfthread.trans.path, &hfthread.socket);
-	htthread_init(&hftrans,  &hfthread.socket);
+	htthread_init(&hftrans);
 	hfthread_init(&hfthread, &hfview, &hftrans);
 	/**************init hcthread**************************/
 	hcthread_init(&hcthread);

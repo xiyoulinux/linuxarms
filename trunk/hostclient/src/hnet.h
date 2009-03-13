@@ -30,6 +30,7 @@ boolean hnet_recv(int tcp, void *data, unsigned int len);
 /* 关闭TCP连接 */
 boolean close_tcp_client(struct hnet_struct *hnet);
 boolean create_tcp_connect(int tcps[TCP_CONNECT_NUMS]);
+int wait_hfthread_connect();
 extern char armserver_ip[IP_LEN]; 
 const char *get_armserver_ip();
 #endif

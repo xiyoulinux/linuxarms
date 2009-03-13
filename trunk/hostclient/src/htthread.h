@@ -14,7 +14,6 @@
 #include "thread.h"
 
 #define HTTHREAD_TRANS_SIZE 4095
-#define HTTHREAD_PROTOCOL 1 
 
 #define PROMPT_TIMEOUT (100)
 #define PROMPT_STATE (1000 / PROMPT_TIMEOUT * 3)
@@ -40,7 +39,7 @@ struct htthread_widget {
  */
 struct htthread_trans {
 	protocol_fthread protocol;
-	char buffer[HTTHREAD_TRANS_SIZE + HTTHREAD_PROTOCOL];
+	char buffer[HTTHREAD_TRANS_SIZE];
 };
 boolean htthread_trans_init(struct htthread_trans *httrans);
 boolean htthread_trans_set_protocol(struct htthread_trans *httrans, protocol_fthread protocol);
@@ -52,7 +51,7 @@ const char *htthread_trans_get_buf(struct htthread_trans *httrans);
  */
 struct htthread_struct {
 	mode_t mode;
-	struct hnet_struct *socket;
+	int socket;
 	struct htthread_widget widget;
 	struct htthread_trans trans;
 	char path[PATH_LEN];
@@ -69,8 +68,8 @@ struct htthread_struct {
 
 /* 线程执行体 */
 //boolean htthread_thread(void *p);
-boolean htthread_init(struct htthread_struct *htthread, struct hnet_struct *socket);
-boolean htthread_upload(struct htthread_struct *htthread);
-boolean htthread_download(struct htthread_struct *htthread);
+boolean htthread_init(struct htthread_struct *htthread);
+void *htthread_upload(void *p);
+void *htthread_download(void *p);
 boolean window_trans_timer(gpointer p);
 #endif

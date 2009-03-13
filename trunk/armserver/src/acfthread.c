@@ -59,11 +59,11 @@ void *afthread_thread(void *p)
 
 	afthread->thread.id = linuxarms_thread_self();
 
-	anet_init(&afthread->socket, get_localhost_ip(), get_afthread_port());
+	/*anet_init(&afthread->socket, get_localhost_ip(), get_afthread_port());
 	if (!create_tcp_server(&afthread->socket)) {
 		print_error(EWARNING, "create afthread tcp connect error\n");
 		exit(1);
-	}
+	}*/
 	/*if((afthread->socket.tcp = wait_afthread_connect()) == -1) {
 		print_error(EWARNING, "create afthread tcp connect error\n");
 		exit(1);
@@ -89,14 +89,14 @@ void *afthread_thread(void *p)
 				afthread->send(afthread);
 				break;
 			}
-			debug_print("mode   0x%x\n", buf.st_mode);
 			snprintf(mode, 10, "%d", buf.st_mode);
 			strcpy(afthread->trans.rename[NEWNAME], mode);
 			snprintf(mode, 10, "%ld", buf.st_size);
 			strcpy(afthread->trans.rename[OLDNAME], mode);
 			afthread->set_protocol(afthread, FUP);
 			afthread->send(afthread);
-			atthread_upload(atthread);
+			linuxarms_thread_create(atthread_upload, atthread);
+			//atthread_upload(atthread);
 			break;
 		case FDOWN:
 			debug_print("protocol->afthread: 下载文件\n");
@@ -116,7 +116,8 @@ void *afthread_thread(void *p)
 			       &atthread->mode, &atthread->size);
 			afthread->set_protocol(afthread, FDOWN);
 			afthread->send(afthread);
-			atthread_download(atthread);
+			linuxarms_thread_create(atthread_download, atthread);
+			//atthread_download(atthread);
 			break;
 		case FVIEW:
 			debug_print("protocol->afthread: 浏览文件\n");
