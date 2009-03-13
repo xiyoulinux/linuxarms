@@ -84,31 +84,22 @@ static int wait_create_connect(void)
 		return -1;
 	return tcp;
 }
-/*
-static int wait_hfthread_connect()
+int wait_hfthread_connect()
 {
-	size_t sin_size;
-	int tcp = -1;
-	if ((tcp = (socket(AF_INET, SOCK_STREAM, 0))) == -1)
-		return -1;
-	sin_size = sizeof(struct sockaddr);
-	if (connect(tcp, (struct sockaddr *)&serv_addr, sin_size) == -1)
-		return -1;
-	return tcp;
-}*/
+	struct hnet_struct sock;
+	hnet_init(&sock, get_armserver_ip(), get_afthread_port());
+	if (create_tcp_client(&sock))
+		return sock.tcp;
+	return -1;
+}
 boolean create_tcp_connect(int tcps[TCP_CONNECT_NUMS])
 {
-	//struct hnet_struct hnet;
 	debug_where();
 	if ((tcps[HSTHREAD_TCP_FD] = wait_create_connect()) == -1)
 		return FALSE;
 	debug_where();
-	//hnet_init(&hnet, get_armserver_ip(), get_afthread_port());
-	//if(!create_tcp_client(&hnet))
-	//	return FALSE;
-	//tcps[HFTHREAD_TCP_FD] = hnet.tcp;
-	/*if ((tcps[HFTHREAD_TCP_FD] = wait_create_connect()) == -1)
-		return FALSE;*/
+	if ((tcps[HFTHREAD_TCP_FD] = wait_create_connect()) == -1)
+		return FALSE;
 	if ((tcps[HCTHREAD_TCP_FD] = wait_create_connect()) == -1)
 		return FALSE;
 	return TRUE;

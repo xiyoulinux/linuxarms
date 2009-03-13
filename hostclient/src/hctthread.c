@@ -42,11 +42,9 @@ static int htthread_recv(struct htthread_struct *htthread, int len);
  * @scoket:		tcp socket structure
  * @widget:	GtkWidget structure
  */
-boolean htthread_init(struct htthread_struct *htthread,
-		      struct hnet_struct *socket)
+boolean htthread_init(struct htthread_struct *htthread)
 {
 	LINUXARMS_POINTER(htthread);
-	LINUXARMS_POINTER(socket);
 
 	htthread->competence = FALSE;
 	htthread->select = FMAX;
@@ -56,7 +54,7 @@ boolean htthread_init(struct htthread_struct *htthread,
 	htthread->clock = 0;
 	htthread->total_size = 0;
 	htthread->trans_size = 0;
-	htthread->socket = socket;
+	htthread->socket = -1;
 	htthread_trans_init(&htthread->trans);
 
 	htthread->set_protocol = htthread_set_protocol;
@@ -68,13 +66,13 @@ boolean htthread_init(struct htthread_struct *htthread,
 static int htthread_send(struct htthread_struct *htthread, int len)
 {
 	LINUXARMS_POINTER(htthread);
-	return send(htthread->socket->tcp, htthread->trans.buffer, len, 0);
+	return send(htthread->socket, htthread->trans.buffer, len, 0);
 }
 
 static int htthread_recv(struct htthread_struct *htthread, int len)
 {
 	LINUXARMS_POINTER(htthread);
-	return recv(htthread->socket->tcp, htthread->trans.buffer, len, 0);
+	return recv(htthread->socket, htthread->trans.buffer, len, 0);
 }
 boolean window_trans_timer(gpointer p)
 {
@@ -150,111 +148,87 @@ boolean window_trans_timer(gpointer p)
 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(htthread->widget.progressbar), val);
 	return TRUE;
 }
-boolean htthread_upload(struct htthread_struct *htthread)
+void *htthread_upload(void *p)
 {
-	LINUXARMS_POINTER(htthread);
+	struct htthread_struct *htthread = (struct htthread_struct *)p;
 	int up;
 	int len;
-	char *p;
-	protocol_fthread protocol;
 	long long plen;
+	char *buffer = htthread->trans.buffer;
 		
+	if ((htthread->socket = wait_hfthread_connect()) == -1) {
+		print_error(EWARNING, "connect file transmit server error\n");
+		file_trans_error = TRUE;
+		return NULL;
+	}
 	debug_where();
 	debug_print("file size %ld\n", htthread->total_size);
 	if ((up = open(htthread->path, O_WRONLY | O_CREAT, htthread->mode)) == -1) {
-		memset(htthread->trans.buffer, (char)FERROR, sizeof(htthread->trans.buffer));
-		htthread->send(htthread, sizeof(htthread->trans.buffer));
+		print_error(EWARNING, "create file \"%s\" error\n", htthread->path);
 		file_trans_error = TRUE;
-		return FALSE;
+		close(htthread->socket);
+		return NULL;
 	}
-	p = htthread->trans.buffer + HTTHREAD_PROTOCOL;
 
+	buffer = htthread->trans.buffer;
 	plen = htthread->total_size;
 	do {
-		len = htthread->recv(htthread, sizeof(htthread->trans.buffer));
-		protocol = (protocol_fthread)htthread->trans.buffer[0];
-		switch (protocol) {
-		case FSEND:
-			plen = plen - len + 1;
-			if (plen < 0) {
-				plen = plen + len - 1;
-				write(up, p, plen);
+		len = htthread->recv(htthread, HTTHREAD_TRANS_SIZE);
+		plen = plen - len;
+		if (plen < 0) {
+			plen = plen + len;
+			if(write(up, buffer, plen) != plen)
+				goto out;
 				len = 0;
 				break;
-			}
-			write(up, p, len - 1);
-			htthread->trans_size += (len -1);
-			break;
-		case FSENDALL:
-			debug_print("文件传输结束\n");
-			len = 0;
-			break;
-		case FERROR:
-		default:
-			linuxarms_print("上传文件错误\n");
-			goto out;
 		}
+		if(write(up, buffer, len) != len)
+			goto out;
+		htthread->trans_size += len;
 	} while (len);
 	close(up);
+	close(htthread->socket);
 	htthread->trans_size = htthread->total_size;
 	debug_print("从文件传输返回\n");
-	return TRUE;
+	return NULL;
 out:
+	close(up);
+	close(htthread->socket);
 	unlink(htthread->path);
+	print_error(EWARNING, "upload file \"%s\" error\n", htthread->path);
 	file_trans_error = TRUE;
 	debug_where();
-	return TRUE;
+	return NULL;
 }
-boolean htthread_download(struct htthread_struct *htthread)
+void *htthread_download(void *p)
 {
-	LINUXARMS_POINTER(htthread);
+	struct htthread_struct *htthread = (struct htthread_struct *)p;
 	int down, len;
-	char *p;
-	fd_set rfd_set, wfd_set;
-	int flag, ret;
-	struct timeval timeout;
+	char *buffer;
 
+	if ((htthread->socket = wait_hfthread_connect()) == -1) {
+		print_error(EWARNING, "connect file transmit server error\n");
+		file_trans_error = TRUE;
+		return NULL;
+	}
 	if ((down = open(htthread->path, O_RDONLY)) == -1) {
 		file_trans_error = TRUE;
-		return FALSE;
+		close(htthread->socket);
+		return NULL;
 	}
 
-	p = htthread->trans.buffer + HTTHREAD_PROTOCOL;
-	debug_where();
-	fcntl(htthread->socket->tcp,F_SETFD,O_NONBLOCK);
+	buffer = htthread->trans.buffer;
 	do {
-		FD_ZERO(&rfd_set);
-		FD_ZERO(&wfd_set);
-		FD_SET(0, &rfd_set);
-		FD_SET(0, &wfd_set);
-		FD_SET(htthread->socket->tcp, &rfd_set);
-		FD_SET(htthread->socket->tcp, &wfd_set);
-		timeout.tv_sec = 1;
-		timeout.tv_usec = 0;		
-			
-		len = read(down, p , HTTHREAD_TRANS_SIZE);
+		len = read(down, buffer , HTTHREAD_TRANS_SIZE);
 		htthread->trans_size += len;
-		p[len] = '\0';
-		htthread->trans.buffer[0] = (char)FSEND;
-		htthread->send(htthread, len + HTTHREAD_PROTOCOL);
-		
-		if((ret = select(htthread->socket->tcp + 1, &rfd_set, &wfd_set, NULL, &timeout)) == 0)
-			continue;
-		if(FD_ISSET(0,&rfd_set)) {
-			htthread->recv(htthread, sizeof (htthread->trans.buffer));
-			if (htthread->trans.buffer[0] == FERROR)
-				goto out;
-		}
+		buffer[len] = '\0';
+		if(htthread->send(htthread, len) != len)
+			break;
 	} while (len);
-	memset(htthread->trans.buffer, (char)FSENDALL,sizeof(htthread->trans.buffer));
-	htthread->send(htthread, sizeof(htthread->trans.buffer));
-out:
-	flag = fcntl(htthread->socket->tcp, F_GETFD, 0);
-	flag &= ~O_NONBLOCK;
-	fcntl(htthread->socket->tcp,F_SETFD,flag);	
 	close(down);
+	close(htthread->socket);
 	debug_where();
-	return TRUE;
+	return NULL;
 }
 boolean htthread_trans_init(struct htthread_trans *httrans)
 {

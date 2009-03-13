@@ -11,7 +11,6 @@
 #include "linuxarms.h"
 
 #define ATTHREAD_TRANS_SIZE 4095
-#define ATTHREAD_PROTOCOL 1
 
 /*
  * @atthread_trans     文件传输的数据
@@ -20,7 +19,7 @@
  */
 struct atthread_trans {
 	protocol_fthread protocol;
-	char buffer[ATTHREAD_TRANS_SIZE + ATTHREAD_PROTOCOL];
+	char buffer[ATTHREAD_TRANS_SIZE + 1];
 };
 boolean atthread_trans_init(struct atthread_trans *attrans);
 const char *atthread_trans_get_buf(struct atthread_trans *attrans);
@@ -31,7 +30,7 @@ boolean atthread_trans_set_protocol(struct atthread_trans *attrans, protocol_fth
  * @savefile_size:   已经传输文件的大小
  */
 struct atthread_struct {
-	struct anet_struct *socket;
+	int socket;
 	struct atthread_trans trans;
 	char path[PATH_LEN];
 	protocol_fthread select;
@@ -44,11 +43,9 @@ struct atthread_struct {
 };
 
 /* 初始化htthread_struct结构体 */
-int atthread_init(struct atthread_struct *atthread,
-	             struct anet_struct *socket);
-boolean atthread_thread(void *p);
-boolean atthread_upload(struct atthread_struct *atthread);
-boolean atthread_download(struct atthread_struct *atthread);
+int atthread_init(struct atthread_struct *atthread);
+void *atthread_upload(void *p);
+void *atthread_download(void *p);
 
 #endif
 
