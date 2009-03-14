@@ -110,7 +110,7 @@ boolean window_trans_timer(gpointer p)
 			snprintf(tmp, 512, "上传文件成功\n%s", tiptext->tip_text);
 		} else {
 			gtk_label_set_text(GTK_LABEL(htthread->widget.label_trans),"文件下载成功");
-			snprintf(tmp, 512, "上传下载成功\n%s", tiptext->tip_text);
+			snprintf(tmp, 512, "下载文件成功\n%s", tiptext->tip_text);
 		}
 		label_show = FALSE;
 		file_trans_prompt = 0;
