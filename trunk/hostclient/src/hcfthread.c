@@ -88,7 +88,7 @@ void *hfthread_thread(void *p)
 			htthread->trans_size = 0;
 			htthread->clock = gtk_timeout_add(PROMPT_TIMEOUT, 
 					window_trans_timer, (gpointer)linuxarms);		
-			linuxarms_thread_create(htthread_upload, htthread);
+			linuxarms_thread_create(htthread_download, htthread);
 			//htthread_download(htthread);
 			break;
 		case FVIEW: /* 文件浏览处理 */
