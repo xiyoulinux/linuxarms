@@ -2,7 +2,11 @@
 #define _CONFIG_H
 
 #include "linuxarms.h"
-#include "login.h"
+#include "hnet.h"
+#define USER_NAME_LEN 20
+#define PASSWD_LEN 20
+#define CONFIG_FILE_PATH_LEN 128
+#define USER_CONFIG_DIR_NAME "linuxarms-hostclient"
 /*
  * config_struct 配置文件读取相关的数据结构
  * @init:         本数据结构是否已经初始化
@@ -16,10 +20,6 @@ struct config_struct {
 boolean config_init();
 int get_armserver_port();
 int get_afthread_port();
-
-
-#define CONFIG_FILE_PATH_LEN 128
-#define USER_CONFIG_DIR_NAME "linuxarms-hostclient"
 
 struct list_ip {
 	char ip[IP_LEN];

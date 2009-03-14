@@ -7,7 +7,6 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 			  GtkTooltips *tooltips,
 			  GtkAccelGroup *accel_group,
 			  struct linuxarms_struct *linuxarms);
-void cb_login_activate(GtkMenuItem *menuitem, gpointer user_data);
 void cb_logout_activate(GtkMenuItem *menuitem, gpointer user_data);
 void cb_restart_activate (GtkMenuItem *menuitem, gpointer user_data);
 void cb_shutdown_activate(GtkMenuItem *menuitem, gpointer user_data);

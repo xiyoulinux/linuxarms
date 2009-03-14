@@ -37,7 +37,7 @@ gboolean cb_window_login_delete_event(GtkWidget *widget,
 void cb_login_button_cancel_clicked(GtkWidget *widget, gpointer user_data)
 {
 	struct login_struct *login = (struct login_struct *)user_data;
-	login_config_free(login->config);
+	login_config_free(&login->config);
 	gtk_main_quit();
 }
 
@@ -171,8 +171,8 @@ gboolean cb_user_name_changed(GtkWidget *widget, gpointer user_data)
 		return FALSE;
 	}
 	strncpy(login->user.name, user_name, USER_NAME_LEN);
-	user = login->config->user_list.next;
-	for(i = 0; i < login->config->user_num; i++) {
+	user = login->config.user_list.next;
+	for(i = 0; i < login->config.user_num; i++) {
 		if(strcmp(user->user_name,login->user.name) == 0) {
 			if(user->remember) {
 				gtk_entry_set_text(GTK_ENTRY(login->widget.passwd), user->passwd);
@@ -209,17 +209,15 @@ gboolean cb_entry_passwd_changed(GtkWidget *widget, gpointer user_data)
 	return FALSE;
 
 }
-boolean login_init(struct login_struct *login, 
-		   struct login_config_struct *config,
-		   struct hnet_struct *socket)
+boolean login_init(struct login_struct *login, struct hnet_struct *socket)
 {
 
 	LINUXARMS_POINTER(login);
-	LINUXARMS_POINTER(config);
 	LINUXARMS_POINTER(socket);
 
+        login_config_init(&login->config);
+        login_config_read(&login->config);
 	user_struct_init(&login->user);
-	login->config = config;
 	login->socket = socket;
 	login->remember = FALSE;
 	login->competence = FALSE;
@@ -252,7 +250,7 @@ boolean user_struct_set(struct user_struct *user, char *ip, char *name, char *pa
 boolean login_add_default_data(struct login_struct *login)
 {
 	int i;
-	struct login_config_struct *config = login->config;
+	struct login_config_struct *config = &login->config;
 	struct login_widget *widget = &login->widget;
 	struct list_ip *ip = config->ip_list.next;
 	struct list_user *user = config->user_list.next;

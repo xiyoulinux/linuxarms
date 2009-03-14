@@ -12,10 +12,9 @@
 #include "error.h"
 #include "debug.h"
 #include "hnet.h"
+#include "config.h"
 #include <gtk/gtk.h>
-#define USER_NAME_LEN 20
-#define PASSWD_LEN 20
-#define CONFIG_BUF_SIZE 256
+
 #define INFO_SIZE 80
 #define ICON_LOGIN "ico-window.png"
 
@@ -45,7 +44,6 @@ struct login_widget {
 	GtkWidget *button_ok;
 };
 
-struct login_config_struct;
 /*
  * login_struct 用户登录处理及相关信息显示和出错处理
  * @user: 用户信息
@@ -59,13 +57,12 @@ struct login_struct {
 	boolean remember;
 	struct user_struct user;
 	struct hnet_struct *socket;
-	struct login_config_struct *config;
+	struct login_config_struct config;
 	struct login_widget widget;
 	boolean competence;
 };
 
 boolean login_init(struct login_struct *login,
-		   struct login_config_struct *config,
 		   struct hnet_struct *socket);
 boolean login_user_competence(struct login_struct *login);
 void create_window_login(struct linuxarms_struct *linuxarms);

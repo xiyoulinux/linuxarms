@@ -21,37 +21,7 @@
 #include "config.h"
 #include "fview.h"
 
-void cb_login_activate(GtkMenuItem *menuitem, gpointer user_data)
-{
-	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
-	struct hmthread_struct *hmthread = linuxarms->hmthread;
-	struct hsthread_struct *hsthread = linuxarms->hsthread;
-	struct hfthread_struct *hfthread = linuxarms->hfthread;
-	struct login_struct *login = linuxarms->login;
-	debug_where();
-	debug_print("cb_login_activate\n");
-	
-	/***************init_login*****************************/
-	login_config_init(login->config);
-	login_config_read(login->config);
-	hnet_init(login->socket, NULL, get_armserver_port());
-	login_init(login, login->config, login->socket);
-
-	/***************init_hmthread**************************/
-	hmthread_init(hmthread, &login->user);
-	/***************init hsthread**************************/
-	hsthread->timer.time = TM_THREE * 1000;
-	hsthread->timer.timer = -1;
-
-	hsprocess_init(hsthread->hsprocess, &hsthread->trans.kill, &hsthread->socket);
-	
-	/***************init hfthread**************************/
-	hfview_init(hfthread->hfview, hfthread->trans.path, &hfthread->socket);
-
-	gtk_widget_destroy(linuxarms->mwindow->window);
-	create_window_login(linuxarms);
-}
-
+static void cb_do_logout(struct linuxarms_struct *linuxarms);
 
 void cb_logout_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
@@ -60,10 +30,7 @@ void cb_logout_activate(GtkMenuItem *menuitem, gpointer user_data)
 	
 	hmthread->set_protocol(hmthread, LOGOUT);
 	hmthread->send(hmthread);
-	gtk_widget_set_sensitive(linuxarms->mwindow->window, FALSE);
-	debug_where();
-	debug_print("cb_logout_activate");
-
+	cb_do_logout(linuxarms);
 }
 
 void cb_restart_activate(GtkMenuItem *menuitem, gpointer user_data)
@@ -80,7 +47,7 @@ void cb_restart_activate(GtkMenuItem *menuitem, gpointer user_data)
 	}
 	hmthread->set_protocol(hmthread, RESTART);
 	hmthread->send(hmthread);
-	gtk_widget_set_sensitive(linuxarms->mwindow->window, FALSE);
+	cb_do_logout(linuxarms);
 }
 
 
@@ -98,7 +65,7 @@ void cb_shutdown_activate(GtkMenuItem *menuitem, gpointer user_data)
 	}
 	hmthread->set_protocol(hmthread, SHUTDOWN);
 	hmthread->send(hmthread);
-	gtk_widget_set_sensitive(linuxarms->mwindow->window, FALSE);
+	cb_do_logout(linuxarms);
 }
 
 void cb_quit_activate(GtkMenuItem *menuitem, gpointer user_data)
@@ -208,3 +175,15 @@ void cb_help_about_activate(GtkMenuItem *menuitem, gpointer user_data)
 
 }
 
+static void cb_do_logout(struct linuxarms_struct *linuxarms)
+{
+	struct hmthread_struct *hmthread = linuxarms->hmthread;
+
+	hostclient_user_logout(linuxarms);
+	hostclient_close_all_thread(linuxarms);
+	debug_where();
+	gtk_widget_destroy(linuxarms->mwindow->window);
+	hostclient_init(linuxarms);
+	create_window_login(linuxarms);
+	hmthread->timer = gtk_timeout_add(50, create_window_main_timeout, (gpointer)linuxarms);
+}

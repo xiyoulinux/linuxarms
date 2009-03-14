@@ -15,7 +15,6 @@
  * hmthread_mwidget	contain some GtkWidget which hmthread will use
  */
 struct hmthread_widget {
-	GtkWidget *login;
 	GtkWidget *logout;
 	GtkWidget *restart;
 	GtkWidget *shutdown;
@@ -48,6 +47,7 @@ struct hmthread_struct {
 	struct hmthread_trans trans;
 	struct hmthread_widget widget;
 	boolean competence;
+	int timer;
 
 	void (*down_lock)(struct hmthread_struct *hmthread);
 	void (*up_lock)(struct hmthread_struct *hmthread);
@@ -64,4 +64,6 @@ boolean hmthread_init(struct hmthread_struct *hmthread, struct user_struct *user
 void *hmthread_thread(void *p);
 gboolean create_window_main_timeout(gpointer user_data);
 void hostclient_close_all_thread(struct linuxarms_struct *linuxarms);
+void hostclient_user_logout(struct linuxarms_struct *linuxarms);
+void hostclient_init(struct linuxarms_struct *linuxarms);
 #endif

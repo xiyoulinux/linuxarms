@@ -16,6 +16,7 @@
 #include "linuxarms.h"
 #include "protocol.h"
 #include "statusbar.h"
+#include "toolbar.h"
 #include "error.h"
 #include "debug.h"
 #include "mwindow.h"
@@ -23,8 +24,8 @@
 #include "config.h"
 #include "message.h"
 #include "thread.h"
-/* hnet.c */
-//extern struct sockaddr_in serv_addr;
+
+static void hostclient_user_login(struct linuxarms_struct *linuxarms);
 static boolean hmthread_send(struct hmthread_struct *hmthread);
 static boolean hmthread_recv(struct hmthread_struct *hmthread);
 static void hmthread_down_lock(struct hmthread_struct *hmthread);
@@ -35,61 +36,14 @@ static boolean hmthread_set_protocol(struct hmthread_struct *hmthread,
 boolean create_window_main_timeout(gpointer user_data)
 {
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
-	struct mwindow_struct *mwindow = linuxarms->mwindow;
 	struct hmthread_struct *hmthread = linuxarms->hmthread;
-	struct hsthread_struct *hsthread = linuxarms->hsthread;
-	struct hfthread_struct *hfthread = linuxarms->hfthread;
-	struct hcthread_struct *hcthread = linuxarms->hcthread;
-	struct htthread_struct *htthread = hfthread->hftrans;
 	struct login_struct *login = linuxarms->login;
-	char buf[40];
 
 	if (hmthread->protocol == MMAX)
 		return TRUE;
 	switch (hmthread->protocol) {
 		case LOGIN: /* 用户登录成功，创建主窗口 */
-			linuxarms_print("user login success, user name is %s\n", hmthread->user->name);
-			debug_print("protocol->hmthread :用户登录成功....\n");
-			login_config_write(login);
-			login_config_free(login->config);
-			hmthread->competence = login_user_competence(login);
-			hsthread->competence = login_user_competence(login);
-			hfthread->competence = login_user_competence(login);
-			hcthread->competence = login_user_competence(login);
-			htthread->competence = login_user_competence(login);
-			debug_where();
-			gtk_widget_destroy(login->widget.window_login);
-			create_window_main(linuxarms);
-			debug_where();
-			gtk_window_main_set_sensitive(linuxarms);
-			debug_where();
-
-			linuxarms_thread_create(hsthread_thread, hsthread);
-			debug_where();
-
-			linuxarms_thread_create(hfthread_thread, linuxarms);
-			debug_where();
-
-			linuxarms_thread_create(hcthread_thread, hcthread);
-			snprintf(buf, 40, "Linux ARMS[登录用户：%s]", hmthread->user->name);
-			debug_where();
-			gtk_window_set_title(GTK_WINDOW(linuxarms->mwindow->window), buf);
-			gtk_widget_set_sensitive(hmthread->widget.logout, TRUE);
-			gtk_widget_set_sensitive(hmthread->widget.restart, TRUE);
-			gtk_widget_set_sensitive(hmthread->widget.shutdown, TRUE);
-			debug_where();
-			break;
-		case LOGOUT:
-			debug_print("protocol->hmthread :armserver已经注销...\n");
-LOGOUT_RESTART_SHUTDOWN:			
-			gtk_window_main_set_sensitive(linuxarms);
-			gtk_widget_set_sensitive(mwindow->window, TRUE);
-			gtk_widget_set_sensitive(mwindow->notebook, FALSE);
-			gtk_widget_set_sensitive(mwindow->toolbar, FALSE);
-			gtk_widget_set_sensitive(mwindow->frame, FALSE);
-			gtk_widget_set_sensitive(hmthread->widget.login, TRUE);
-
-			hostclient_close_all_thread(linuxarms);
+			hostclient_user_login(linuxarms);
 			break;
 		case HAVEUSER: /* one user have login */
 			debug_print("protocol->hmthread :已经有一个用户登录...\n");
@@ -122,10 +76,6 @@ LOGOUT_RESTART_SHUTDOWN:
 		case NOCOMPETENCE: /* 没有权限执行命令 */
 			statusbar_set_text("没有权限执行命令");
 			break;
-		case RESTART:
-			goto LOGOUT_RESTART_SHUTDOWN;
-		case SHUTDOWN:
-			goto LOGOUT_RESTART_SHUTDOWN;
 		default:
 			break;
 	}
@@ -184,6 +134,7 @@ boolean hmthread_init(struct hmthread_struct *hmthread, struct user_struct *user
 	hmthread->trans.user = *user;
 	hmthread->trans.protocol = MMAX;
 	hmthread->protocol = MMAX;
+	hmthread->timer = -1;
 	hmthread->down_lock = hmthread_down_lock;
 	hmthread->up_lock = hmthread_up_lock;
 	hmthread->set_protocol = hmthread_set_protocol;
@@ -260,6 +211,62 @@ boolean hmthread_trans_set_protocol(struct hmthread_trans *hmtrans,
 	return TRUE;
 }
 
+static void hostclient_user_login(struct linuxarms_struct *linuxarms)
+{
+	struct hmthread_struct *hmthread = linuxarms->hmthread;
+	struct hsthread_struct *hsthread = linuxarms->hsthread;
+	struct hfthread_struct *hfthread = linuxarms->hfthread;
+	struct hcthread_struct *hcthread = linuxarms->hcthread;
+	struct htthread_struct *htthread = hfthread->hftrans;
+	struct login_struct *login = linuxarms->login;
+	char buf[40];
+
+	linuxarms_print("user login success, user name is %s\n", hmthread->user->name);
+	debug_print("protocol->hmthread :用户登录成功....\n");
+	login_config_write(login);
+	login_config_free(&login->config);
+	hmthread->competence = login_user_competence(login);
+	hsthread->competence = login_user_competence(login);
+	hfthread->competence = login_user_competence(login);
+	hcthread->competence = login_user_competence(login);
+	htthread->competence = login_user_competence(login);
+	debug_where();
+	gtk_widget_destroy(login->widget.window_login);
+	create_window_main(linuxarms);
+	debug_where();
+	gtk_window_main_set_sensitive(linuxarms);
+	debug_where();
+
+	linuxarms_thread_create(hsthread_thread, hsthread);
+	debug_where();
+
+	linuxarms_thread_create(hfthread_thread, linuxarms);
+	debug_where();
+
+	linuxarms_thread_create(hcthread_thread, hcthread);
+	snprintf(buf, 40, "Linux ARMS[登录用户：%s]", hmthread->user->name);
+	debug_where();
+	gtk_window_set_title(GTK_WINDOW(linuxarms->mwindow->window), buf);
+	gtk_widget_set_sensitive(hmthread->widget.logout, TRUE);
+	gtk_widget_set_sensitive(hmthread->widget.restart, TRUE);
+	gtk_widget_set_sensitive(hmthread->widget.shutdown, TRUE);
+	debug_where();
+}
+void hostclient_user_logout(struct linuxarms_struct *linuxarms)
+{
+	struct hmthread_struct *hmthread = linuxarms->hmthread;
+	struct hsthread_struct *hsthread = linuxarms->hsthread;
+	
+	debug_where();
+	if (hsthread->timer.timer != -1) {
+		hsthread_close_timer(hsthread);
+		debug_where();
+		debug_print("删除定时器\n");
+	}
+	gtk_timeout_remove(hmthread->timer);
+	debug_where();
+	list_head_free();
+}
 void hostclient_close_all_thread(struct linuxarms_struct *linuxarms)
 {
 	struct hmthread_struct *hmthread = linuxarms->hmthread;

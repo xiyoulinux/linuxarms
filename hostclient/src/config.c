@@ -239,7 +239,7 @@ out:
  */
 boolean login_config_write(struct login_struct *login)
 {
-	struct login_config_struct *config = login->config;
+	struct login_config_struct *config = &login->config;
 	struct user_struct *suser = &login->user;
 	FILE *fp;
 	char *config_file;

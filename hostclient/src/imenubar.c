@@ -33,7 +33,6 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	GtkWidget *menubar;
 	GtkWidget *menubar_file;
 	GtkWidget *menubar_file_menu;
-	GtkWidget *login;
 	GtkWidget *logout;
 	GtkWidget *file_separator_one;
 	GtkWidget *restart;
@@ -72,7 +71,6 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	GtkWidget *help_separator_one;
 	GtkWidget *help_about;
 	GtkWidget *image347;
-	GtkWidget *image309;
 	GtkWidget *image310;
 	GtkWidget *image311;
 	GtkWidget *image312;
@@ -88,15 +86,6 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_container_add(GTK_CONTAINER(menubar), menubar_file);
 	menubar_file_menu = gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menubar_file), menubar_file_menu);
-
-	login = gtk_image_menu_item_new_with_mnemonic(_("登录arm系统"));
-	gtk_widget_show(login);
-	gtk_container_add(GTK_CONTAINER(menubar_file_menu), login);
-	gtk_tooltips_set_tip(tooltips, login, _("登录arm系统"), NULL);
-
-	image309 = gtk_image_new_from_stock("gtk-jump-to", GTK_ICON_SIZE_MENU);
-	gtk_widget_show(image309);
-	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(login), image309);
 
 	logout = gtk_image_menu_item_new_with_mnemonic(_("注销用户登录"));
 	gtk_widget_show(logout);
@@ -301,9 +290,6 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 	gtk_widget_show(image347);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(help_about), image347);
 	
-	g_signal_connect((gpointer)login, "activate",
-			 G_CALLBACK(cb_login_activate), 
-			 (gpointer)linuxarms);
 	g_signal_connect((gpointer)logout, "activate",
 			 G_CALLBACK(cb_logout_activate), 
 			 (gpointer)linuxarms);
@@ -353,7 +339,6 @@ GtkWidget *create_menubar(GtkWidget *vbox_main,
 			 G_CALLBACK(cb_help_about_activate),
 			 NULL);
 	
-	hmthread->widget.login = login;
 	hmthread->widget.logout = logout;
 	hmthread->widget.restart = restart;
 	hmthread->widget.shutdown = shutdown;
