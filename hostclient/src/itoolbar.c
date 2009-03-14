@@ -18,7 +18,7 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 			  struct linuxarms_struct *linuxarms)
 {
 	struct hfthread_struct *hfthread = linuxarms->hfthread;
-	struct htthread_struct *hftrans = hfthread->hftrans;
+	struct htthread_struct *htthread = hfthread->hftrans;
 	struct hfview_struct *hfview = hfthread->hfview;
 
 	GtkWidget *toolbar;
@@ -184,8 +184,8 @@ GtkWidget *create_toolbar(GtkWidget *vbox_main,
 			 (gpointer)linuxarms);
 	hfview->widget.up = button_up;
 	hfview->widget.back = button_back;
-	hftrans->widget.toolbar_upload = button_upload;
-	hftrans->widget.toolbar_download = button_download;
+	htthread->widget.toolbar_upload = button_upload;
+	htthread->widget.toolbar_download = button_download;
 	list_head_new(BACK_NUM);
 	gtk_widget_set_sensitive(button_up, FALSE);
 	gtk_widget_set_sensitive(button_back, FALSE);

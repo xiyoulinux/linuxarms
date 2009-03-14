@@ -257,6 +257,7 @@ void armserver_signal_handle(int sig)
 		linuxarms_print("close armserver...\n");
 		delete_file_directory();
 		close(sockfd);
+		close(fthread_fd);
 		kill(0, SIGTERM);
 		exit(1);
 		break;

@@ -90,6 +90,8 @@ void cb_notebook_switch_page(GtkNotebook *notebook,
 		hsthread->send(hsthread);
 		debug_print("启动定时器\n");
 	} else {
+		gtk_widget_set_sensitive(GTK_WIDGET(linuxarms->mwindow->toolbar), TRUE);
+		cb_fview_selection_changed(NULL, linuxarms);
 		gtk_widget_set_sensitive(hfview->widget.hide, TRUE);
 		old_num = PFILEVIEW;
 		hfthread_trans_set_path(&hfthread->trans, hfview_get_path(hfview));
