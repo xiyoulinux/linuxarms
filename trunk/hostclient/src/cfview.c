@@ -181,10 +181,8 @@ out:
 	}
 	prev_file_nums = file_nums;
 	gtk_adjustment_set_value(GTK_ADJUSTMENT(widget->vadjustment), 0);
-	//gdk_threads_enter();  
 	//gtk_widget_queue_draw(widget->treeview);
 	while (g_main_iteration(FALSE));  
-	//gdk_threads_leave();
 	return TRUE;
 }
 void cb_fview_selection_changed(GtkWidget *widget, gpointer user_data)
@@ -258,7 +256,6 @@ out:
 	gtk_widget_set_sensitive(htthread->widget.menubar_download, download);
 	gtk_widget_set_sensitive(htthread->widget.toolbar_upload, upload);
 	gtk_widget_set_sensitive(htthread->widget.toolbar_download, download);
-
 }
 
 gboolean cb_fview_button_press(GtkWidget *widget,

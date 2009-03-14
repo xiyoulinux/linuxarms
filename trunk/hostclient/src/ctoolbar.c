@@ -100,10 +100,12 @@ void cb_fview_back_clicked(GtkButton *button, gpointer user_data)
 	hfthread_trans_set_path(&hfthread->trans, path);
 	hfthread->set_protocol(hfthread, FVIEW);
 	hfthread->send(hfthread);
-	if (list_head_test_next() == FALSE) {
+	if (list_head_test_next() == FALSE)
 		gtk_widget_set_sensitive(GTK_WIDGET(button), FALSE);
-		return;
-	}
+	if (strlen(path) > 1)
+		gtk_widget_set_sensitive(GTK_WIDGET(hfthread->hfview->widget.up), TRUE);
+	else
+		gtk_widget_set_sensitive(GTK_WIDGET(hfthread->hfview->widget.up), FALSE);
 }
 
 
@@ -117,10 +119,11 @@ void cb_fview_up_clicked(GtkButton *button, gpointer user_data)
 
 	strcpy(path, hfview_get_path(hfthread->hfview));
 	list_head_set_path(path);
+	gtk_widget_set_sensitive(GTK_WIDGET(hfthread->hfview->widget.back), TRUE);
 	len = strlen(path);
 	if (len == 1) {
 		gtk_widget_set_sensitive(GTK_WIDGET(hfthread->hfview->widget.up), FALSE);
-BACK:
+back:
 		hfview_set_path(hfthread->hfview, path);
 		hfthread_trans_set_path(&hfthread->trans, (const char *)path);
 		hfthread->set_protocol(hfthread, FVIEW);
@@ -130,11 +133,12 @@ BACK:
 	for (i = len - 1; i >= 0 ; i--)
 		if (path[i] == '/')
 			break;
-	if (i == 0) 
+	if (i == 0) {
+		gtk_widget_set_sensitive(GTK_WIDGET(hfthread->hfview->widget.up), FALSE);
 		path[i + 1] = '\0';
-	else
+	} else
 		path[i] = '\0';
-	goto BACK;
+	goto back;
 }
 
 

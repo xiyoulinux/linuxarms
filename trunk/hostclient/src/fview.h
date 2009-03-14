@@ -108,7 +108,6 @@ void cb_treeview_fview_row_activated(GtkTreeView *treeview,
 
 boolean hfview_init(struct hfview_struct *hfview,char *path,
 		    struct hnet_struct *socket);
-//boolean hfview_show_info(struct hfview_struct *hfview);
 boolean hfview_rename(struct hfthread_struct *hfthread);
 boolean hfview_delete(struct hfthread_struct *hfthread);
 boolean do_file_view(struct hfview_struct *hfview);
