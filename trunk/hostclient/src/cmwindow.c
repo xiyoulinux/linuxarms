@@ -114,14 +114,12 @@ boolean gtk_window_main_set_sensitive(struct linuxarms_struct *linuxarms)
 	gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_user), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hsprocess->widget.menu_all), FALSE);
 	
-	//gtk_widget_set_sensitive(GTK_WIDGET(linuxarms->mwindow->toolbar), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.rename), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.del), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hfview->widget.hide), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_upload), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(htthread->widget.menubar_download), FALSE);
 
-	gtk_widget_set_sensitive(GTK_WIDGET(hmthread->widget.login), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hmthread->widget.logout), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hmthread->widget.restart), FALSE);
 	gtk_widget_set_sensitive(GTK_WIDGET(hmthread->widget.shutdown), FALSE);
@@ -132,19 +130,10 @@ void cb_linuxarms_window_main_close(GtkObject *object, gpointer user_data)
 {
 	struct linuxarms_struct *linuxarms = (struct linuxarms_struct *)user_data;
 	struct hmthread_struct *hmthread = linuxarms->hmthread;
-	struct hsthread_struct *hsthread = linuxarms->hsthread;
 	
-	debug_where();
-	if (hsthread->timer.timer != -1) {
-		hsthread_close_timer(hsthread);
-		debug_where();
-		debug_print("删除定时器\n");
-	}
-	debug_where();
+	hostclient_user_logout(linuxarms);
 	hmthread->set_protocol(hmthread, CLOSECLIENT);
 	hmthread->send(hmthread);
-	//hostclient_close_all_thread(linuxarms);
-	list_head_free();
 	hostclient_close_all_thread(linuxarms);
 	gtk_main_quit();
 }
