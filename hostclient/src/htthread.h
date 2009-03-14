@@ -42,7 +42,8 @@ struct htthread_trans {
 	char buffer[HTTHREAD_TRANS_SIZE];
 };
 boolean htthread_trans_init(struct htthread_trans *httrans);
-boolean htthread_trans_set_protocol(struct htthread_trans *httrans, protocol_fthread protocol);
+boolean htthread_trans_set_protocol(struct htthread_trans *httrans, 
+				    protocol_fthread protocol);
 const char *htthread_trans_get_buf(struct htthread_trans *httrans);
 /*
  * @select:          下载文件/上传文件
@@ -61,13 +62,12 @@ struct htthread_struct {
 	off_t trans_size;
 	unsigned int clock;
 
-	boolean (*set_protocol)(struct htthread_struct *htthread, protocol_fthread protocol);
+	boolean (*set_protocol)(struct htthread_struct *htthread, 
+				protocol_fthread protocol);
 	int (*send)(struct htthread_struct *htthread, int len);
 	int (*recv)(struct htthread_struct *htthread, int len);
 };
 
-/* 线程执行体 */
-//boolean htthread_thread(void *p);
 boolean htthread_init(struct htthread_struct *htthread);
 void *htthread_upload(void *p);
 void *htthread_download(void *p);
