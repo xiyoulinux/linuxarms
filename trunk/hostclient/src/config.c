@@ -244,8 +244,9 @@ boolean login_config_write(struct login_struct *login)
 	FILE *fp;
 	char *config_file;
 	int i, ret;
-	struct list_ip *ip, *ip_tmp;
-	struct list_user *user, *user_tmp;
+	struct list_ip *ip;
+	struct list_user *user;
+	
 	debug_where();
 	config_file = find_file("user.conf");
 	debug_print("配置文件:%s\n",config_file);
@@ -258,59 +259,42 @@ boolean login_config_write(struct login_struct *login)
 		return FALSE;
 	}
 	debug_where();
-	if (config->ip_num)
-		ip = config->ip_list.next;
-	else
-		ip = &config->ip_list;
-
-	debug_where();
+	ip = config->ip_list.next;
 	for (i = 0;i < config->ip_num; i++) {
 		if (strcmp(ip->ip, suser->ip) == 0) 
 			break;
 		ip = ip->next;
 	}
-	debug_print("i = %d  %d\n", i ,config->ip_num);
 	if (i == config->ip_num) {
-		ip_tmp = (struct list_ip *)malloc(sizeof(struct list_ip));
-		strncpy(ip_tmp->ip,suser->ip,IP_LEN);
-		ip->next = ip_tmp;
-		ip_tmp->next = NULL;
-		config->ip_num += 1;
-	}
+		ret = fprintf(fp, "SERVERIP %d\n",config->ip_num + 1);
+		ret = fprintf(fp, "%s\n",suser->ip);
+	} else
+		ret = fprintf(fp, "SERVERIP %d\n",config->ip_num);
 	debug_where();
 	debug_print("i = %d  %d\n", i ,config->ip_num);
-	ret = fprintf(fp, "SERVERIP %d\n",config->ip_num);
 	ip = config->ip_list.next;
 	for (i = 0; i < config->ip_num; i++) {
 		ret = fprintf(fp, "%s\n",ip->ip);
 		ip = ip->next;
 	}
-	if (config->user_num)
-		user = config->user_list.next;
-	else
-		user = &config->user_list;
-
+	debug_where();
+	user = config->user_list.next;
 	for (i = 0; i < config->user_num; i++) {
-		if (strcmp(user->user_name,suser->name) == 0) {
-			user->remember = login->remember;
-			strncpy(user->passwd, suser->passwd, PASSWD_LEN);
+		if (strcmp(user->user_name, suser->name) == 0)
 			break;
-		}
 		user = user->next;
 	}
-	debug_print("i = %d  %d\n", i ,config->user_num);
 	if (i == config->user_num) {
-		user_tmp = (struct list_user *)malloc(sizeof(struct list_user));
-		strncpy(user_tmp->passwd, suser->passwd, PASSWD_LEN);
-		strncpy(user_tmp->user_name, suser->name, USER_NAME_LEN);
-		user_tmp->remember = login->remember;
-		user->next = user_tmp;
-		user_tmp->next = NULL;
-		config->user_num += 1;
+		ret = fprintf(fp, "USER %d\n",config->user_num + 1);
+		ret = fprintf(fp, "%s %d ",suser->name, login->remember);
+		if (login->remember)
+			ret = fprintf(fp, "%s\n",suser->passwd);
+		else
+			ret = fprintf(fp, "\n");
+	} else {
+		ret = fprintf(fp, "USER %d\n",config->user_num);
+		user->remember = login->remember;
 	}
-	debug_print("i = %d  %d\n", i ,config->user_num);
-	debug_where();
-	ret = fprintf(fp, "USER %d\n",config->user_num);
 	user = config->user_list.next;
 	for (i = 0; i < config->user_num; i++) {
 		ret = fprintf(fp, "%s %d",user->user_name, user->remember);

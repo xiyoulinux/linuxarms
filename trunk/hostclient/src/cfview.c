@@ -135,7 +135,6 @@ boolean do_file_view(struct hfview_struct *hfview)
 			debug_print("接收文件信息失败\n");
 			goto out;
 		}
-		//debug_print("%-30s\t%-8ld\t%-4d\t%s\n", frecv->name, frecv->size, frecv->type, frecv->user);
 		switch (frecv->protocol) {
 		case FSENDALL:
 			debug_print("接收文件信息结束\n");
@@ -150,7 +149,7 @@ boolean do_file_view(struct hfview_struct *hfview)
 			gtk_list_store_set(GTK_LIST_STORE(list_store), &iter, 
 				COL_FPIXBUF, frecv->type == TYPE_DIR ? directory : file,
 				COL_FNAME, frecv->name,
-				COL_FSIZE, get_file_size(frecv->size),
+				COL_FSIZE, frecv->type == TYPE_FILE ? get_file_size(frecv->size) : "0",
 				COL_FTYPE, frecv->type == TYPE_DIR ? "文件夹" : "文件",
 				COL_FUSER, frecv->user,
 				COL_FMTIME,stime,

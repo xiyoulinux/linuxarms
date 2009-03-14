@@ -52,13 +52,14 @@ boolean create_window_main_timeout(gpointer user_data)
 			break;
 		case CHECKERR:  /* check user information error */
 			debug_print("protocol->hmthread :登录验证用户信息失败...\n");
-			message_box_error(login->widget.window_login, "登录失败：验证用户信息错误\n"
-					     "可能的原因是没有用户或者密码错误");
+			message_box_error(login->widget.window_login, 
+					  "登录失败：验证用户信息错误\n"
+					  "可能的原因是没有用户或者密码错误");
 			break;
 		case LOGERR:
 			debug_print("protocol->hmthread :登录创建服务线程失败...\n");
-			message_box_error(login->widget.window_login, "登录失败：可能的原因是创建\n"
-					"服务线程失败");
+			message_box_error(login->widget.window_login, 
+					"登录失败：可能的原因是创建\n服务线程失败");
 			break;
 		case CHECKMULT:
 			debug_print("protocol->hmthread：尝试登录次数过多...\n");
