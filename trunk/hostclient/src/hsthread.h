@@ -61,7 +61,7 @@ struct hsthread_struct {
 	struct hsthread_trans trans;
 	struct hnet_struct socket;
 	struct hsthread_timer timer;
-	boolean competence;
+	boolean permit;
 	
 	void (*down_lock)(struct hsthread_struct *hsthread);
 	void (*up_lock)(struct hsthread_struct *hsthread);

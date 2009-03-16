@@ -46,7 +46,7 @@ struct hmthread_struct {
 	struct hnet_struct socket;
 	struct hmthread_trans trans;
 	struct hmthread_widget widget;
-	boolean competence;
+	boolean permit;
 	int timer;
 
 	void (*down_lock)(struct hmthread_struct *hmthread);

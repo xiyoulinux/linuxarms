@@ -23,7 +23,7 @@
  * @ip: 用户输入的IP地址
  * @name: 用户输入的用户名
  * @passwd: 用户输入的密码
- * @competence: 
+ * @permit: 
  */
 struct user_struct {
 	char ip[IP_LEN];
@@ -59,12 +59,12 @@ struct login_struct {
 	struct hnet_struct *socket;
 	struct login_config_struct config;
 	struct login_widget widget;
-	boolean competence;
+	boolean permit;
 };
 
 boolean login_init(struct login_struct *login,
 		   struct hnet_struct *socket);
-boolean login_user_competence(struct login_struct *login);
+boolean login_user_permit(struct login_struct *login);
 void create_window_login(struct linuxarms_struct *linuxarms);
 boolean login_add_default_data(struct login_struct *login);
 gboolean cb_window_login_delete_event(GtkWidget *widget,

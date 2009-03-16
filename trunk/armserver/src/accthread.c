@@ -29,7 +29,7 @@ boolean acthread_init(struct acthread_struct *acthread)
 {
 	LINUXARMS_POINTER(acthread);
 	linuxarms_thread_init(&acthread->thread);
-	acthread->competence = FALSE;
+	acthread->permit = FALSE;
 	acthread_trans_init(&acthread->trans);
 	acthread->send = acthread_send;
 	acthread->recv = acthread_recv;
@@ -143,7 +143,7 @@ void *acthread_thread(void *p)
 	while (acthread->thread.id) {
 		if (!acthread->recv(acthread)) {   /* 接收数据 */
 			linuxarms_print("acthread recv data error,exit....\n");
-			exit(1);
+			return NULL;
 		}
 		if (acthread->trans.protocol == CSEND) {
 			acthread_handle(acthread); /* 处理数据 */

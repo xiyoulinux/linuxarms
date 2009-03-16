@@ -43,7 +43,7 @@ struct asthread_struct {
 	struct asthread_trans trans;
 	struct anet_struct socket;
 	struct proc_struct proc;
-	boolean competence;
+	boolean permit;
 
 	boolean (*set_protocol)(struct asthread_struct *asthread, protocol_sthread protocol);
 	boolean (*send)(struct asthread_struct *asthread);

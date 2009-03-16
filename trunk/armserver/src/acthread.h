@@ -34,7 +34,7 @@ struct acthread_struct {
 	struct linuxarms_thread thread;
 	struct anet_struct socket;
 	struct acthread_trans trans;
-	boolean competence;
+	boolean permit;
 
 	boolean (*send)(struct acthread_struct *acthread);
 	boolean (*recv)(struct acthread_struct *acthread);

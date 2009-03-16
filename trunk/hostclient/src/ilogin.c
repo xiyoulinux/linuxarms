@@ -1,3 +1,4 @@
+#define __DEBUG__
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -9,6 +10,7 @@
 #include "login.h"
 #include "support.h"
 #include "linuxarms.h"
+#include "debug.h"
 
 void create_window_login(struct linuxarms_struct *linuxarms)
 {
@@ -47,7 +49,7 @@ void create_window_login(struct linuxarms_struct *linuxarms)
 	GtkWidget *label5;
 	GtkAccelGroup *accel_group;
 	GdkPixbuf *login_icon_pixbuf;
-
+	debug_where();
 	accel_group = gtk_accel_group_new ();
 
 	window_login = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -251,4 +253,5 @@ void create_window_login(struct linuxarms_struct *linuxarms)
 
 	gtk_window_add_accel_group (GTK_WINDOW (window_login), accel_group);
 	gtk_widget_show(window_login);
+	debug_where();
 }

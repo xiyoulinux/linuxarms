@@ -26,6 +26,7 @@
 #include "thread.h"
 
 static void hostclient_user_login(struct linuxarms_struct *linuxarms);
+static void hostclient_do_logout(struct linuxarms_struct *linuxarms, char *msg);
 static boolean hmthread_send(struct hmthread_struct *hmthread);
 static boolean hmthread_recv(struct hmthread_struct *hmthread);
 static void hmthread_down_lock(struct hmthread_struct *hmthread);
@@ -44,6 +45,16 @@ boolean create_window_main_timeout(gpointer user_data)
 	switch (hmthread->protocol) {
 		case LOGIN: /* 用户登录成功，创建主窗口 */
 			hostclient_user_login(linuxarms);
+			break;
+		case LOGOUT:
+			hostclient_do_logout(linuxarms, "服务器系统已经执行注销用户，\n"
+					"客户端将关闭");
+			break;
+		case RESTART:
+			hostclient_do_logout(linuxarms, "服务器系统已经重启，客户端将关闭\n");
+			break;
+		case SHUTDOWN:
+			hostclient_do_logout(linuxarms, "服务器系统已经关闭，客户端监护关闭\n");
 			break;
 		case HAVEUSER: /* one user have login */
 			debug_print("protocol->hmthread :已经有一个用户登录...\n");
@@ -74,7 +85,7 @@ boolean create_window_main_timeout(gpointer user_data)
 			debug_print("protocol->hmthread :执行命令成功\n");
 			statusbar_set_text("执行命令成功");
 			break;
-		case NOCOMPETENCE: /* 没有权限执行命令 */
+		case NOPERMITION: /* 没有权限执行命令 */
 			statusbar_set_text("没有权限执行命令");
 			break;
 		default:
@@ -141,7 +152,7 @@ boolean hmthread_init(struct hmthread_struct *hmthread, struct user_struct *user
 	hmthread->set_protocol = hmthread_set_protocol;
 	hmthread->send = hmthread_send;
 	hmthread->recv = hmthread_recv;
-	hmthread->competence = FALSE;
+	hmthread->permit = FALSE;
 
 	hmthread->up_lock(hmthread);
 	return TRUE;
@@ -226,11 +237,11 @@ static void hostclient_user_login(struct linuxarms_struct *linuxarms)
 	debug_print("protocol->hmthread :用户登录成功....\n");
 	login_config_write(login);
 	login_config_free(&login->config);
-	hmthread->competence = login_user_competence(login);
-	hsthread->competence = login_user_competence(login);
-	hfthread->competence = login_user_competence(login);
-	hcthread->competence = login_user_competence(login);
-	htthread->competence = login_user_competence(login);
+	hmthread->permit = login_user_permit(login);
+	hsthread->permit = login_user_permit(login);
+	hfthread->permit = login_user_permit(login);
+	hcthread->permit = login_user_permit(login);
+	htthread->permit = login_user_permit(login);
 	debug_where();
 	gtk_widget_destroy(login->widget.window_login);
 	create_window_main(linuxarms);
@@ -291,4 +302,11 @@ void hostclient_close_all_thread(struct linuxarms_struct *linuxarms)
 		linuxarms_thread_exit(&hmthread->thread);
 		close_tcp_client(&hmthread->socket);
 	}
+}
+static void hostclient_do_logout(struct linuxarms_struct *linuxarms, char *msg)
+{
+	message_box_info(linuxarms->mwindow->window, msg);
+	hostclient_user_logout(linuxarms);
+	hostclient_close_all_thread(linuxarms);
+	gtk_main_quit();
 }

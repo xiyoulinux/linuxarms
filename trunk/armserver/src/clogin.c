@@ -26,7 +26,7 @@ boolean login_init(struct login_struct *login,
 		return FALSE;
 	}
 	login->socket = socket;
-	login->competence = FALSE;
+	login->permit = FALSE;
 	return TRUE;
 }
 
@@ -38,10 +38,10 @@ boolean user_struct_init(struct user_struct *user)
 	memset(user->passwd, '\0', PASSWD_LEN);
 	return TRUE;
 }
-boolean login_user_competence(struct login_struct *login)
+boolean login_user_permit(struct login_struct *login)
 {
 	LINUXARMS_POINTER(login);
-	return login->competence;
+	return login->permit;
 }
 boolean user_struct_set(struct user_struct *user, char *ip, char *name, char *passwd)
 {
@@ -68,9 +68,9 @@ boolean login_check_user(struct login_struct *login)
 	user = &login->user;
 	unencrypted = login->user.passwd;
 	if (strcmp(user->name, "root") == 0)
-		login->competence = TRUE;
+		login->permit = TRUE;
 	else
-		login->competence = FALSE;
+		login->permit = FALSE;
 #ifdef HAVE_SHADOW
 	pwd = getspnam(user->name);
 	if (!pwd) {
@@ -103,7 +103,7 @@ boolean login_set_env(struct login_struct *login)
 	
 	LINUXARMS_POINTER(login);
 	user = &login->user;
-	if (login->competence)
+	if (login->permit)
 		return TRUE;
 	pwd = getpwnam(user->name);
 	setenv("USER", user->name, 1);

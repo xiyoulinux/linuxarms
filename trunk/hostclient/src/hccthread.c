@@ -28,7 +28,7 @@ boolean hcthread_init(struct hcthread_struct *hcthread)
 	hcthread_trans_init(&hcthread->trans);
 	hcthread->send = hcthread_send;
 	hcthread->recv = hcthread_recv;
-	hcthread->competence = FALSE;
+	hcthread->permit = FALSE;
 
 	return TRUE;
 }
