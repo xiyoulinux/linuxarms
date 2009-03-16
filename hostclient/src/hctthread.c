@@ -46,7 +46,7 @@ boolean htthread_init(struct htthread_struct *htthread)
 {
 	LINUXARMS_POINTER(htthread);
 
-	htthread->competence = FALSE;
+	htthread->permit = FALSE;
 	htthread->select = FMAX;
 	htthread->total_size = 0;
 	htthread->trans_size = 0;

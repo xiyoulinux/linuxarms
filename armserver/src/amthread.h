@@ -37,7 +37,7 @@ struct amthread_struct {
 	struct user_struct *user;
 	struct amthread_trans trans;
 	struct anet_struct socket;
-	boolean competence;
+	boolean permit;
 
 	void (*down_lock)(struct amthread_struct *amthread);
 	void (*up_lock)(struct amthread_struct *amthread);

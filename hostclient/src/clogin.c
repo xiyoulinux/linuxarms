@@ -128,9 +128,9 @@ void cb_login_ok_clicked(GtkButton *button, gpointer user_data)
 		hcthread->socket.tcp = tcps[HCTHREAD_TCP_FD];
 	}
 	if (strcmp("root", user->name) == 0)
-		login->competence = TRUE;
+		login->permit = TRUE;
 	else
-		login->competence = FALSE;
+		login->permit = FALSE;
 	debug_where();
 	if (hmthread->thread.id == NULL) {
 		debug_print("create mthread \n");
@@ -220,7 +220,7 @@ boolean login_init(struct login_struct *login, struct hnet_struct *socket)
 	user_struct_init(&login->user);
 	login->socket = socket;
 	login->remember = FALSE;
-	login->competence = FALSE;
+	login->permit = FALSE;
 	return TRUE;
 }
 
@@ -233,10 +233,10 @@ boolean user_struct_init(struct user_struct *user)
 	memset(user->passwd, '\0', PASSWD_LEN);
 	return TRUE;
 }
-boolean login_user_competence(struct login_struct *login)
+boolean login_user_permit(struct login_struct *login)
 {
 	LINUXARMS_POINTER(login);
-	return login->competence;
+	return login->permit;
 }
 boolean user_struct_set(struct user_struct *user, char *ip, char *name, char *passwd)
 {

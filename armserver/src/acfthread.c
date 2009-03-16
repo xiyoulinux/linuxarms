@@ -34,7 +34,7 @@ boolean afthread_init(struct afthread_struct *afthread,
 	linuxarms_thread_init(&afthread->thread);
 	afthread->afview = afview;
 	afthread->atthread = atthread;
-	afthread->competence = FALSE;
+	afthread->permit = FALSE;
 	
 	afthread->set_protocol = afthread_set_protocol;
         afthread->send = afthread_send;
@@ -72,7 +72,7 @@ void *afthread_thread(void *p)
 	while (afthread->thread.id) {
 		if (!afthread->recv(afthread)) {
 			linuxarms_print("asthread recv data error,exit....\n");
-			exit(1);
+			return NULL;
 		}
 		switch (afthread->trans.protocol) {
 		case FUP:

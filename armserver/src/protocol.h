@@ -10,7 +10,7 @@ typedef enum _Mthread {
 	CHECKMULT,   /* 尝试登录次数过多               */
 	LOGERR,      /* 登录失败                       */
         RESTART,     /* 重启arm系统                    */
-	NOCOMPETENCE,/* 没有权限执行                   */
+	NOPERMITION, /* 没有权限执行                   */
 	LOGOUT,      /* 用户注销                       */
 	SHUTDOWN,    /* 关闭arm系统                    */
 	CLOSECLIENT, /* 关闭客户端                     */

@@ -39,7 +39,7 @@ boolean hsthread_init(struct hsthread_struct *hsthread,
 	linuxarms_thread_init(&hsthread->thread);
 	hsthread->hssinfo   = hssinfo;
 	hsthread->hsprocess = hsprocess;
-	hsthread->competence = FALSE;
+	hsthread->permit = FALSE;
 	
 	hsthread_trans_init(&hsthread->trans);
 	//hnet_init(&hsthread->socket, get_armserver_ip(), get_sthread_port());

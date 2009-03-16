@@ -37,7 +37,7 @@ boolean hfthread_init(struct hfthread_struct *hfthread,
 	linuxarms_thread_init(&hfthread->thread);
 	hfthread->hfview  =hfview;
 	hfthread->hftrans = hftrans;
-	hfthread->competence = FALSE;
+	hfthread->permit = FALSE;
 
 	hfthread->down_lock = hfthread_down_lock;
 	hfthread->up_lock = hfthread_up_lock;

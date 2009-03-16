@@ -57,7 +57,7 @@ struct hfthread_struct {
 	struct hfthread_trans trans;
 	struct hnet_struct socket;
 	struct hfthread_widget widget;
-	boolean competence;
+	boolean permit;
 	
 	void (*down_lock)(struct hfthread_struct *hfthread);
 	void (*up_lock)(struct hfthread_struct *hfthread);

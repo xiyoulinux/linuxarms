@@ -56,7 +56,7 @@ struct htthread_struct {
 	struct htthread_widget widget;
 	struct htthread_trans trans;
 	char path[PATH_LEN];
-	boolean competence;
+	boolean permit;
 	protocol_fthread select;
 	off_t total_size;
 	off_t trans_size;

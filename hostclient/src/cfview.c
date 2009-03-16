@@ -240,7 +240,7 @@ out:
 	if (strstr(path, home)) {
 		download = TRUE;
 	}
-	if (hfthread->competence) {
+	if (hfthread->permit) {
 		download = TRUE;
 	}
 	if (hfview->widget.popup) {
@@ -366,7 +366,7 @@ void cb_fview_rename_activate(GtkMenuItem *menuitem, gpointer user_data)
 				COL_FNAME, &name,
 				COL_FUSER, &user,
 				-1);
-		if (!hfthread->competence && strcmp(user, "root") == 0) {
+		if (!hfthread->permit && strcmp(user, "root") == 0) {
 			message_box_error(linuxarms->mwindow->window, "没有权限重命名文件");
 			return;
 		}
@@ -421,7 +421,7 @@ void cb_fview_delete_activate(GtkMenuItem *menuitem, gpointer user_data)
 			message_box_error(linuxarms->mwindow->window, "不能删除文件夹");
 			return;
 		}
-		if (!hfthread->competence && strcmp(user, linuxarms->login->user.name) != 0) {
+		if (!hfthread->permit && strcmp(user, linuxarms->login->user.name) != 0) {
 			message_box_error(linuxarms->mwindow->window, "没有权限删除文件");
 			return;
 		}

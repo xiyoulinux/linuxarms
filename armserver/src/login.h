@@ -19,7 +19,7 @@
  * @ip: 用户输入的IP地址
  * @name: 用户输入的用户名
  * @passwd: 用户输入的密码
- * @competence: 标记用户权限(root = TRUE)
+ * @permit: 标记用户权限(root = TRUE)
  */
 struct user_struct {
 	char ip[IP_LEN];
@@ -37,10 +37,10 @@ boolean user_struct_set(struct user_struct *user, char *ip, char *name, char *pa
 struct login_struct {
 	struct user_struct user;
 	struct anet_struct *socket;
-	boolean competence;
+	boolean permit;
 };
 boolean login_init(struct login_struct *login, struct anet_struct *socket);
 boolean login_check_user(struct login_struct *login);
 boolean login_set_env(struct login_struct *login);
-boolean login_user_competence(struct login_struct *login);
+boolean login_user_permit(struct login_struct *login);
 #endif

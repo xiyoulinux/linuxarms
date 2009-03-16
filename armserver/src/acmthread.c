@@ -83,25 +83,33 @@ boolean amthread_thread(void *p)
 			 * 错误信息，否则执行重启。
 			 */
 			debug_print("protocol->amthread: 重启arm系统\n");
-			if (!amthread->competence) {
-				amthread->set_protocol(amthread, NOCOMPETENCE);
+			if (!amthread->permit) {
+				amthread->set_protocol(amthread, NOPERMITION);
 				amthread->send(amthread);
 				break;
 			}
+			debug_where();
+			amthread->set_protocol(amthread, RESTART);
+			amthread->send(amthread);
+			debug_where();
 			armserver_do_logout(linuxarms);
+			debug_where();
 			if (system("shutdown -r 0") == -1)
 				print_error(EWARNING, "Can;t restart arm system\n");
+			debug_where();
 			break;
 		case SHUTDOWN:
 			/* 判断用户权限，如果没有权限，则发送没有权限(NOCOMPETENCE)
 			 * 错误信息，否则执行关机。
 			 */
-			debug_print("protocol->amthread: 关闭系统\n");
-			if (!amthread->competence) {
-				amthread->set_protocol(amthread, NOCOMPETENCE);
+			/*debug_print("protocol->amthread: 关闭系统\n");
+			if (!amthread->permit) {
+				amthread->set_protocol(amthread, NOPERMITION);
 				amthread->send(amthread);
 				break;
-			}
+			}*/
+			amthread->set_protocol(amthread, SHUTDOWN);
+			amthread->send(amthread);
 			armserver_do_logout(linuxarms);
 			if (system("shutdown -h 0") == -1)
 				print_error(EWARNING, "Can't close arm system\n");
@@ -149,7 +157,7 @@ boolean amthread_init(struct amthread_struct *amthread, struct user_struct *user
 	amthread->set_protocol = amthread_set_protocol;
 	amthread->send = amthread_send;
 	amthread->recv = amthread_recv;
-	amthread->competence = FALSE;
+	amthread->permit = FALSE;
 
 	amthread->up_lock(amthread);
 	return TRUE;
@@ -251,6 +259,7 @@ void armserver_close_all_thread(struct linuxarms_struct *linuxarms)
 	struct afthread_struct *afthread = linuxarms->afthread;
 	struct asthread_struct *asthread = linuxarms->asthread;
 	struct acthread_struct *acthread = linuxarms->acthread;
+
 	if (asthread->thread.id) {
 		linuxarms_thread_exit(&asthread->thread);
 		close_tcp_server(&asthread->socket);
@@ -294,10 +303,10 @@ protocol_mthread armserver_do_login(struct linuxarms_struct *linuxarms)
 		goto out;
 	}
 	
-	amthread->competence = login_user_competence(login);
-	asthread->competence = login_user_competence(login);
-	afthread->competence = login_user_competence(login);
-	acthread->competence = login_user_competence(login);
+	amthread->permit = login_user_permit(login);
+	asthread->permit = login_user_permit(login);
+	afthread->permit = login_user_permit(login);
+	acthread->permit = login_user_permit(login);
 	debug_where();
 	if (!login_set_env(login)) {
 		protocol = CHECKERR;

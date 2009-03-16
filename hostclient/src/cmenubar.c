@@ -21,7 +21,6 @@
 #include "config.h"
 #include "fview.h"
 
-static void cb_do_logout(struct linuxarms_struct *linuxarms);
 
 void cb_logout_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
@@ -30,7 +29,6 @@ void cb_logout_activate(GtkMenuItem *menuitem, gpointer user_data)
 	
 	hmthread->set_protocol(hmthread, LOGOUT);
 	hmthread->send(hmthread);
-	cb_do_logout(linuxarms);
 }
 
 void cb_restart_activate(GtkMenuItem *menuitem, gpointer user_data)
@@ -39,7 +37,7 @@ void cb_restart_activate(GtkMenuItem *menuitem, gpointer user_data)
 	struct hmthread_struct *hmthread = linuxarms->hmthread;
 	debug_where();
 
-	if (!hmthread->competence) {
+	if (!hmthread->permit) {
 		message_box_error(linuxarms->mwindow->window, 
 				"非root用户，没有权限执行重启arm系统，"
 				"如果要执行，请以root身份登录");
@@ -47,7 +45,6 @@ void cb_restart_activate(GtkMenuItem *menuitem, gpointer user_data)
 	}
 	hmthread->set_protocol(hmthread, RESTART);
 	hmthread->send(hmthread);
-	cb_do_logout(linuxarms);
 }
 
 
@@ -57,7 +54,7 @@ void cb_shutdown_activate(GtkMenuItem *menuitem, gpointer user_data)
 	struct hmthread_struct *hmthread = linuxarms->hmthread;
 	debug_where();
 
-	if (!hmthread->competence) {
+	if (!hmthread->permit) {
 		message_box_error(linuxarms->mwindow->window, 
 				"非root用户，没有权限执行关闭arm系统，"
 				"如果要执行，请以root身份登录");
@@ -65,9 +62,7 @@ void cb_shutdown_activate(GtkMenuItem *menuitem, gpointer user_data)
 	}
 	hmthread->set_protocol(hmthread, SHUTDOWN);
 	hmthread->send(hmthread);
-	cb_do_logout(linuxarms);
 }
-
 void cb_quit_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
 	cb_linuxarms_window_main_close(NULL, user_data);
@@ -107,7 +102,6 @@ void cb_process_update_five_activate(GtkMenuItem *menuitem, gpointer user_data)
 	hsthread_set_timer_time(hsthread, hsprocess->clock);
 	hsthread->set_protocol(hsthread, SPROCESS);
 	hsthread_create_timer(hsthread);
-
 }
 
 void cb_process_show_user_activate(GtkMenuItem  *menuitem, gpointer user_data)
@@ -169,21 +163,7 @@ void cb_help_topic_activate(GtkMenuItem *menuitem, gpointer user_data)
 void cb_help_about_activate(GtkMenuItem *menuitem, gpointer user_data)
 {
 	GtkWidget *window;
-	window=(GtkWidget *)create_window_about();
+	window = (GtkWidget *)create_window_about();
 	gtk_widget_show(window);
 	debug_where();
-
-}
-
-static void cb_do_logout(struct linuxarms_struct *linuxarms)
-{
-	struct hmthread_struct *hmthread = linuxarms->hmthread;
-
-	hostclient_user_logout(linuxarms);
-	hostclient_close_all_thread(linuxarms);
-	debug_where();
-	gtk_widget_destroy(linuxarms->mwindow->window);
-	hostclient_init(linuxarms);
-	create_window_login(linuxarms);
-	hmthread->timer = gtk_timeout_add(50, create_window_main_timeout, (gpointer)linuxarms);
 }

@@ -42,7 +42,7 @@ struct afthread_struct {
 	struct atthread_struct *atthread;
 	struct afthread_trans trans;
 	struct anet_struct socket;
-	boolean competence;
+	boolean permit;
 
 	boolean (*set_protocol)(struct afthread_struct *afthread, 
 				protocol_fthread protocol);

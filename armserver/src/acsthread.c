@@ -36,7 +36,7 @@ boolean asthread_init(struct asthread_struct *asthread,
 	asthread->set_protocol = asthread_set_protocol;
 	asthread->send = asthread_send;
 	asthread->recv = asthread_recv;
-	asthread->competence = FALSE;
+	asthread->permit = FALSE;
 
 	asthread_trans_init(&asthread->trans);
 	anet_init(&asthread->socket, get_localhost_ip(), get_armserver_port());
@@ -57,7 +57,7 @@ void *asthread_thread(void *p)
 	while (asthread->thread.id) {
 		if (!asthread->recv(asthread)) {
 			linuxarms_print("asthread recv data error,exit....\n");
-			exit(1);
+			return NULL;
 		}
 		switch (asthread->trans.protocol) {
 		case SSYSINFO:
