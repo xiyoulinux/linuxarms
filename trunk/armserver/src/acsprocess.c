@@ -168,15 +168,18 @@ boolean asprocess_read_info(struct asprocess_struct *asprocess, int pid)
 	   &p_rss_rlim, &p_start_code, &p_end_code, &p_start_stack
 	);
 	p_vsize /= 1024;
-	// p_rss *= (PAGE_SIZE/1024);
+	p_rss *= (4096 / 1024);
 	if(p_pid != pid) 
 		return FALSE;
 	strcpy(asprocess->trans.name, p_cmd);
 	asprocess->trans.pid = p_pid;
 	strcpy(asprocess->trans.user, user);
 	asprocess->trans.state = p_state;
-	asprocess->trans.cpu = 0.0;
-	asprocess->trans.mem = 0,0;
+	if (p_state == 'R')
+		asprocess->trans.cpu = 10.0;
+	else
+		asprocess->trans.cpu = 0.0;
+	asprocess->trans.mem = p_rss;
 	return TRUE;
 }
 
