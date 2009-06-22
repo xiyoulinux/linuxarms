@@ -45,7 +45,7 @@ GtkWidget *create_page_ssinfo(struct linuxarms_struct *linuxarms)
         gtk_container_set_border_width(GTK_CONTAINER(hbox_notebook), 8);
         GTK_WIDGET_SET_FLAGS(hbox_notebook, GTK_CAN_FOCUS);
         
-        image_sinfo = create_pixmap(window_main, "linuxarms.png");
+        image_sinfo = create_pixmap(window_main, "linuxarms.gif");
         gtk_widget_show(image_sinfo);
         gtk_box_pack_start(GTK_BOX(hbox_notebook), image_sinfo, FALSE, TRUE, 0);
         gtk_widget_set_size_request(image_sinfo, 247, 230);

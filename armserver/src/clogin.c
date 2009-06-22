@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#ifdef HAVE_SHADOW
+#if (HAVE_SHADOW > 0) && (TAG_EPC800 <= 0)
 # include <shadow.h>
 #endif
 
@@ -57,7 +57,7 @@ boolean user_struct_set(struct user_struct *user, char *ip, char *name, char *pa
 boolean login_check_user(struct login_struct *login)
 {
 	struct user_struct *user;
-#ifdef HAVE_SHADOW
+#if (HAVE_SHADOW > 0) && (TAG_EPC800 <= 0)
 	struct spwd *pwd;
 #else
 	struct passwd *pwd;
@@ -71,7 +71,7 @@ boolean login_check_user(struct login_struct *login)
 		login->permit = TRUE;
 	else
 		login->permit = FALSE;
-#ifdef HAVE_SHADOW
+#if (HAVE_SHADOW > 0) && (TAG_EPC800 <= 0)
 	pwd = getspnam(user->name);
 	if (!pwd) {
 		print_error(EWARNING, "the user is not found");

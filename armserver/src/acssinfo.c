@@ -12,6 +12,11 @@
 #define ASSINFO_LINE 10 /* 总的行数 */
 #define ASSINFO_MOVLINE  4 /* 动态的行数 */
 #define INIT_NUM 10
+#if TAG_EPC8000 > 0
+  #define CPU_NAME "Processor"
+#else
+  #define CPU_NAME "model name"
+#endif
 static boolean assinfo_set_protocol(struct assinfo_struct *assinfo, protocol_sthread protocol);
 static boolean assinfo_send(struct assinfo_struct *assinfo);
 static boolean assinfo_recv(struct assinfo_struct *assinfo);
@@ -24,7 +29,7 @@ static struct assinfo_file proc_files[ASSINFO_LINE] = {
 	{"MemFree",    "/proc/meminfo", INIT_NUM},
 	{"MemTotal",   "/proc/meminfo", 0},
 	{"eth0",       "/proc/net/dev", INIT_NUM},
-	{"model name", "/proc/cpuinfo", INIT_NUM},
+	{CPU_NAME, "/proc/cpuinfo", INIT_NUM},
 	{"cpu",        "/proc/stat", 0},
 	{"cpu MHz",    "/proc/cpuinfo", INIT_NUM},
 	{"nokeyword",  "/proc/loadavg", 0}

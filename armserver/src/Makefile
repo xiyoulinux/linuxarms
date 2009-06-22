@@ -1,10 +1,8 @@
-#ARM = 1
-#GTK_THREAD = 1
-ifdef ARM
-CROSS = iwmmxt_le-
-ARMGTK = /usr/local/arm/iwmmxt_le/target
+ifeq ($(ARM) ,1)
+CROSS = /opt/iwmmxt_le/bin/iwmmxt_le-
+ARMGTK = /opt/iwmmxt_le/target
 else
-CROSS =
+CROSS = /usr/bin/
 ARMGTK = 
 endif
 

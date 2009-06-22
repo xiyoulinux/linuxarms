@@ -16,10 +16,10 @@
 #define _CONFIG_H
 
 /* Define if you want to use shadow password expire field */
-#define HAVE_SHADOW 
+#define HAVE_SHADOW 0
 
 /* Define if you run this server in EPC800 system */
-#define HAS_EPC8000
+#define TAG_EPC8000 1
 
 /* Define if you want ot use gthread */
 //#define HAVE_GLIB

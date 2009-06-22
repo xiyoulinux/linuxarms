@@ -1,3 +1,6 @@
+#if you want compile the program for EPC8000 ARM system, you can defined $(ARM) to 1.
+ARM = 1
+export ARM
 CONFIG_DIR = /etc/linuxarms-armserver/
 CONFIG_FILE = ./config
 EXECUTE_DIR = /usr/bin
@@ -5,7 +8,7 @@ RESOURCE_DIR = /usr/share/linuxarms-armserver/
 DRIVE_FILE = ./drive
 srcdir = ./src
 object = armserver
-DEPEND = $(srcdir)/*.c $(srcdir)/*.h
+DEPEND = $(srcdir)/*.c $(srcdir)/*.h ./config.h
 $(object):$(DEPEND)
 	@echo start compiling armserver...
 	(cd ./src;make)
