@@ -21,7 +21,11 @@ Real-Time Management System Based on Arm Linux
 ##友情链接
 
 Google协作平台：http://sites.google.com/site/linuxarms/
+
 西邮Linux兴趣小组主页：http://www.xiyoulinux.cn/
+
 西邮Linux兴趣小组论坛：http://groups.google.com/group/xiyoulinux
+
 Linux内核之旅：http://www.kerneltravel.net/
+
 Linux内核学习小组博客圈：http://blog.chinaunix.net/group/group_1488.html
